@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27004.2010
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ARMOCAD", "ARMOCAD\ARMOCAD.csproj", "{96520E6C-361E-4267-BC0F-A788E663C503}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		2016|Any CPU = 2016|Any CPU
+		2017|Any CPU = 2017|Any CPU
+		2018|Any CPU = 2018|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{96520E6C-361E-4267-BC0F-A788E663C503}.2016|Any CPU.ActiveCfg = 2016|Any CPU
+		{96520E6C-361E-4267-BC0F-A788E663C503}.2016|Any CPU.Build.0 = 2016|Any CPU
+		{96520E6C-361E-4267-BC0F-A788E663C503}.2017|Any CPU.ActiveCfg = 2017|Any CPU
+		{96520E6C-361E-4267-BC0F-A788E663C503}.2017|Any CPU.Build.0 = 2017|Any CPU
+		{96520E6C-361E-4267-BC0F-A788E663C503}.2018|Any CPU.ActiveCfg = 2018|Any CPU
+		{96520E6C-361E-4267-BC0F-A788E663C503}.2018|Any CPU.Build.0 = 2018|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {88B36D3F-E023-48EE-9CB9-36EF83AA0C32}
+	EndGlobalSection
+EndGlobal

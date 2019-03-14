@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+  <AddIn Type="Application">
+    <Name>ARMOProgrammsForRevit</Name>
+    <Assembly>ARMOCAD\ARMOCAD.dll</Assembly>
+    <ClientId>ecd618a2-7777-4958-a73e-a0b9ccce0722</ClientId>
+    <FullClassName>ARMOCAD.App</FullClassName>
+    <VendorId>AS and PS</VendorId>
+    <VendorDescription>a-suchkova@armo.ru p-sukhov@armo.ru</VendorDescription>
+  </AddIn>
+</RevitAddIns>
