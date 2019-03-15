@@ -8,10 +8,10 @@ namespace ARMOCAD
   static class SocketNumbering
   {
     /// <summary>
-    /// метод возвращает группы розеток по параметру Розетка - Система
+    /// группировка розеток для Кроссовых шкафов, для Серверных(с функцией Кроссовых) группировать не надо
     /// </summary>
     /// <param name="shelfAndSockets"></param>
-    /// <returns></returns>
+    /// <returns> группы розеток по параметру "Розетка - Система" </returns>
     public static List<IEnumerable<Socket>> groupingSocketsByPurpose(ShelfAndSockets shelfAndSockets)
     {
       List<Socket> socList = shelfAndSockets.socketList;
@@ -24,23 +24,32 @@ namespace ARMOCAD
         i.shelfNumber = panelName;
       }
 
-      var serviceSockets = socList.Where(i =>
-        i.system == "СБ");
-      var userSockets = socList.Where(i =>
-        i.system == "СП");
-
-      //var socketPurposes = new List<IEnumerable<Socket>> { serviceSockets, userSockets };
-
       List<IEnumerable<Socket>> socketPurposes = new List<IEnumerable<Socket>>();
 
-      if (serviceSockets.Count() > 0)
+      // Разделение розеток на системы, если шкаф Кроссовый
+      if (shelf.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString() == "Шкаф СКС: Кроссовый")
       {
-        socketPurposes.Add(serviceSockets);
+        var serviceSockets = socList.Where(i =>
+          i.system == "СБ");
+        var userSockets = socList.Where(i =>
+          i.system == "СП");
+
+        if (serviceSockets.Count() > 0) {
+          socketPurposes.Add(serviceSockets);
+        }
+        if (userSockets.Count() > 0) {
+          socketPurposes.Add(userSockets);
+        }
       }
-      if (userSockets.Count() > 0)
+      // для Серверно-кроссового не разделяем
+      else if (shelf.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString() == "Шкаф СКС: Серверно-кроссовый") 
       {
-        socketPurposes.Add(userSockets);
+        if (socList.Count > 0)
+        {
+          socketPurposes.Add(socList);
+        }
       }
+      
 
 
       return socketPurposes;

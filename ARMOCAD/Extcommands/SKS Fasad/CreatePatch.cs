@@ -18,7 +18,7 @@ namespace ARMOCAD
                                     FamilySymbol frameSymbol,
                                     string shelfName)
     {
-      createFasadeDetail(doc, 0, frameSymbol, view, shelfName, "б/н", "Сетевой шкаф");
+      createFasadeDetail(doc, 0, frameSymbol, view, shelfName, "б/н", "Сетевой шкаф", 0.0);
      
     }
 
@@ -43,10 +43,10 @@ namespace ARMOCAD
     {
       double y = point.Y;
 
-      y = createFasadeDetail(doc, y, patch24Symbol, view, shelfName, "4", "Патч-панель RG 45");
-      y = createFasadeDetail(doc, y, orgSymbol, view, shelfName, "5", "Кабельный организатор");
-      y = createFasadeDetail(doc, y, commut24Symbol, view, shelfName, "2", "Коммутатор 24");
-      y = createFasadeDetail(doc, y, orgSymbol, view, shelfName, "5", "Кабельный организатор");
+      y = createFasadeDetail(doc, y, patch24Symbol, view, shelfName, "4", "Патч-панель RG 45", 45.0);
+      y = createFasadeDetail(doc, y, orgSymbol, view, shelfName, "5", "Кабельный организатор", 45.0);
+      y = createFasadeDetail(doc, y, commut24Symbol, view, shelfName, "2", "Коммутатор 24", 45.0);
+      y = createFasadeDetail(doc, y, orgSymbol, view, shelfName, "5", "Кабельный организатор", 45.0);
       
       point = new XYZ(0, y, 0);
       return point;
@@ -73,11 +73,11 @@ namespace ARMOCAD
     {
       double y = point.Y;
 
-      y = createFasadeDetail(doc, y, patch24Symbol, view, shelfName, "4", "Патч-панель RG 45");
-      y = createFasadeDetail(doc, y, orgSymbol, view, shelfName, "5", "Кабельный организатор");
-      y = createFasadeDetail(doc, y, commut48Symbol, view, shelfName, "1", "Коммутатор 48");
-      y = createFasadeDetail(doc, y, orgSymbol, view, shelfName, "5", "Кабельный организатор");
-      y = createFasadeDetail(doc, y, patch24Symbol, view, shelfName, "4", "Патч-панель RG 45");
+      y = createFasadeDetail(doc, y, patch24Symbol, view, shelfName, "4", "Патч-панель RG 45", 45.0);
+      y = createFasadeDetail(doc, y, orgSymbol, view, shelfName, "5", "Кабельный организатор", 45.0);
+      y = createFasadeDetail(doc, y, commut48Symbol, view, shelfName, "1", "Коммутатор 48", 45.0);
+      y = createFasadeDetail(doc, y, orgSymbol, view, shelfName, "5", "Кабельный организатор", 45.0);
+      y = createFasadeDetail(doc, y, patch24Symbol, view, shelfName, "4", "Патч-панель RG 45", 45.0);
 
       point = new XYZ(0, y, 0);
       return point;
@@ -103,13 +103,41 @@ namespace ARMOCAD
       double y = point.Y - 45.0 / 304.8;
 
 
-      y = createFasadeDetail(doc, y, shkos1U32Symbol, view, shelfName, "3", "Оптическая патч-панель");
-      y = createFasadeDetail(doc, y, orgSymbol, view, shelfName, "5", "Кабельный организатор");
+      y = createFasadeDetail(doc, y, shkos1U32Symbol, view, shelfName, "3", "Оптическая патч-панель", 45.0);
+      y = createFasadeDetail(doc, y, orgSymbol, view, shelfName, "5", "Кабельный организатор", 45.0);
 
       point = new XYZ(0, y, 0);
       return point;
     }
 
+    public static XYZ createServer(
+      Document doc,
+      ViewDrafting view,
+      XYZ point,
+      FamilySymbol shkos2U96Symbol,
+      FamilySymbol core24sSymbol,
+      FamilySymbol core24tSymbol,
+      FamilySymbol routerSymbol,
+      string shelfName)
+    {
+      double y = point.Y - 45.0 / 304.8;
+
+      y = createFasadeDetail(doc, y, shkos2U96Symbol, view, shelfName, "3", "Оптическая патч-панель", 90.0);
+      y = createFasadeDetail(doc, y, shkos2U96Symbol, view, shelfName, "3", "Оптическая патч-панель", 90.0);
+      y = createFasadeDetail(doc, y, shkos2U96Symbol, view, shelfName, "3", "Оптическая патч-панель", 90.0);
+
+      y = createFasadeDetail(doc, y, core24sSymbol, view, shelfName, "6", "Ядро сети Cisco WS-C3750X-24S-S", 45.0);
+      y = createFasadeDetail(doc, y, core24tSymbol, view, shelfName, "7", "Ядро сети Cisco WS-C3750X-24T-S", 45.0);
+
+      y -= 45.0 / 304.8;
+
+      y = createFasadeDetail(doc, y, routerSymbol, view, shelfName, "8", "Маршрутизатор CISCO", 90.0);
+
+      y -= 45.0 / 304.8;
+
+      point = new XYZ(0, y, 0);
+      return point;
+    }
 
 
     public static XYZ createPatch24Scheme(
@@ -300,13 +328,14 @@ namespace ARMOCAD
       ViewDrafting view,
       string shelfName,
       string position,
-      string name)
+      string name,
+      double h)
     {
       var detail = doc.Create.NewFamilyInstance(new XYZ(0, y, 0), symbol, view);
       detail.LookupParameter("Панель - Имя шкафа").Set(shelfName);
       detail.LookupParameter("AG_Spc_Позиция").Set(position);
       detail.LookupParameter("AG_Spc_Наименование").Set(name);
-      y -= 45.0 / 304.8;
+      y -= h / 304.8;
       return y;
     }
 

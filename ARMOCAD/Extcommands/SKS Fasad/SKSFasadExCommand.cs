@@ -59,6 +59,10 @@ namespace ARMOCAD
           FamilySymbol commut24Symbol = symbols.First(i => i.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_NAME).AsString() == "Ф_Коммутатор 24 RG45") as FamilySymbol;
           FamilySymbol commut48Symbol = symbols.First(i => i.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_NAME).AsString() == "Ф_Коммутатор 48 RG45") as FamilySymbol;
           FamilySymbol shkos1U32Symbol = symbols.First(i => i.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_NAME).AsString() == "Ф_Шкос 1U 32 волокон") as FamilySymbol;
+          FamilySymbol shkos2U96Symbol = symbols.First(i => i.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_NAME).AsString() == "Ф_Шкос 2U 96 волокон") as FamilySymbol;
+          FamilySymbol core24sSymbol = symbols.First(i => i.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_NAME).AsString() == "Ф_Коммутатор Cisco WS-C3750X-24S-S") as FamilySymbol;
+          FamilySymbol core24tSymbol = symbols.First(i => i.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_NAME).AsString() == "Ф_Коммутатор Cisco WS-C3750X-24T-S") as FamilySymbol;
+          FamilySymbol routerSymbol = symbols.First(i => i.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_NAME).AsString() == "Ф_Маршрутизатор CISCO2921") as FamilySymbol;
 
           FamilySymbol patch24SchemeSymbol = symbols.First(i => i.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_NAME).AsString() == "С_Патч-панель 24 RG45") as FamilySymbol;
           FamilySymbol commut48SchemeSymbol = symbols.First(i => i.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_NAME).AsString() == "С_Коммутатор 48 RG45") as FamilySymbol;
@@ -82,19 +86,35 @@ namespace ARMOCAD
           commut24Symbol.Activate();
           commut48Symbol.Activate();
           shkos1U32Symbol.Activate();
+          shkos2U96Symbol.Activate();
           patch24SchemeSymbol.Activate();
           commut48SchemeSymbol.Activate();
           commut24SchemeSymbol.Activate();
           shkosSchemeSymbol.Activate();
+          core24sSymbol.Activate();
+          core24tSymbol.Activate();
+          routerSymbol.Activate();
+
+
+
 
           foreach (Level level in levels)
           {
-            // шкафы СКС на данном уровне
+            // шкафы СКС на данном уровне, в которые собираются розетки
             IList<Element> shelfs = new FilteredElementCollector(doc)
               .OfCategory(BuiltInCategory.OST_CommunicationDevices)
               .WhereElementIsNotElementType()
-              .Where(i => i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == "Стойка СКС" &&
+              .Where(i => (i.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString() == "Шкаф СКС: Кроссовый" |
+                          i.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString() == "Шкаф СКС: Серверно-кроссовый") &&
                           i.LevelId == level.Id).ToList();
+
+            // серверные шкафы СКС (без розеток)
+            IList<Element> serverShelfs = new FilteredElementCollector(doc)
+              .OfCategory(BuiltInCategory.OST_CommunicationDevices)
+              .WhereElementIsNotElementType()
+              .Where(i => i.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString() == "Шкаф СКС: Серверный" &&
+                          i.LevelId == level.Id).ToList();
+
 
             // розетки на данном уровне
             IList<Element> sockets = new FilteredElementCollector(doc)
@@ -173,6 +193,22 @@ namespace ARMOCAD
                 }
               }
 
+
+              //добавляем Cерверные шкафы в общий список
+              foreach (var i in serverShelfs)
+              {
+                ShelfAndSockets sas = new ShelfAndSockets();
+                sas.shelf = i;
+                shelfAndSockets.Add(sas);
+              }
+
+
+
+
+
+
+
+
               //имена существующих чертежных видов
               var viewCreatedNames = ViewDraftingCreate.viewDraftingNames(doc);
 
@@ -216,18 +252,41 @@ namespace ARMOCAD
                 XYZ pointFacade = new XYZ(0, 0, 0);
                 XYZ pointScheme = new XYZ(0, 0, 0);
 
+                // Создаем серверную часть на фасадах, если шкаф Серверный или Серверно-кроссовый
+
+                if (shelf.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString() ==
+                    "Шкаф СКС: Серверный" |
+                    shelf.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString() ==
+                    "Шкаф СКС: Серверно-кроссовый")
+                {
+                  pointFacade = CreatePatch.createServer(doc, viewFasade, pointFacade, shkos2U96Symbol, core24sSymbol,
+                    core24tSymbol, routerSymbol, shelfName);
+                }
+
+
+
+
+
 
                 foreach (var group in socketGroups)
                 {
                   countPorts = SocketNumbering.countPorts(group);
                   countCommuts = countOfCommuts(countPorts);
-                  lengthYShkos = (countCommuts * (260 + 150) - 130) / 304.8; // длина проводка у шкоса на схемах
+                  
 
                   List<string> portsNames = SocketNumbering.socketMarking(group, countPorts);
 
-                  pointFacade = CreatePatch.createShkos(doc, viewFasade, pointFacade, shkos1U32Symbol, orgSymbol, shelfName);
+                  //Создаем шкосы если шкаф Кроссовый
+                  if (shelf.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString() ==
+                      "Шкаф СКС: Кроссовый")
+                  {
+                    pointFacade = CreatePatch.createShkos(doc, viewFasade, pointFacade, shkos1U32Symbol, orgSymbol, shelfName);
+                  }
+
+                  lengthYShkos = (countCommuts * (260 + 150) - 130) / 304.8; // длина проводка у шкоса на схемах
                   pointScheme = CreatePatch.createShkosScheme(doc, viewScheme, pointScheme, countCommuts, lengthYShkos,
                     shkosSchemeSymbol);
+
                   commutNumber = 1;
                   
                   while (countPorts > 0)
