@@ -38,10 +38,9 @@ namespace ARMOCAD
       UIApplication ui_app = commandData.Application;
       UIDocument ui_doc = ui_app?.ActiveUIDocument;
       Document doc = ui_doc?.Document;
-      try
-      {
-        using (Transaction t = new Transaction(doc, "SKSFasad"))
-        {
+
+      try {
+        using (Transaction t = new Transaction(doc, "SKSFasad")) {
           t.Start();
 
           var levels = new FilteredElementCollector(doc)
@@ -98,8 +97,7 @@ namespace ARMOCAD
 
 
 
-          foreach (Level level in levels)
-          {
+          foreach (Level level in levels) {
             // шкафы СКС на данном уровне, в которые собираются розетки
             IList<Element> shelfs = new FilteredElementCollector(doc)
               .OfCategory(BuiltInCategory.OST_CommunicationDevices)
@@ -125,12 +123,10 @@ namespace ARMOCAD
                           i.LookupParameter("Розетка - Система")?.AsString() != null).ToList();
 
 
-            if (shelfs.Count > 0 && sockets.Count > 0)
-            {
+            if (shelfs.Count > 0 && sockets.Count > 0) {
               // собираем шкафы и соответствующие им розетки в класс ShelfAndSockets
               List<ShelfAndSockets> shelfAndSockets = new List<ShelfAndSockets>();
-              foreach (var i in shelfs)
-              {
+              foreach (var i in shelfs) {
                 ShelfAndSockets sas = new ShelfAndSockets();
                 sas.shelf = i;
                 shelfAndSockets.Add(sas);
@@ -138,8 +134,7 @@ namespace ARMOCAD
 
               List<Element> errorSockets = new List<Element>(); //розетки, которые не входят в радиус ни одного шкафа (90 м)
 
-              foreach (var s in sockets)
-              {
+              foreach (var s in sockets) {
                 XYZ locSocket = ((LocationPoint)s.Location).Point;
 
                 //ближайший шкаф к розетке
@@ -148,26 +143,21 @@ namespace ARMOCAD
 
                 XYZ locNearestShelf = ((LocationPoint)nearestShelf.shelf.Location).Point;
 
-                if (locSocket.DistanceTo(locNearestShelf) < 90000 / 304.8)
-                {
+                if (locSocket.DistanceTo(locNearestShelf) < 90000 / 304.8) {
                   // сбор информации о розетке
                   Socket socket = new Socket();
                   socket.socket = s;
 
                   string nameOfSocketSymbol = ((FamilyInstance)s).Symbol.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_COMMENTS)
                     .AsString();
-                  if (nameOfSocketSymbol == null || nameOfSocketSymbol == "")
-                  {
+                  if (nameOfSocketSymbol == null || nameOfSocketSymbol == "") {
                     nameOfSocketSymbol = "Розетка неизвестная";
                   }
                   socket.symbolId = socketSymbols.Where(i => i.Name == nameOfSocketSymbol).First().Id;
 
-                  if (((FamilyInstance) s).Symbol.LookupParameter("2xRJ45").AsInteger() == 1)
-                  {
+                  if (((FamilyInstance)s).Symbol.LookupParameter("2xRJ45").AsInteger() == 1) {
                     socket.countOfPorts = 2;
-                  }
-                  else
-                  {
+                  } else {
                     socket.countOfPorts = 1;
                   }
 
@@ -176,27 +166,21 @@ namespace ARMOCAD
                   socket.socketComment = s.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).AsString();
 
                   var space = ((FamilyInstance)s).Space;
-                  if (space != null)
-                  {
+                  if (space != null) {
                     socket.roomNumber = space.Number;
-                  }
-                  else
-                  {
+                  } else {
                     socket.roomNumber = "";
                   }
 
                   nearestShelf.socketList.Add(socket);
-                }
-                else
-                {
+                } else {
                   errorSockets.Add(s);
                 }
               }
 
 
               //добавляем Cерверные шкафы в общий список
-              foreach (var i in serverShelfs)
-              {
+              foreach (var i in serverShelfs) {
                 ShelfAndSockets sas = new ShelfAndSockets();
                 sas.shelf = i;
                 shelfAndSockets.Add(sas);
@@ -230,13 +214,14 @@ namespace ARMOCAD
               int countCommuts;
               int commutNumber;
               double lengthYShkos;
+              int typeOfCommutators;
 
-              foreach (var i in shelfAndSockets)
-              {
+              foreach (var i in shelfAndSockets) {
                 var socketGroups = SocketNumbering.groupingSocketsByPurpose(i);
 
                 Element shelf = i.shelf;
                 shelfName = shelf.get_Parameter(BuiltInParameter.DOOR_NUMBER).AsString();
+                typeOfCommutators = shelf.LookupParameter("Коммутаторы по 24 порта").AsInteger();
 
                 viewFasadeName = createViewName("СКС Фасад", shelfName, viewCreatedNames);
                 viewSchemeName = createViewName("СКС Схема", shelfName, viewCreatedNames);
@@ -257,8 +242,7 @@ namespace ARMOCAD
                 if (shelf.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString() ==
                     "Шкаф СКС: Серверный" |
                     shelf.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString() ==
-                    "Шкаф СКС: Серверно-кроссовый")
-                {
+                    "Шкаф СКС: Серверно-кроссовый") {
                   pointFacade = CreatePatch.createServer(doc, viewFasade, pointFacade, shkos2U96Symbol, core24sSymbol,
                     core24tSymbol, routerSymbol, shelfName);
                 }
@@ -268,74 +252,106 @@ namespace ARMOCAD
 
 
 
-                foreach (var group in socketGroups)
-                {
+                foreach (var group in socketGroups) {
                   countPorts = SocketNumbering.countPorts(group);
-                  countCommuts = countOfCommuts(countPorts);
-                  
+                  countCommuts = countOfCommuts(countPorts, typeOfCommutators);
+
 
                   List<string> portsNames = SocketNumbering.socketMarking(group, countPorts);
 
                   //Создаем шкосы если шкаф Кроссовый
                   if (shelf.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString() ==
-                      "Шкаф СКС: Кроссовый")
-                  {
+                      "Шкаф СКС: Кроссовый") {
                     pointFacade = CreatePatch.createShkos(doc, viewFasade, pointFacade, shkos1U32Symbol, orgSymbol, shelfName);
                   }
 
-                  lengthYShkos = (countCommuts * (260 + 150) - 130) / 304.8; // длина проводка у шкоса на схемах
-                  pointScheme = CreatePatch.createShkosScheme(doc, viewScheme, pointScheme, countCommuts, lengthYShkos,
-                    shkosSchemeSymbol);
+
 
                   commutNumber = 1;
-                  
-                  while (countPorts > 0)
-                  {
-                    if (countPorts > 24)
-                    {
-                      portNamesForPatch1 = portsNames.GetRange(0, 24);
-                      portsNames.RemoveRange(0, 24);
-                      if (countPorts > 48)
-                      {
-                        portNamesForPatch2 = portsNames.GetRange(0, 24);
+
+                  //алгоритм для 48-портовых коммутаторов
+                  if (typeOfCommutators == 0) {
+
+                    lengthYShkos = (countCommuts * (260 + 150) - 130) / 304.8; // длина проводка у шкоса на схемах
+                    pointScheme = CreatePatch.createShkosScheme(doc, viewScheme, pointScheme, countCommuts, lengthYShkos,
+                      shkosSchemeSymbol);
+
+                    while (countPorts > 0) {
+                      if (countPorts > 24) {
+                        portNamesForPatch1 = portsNames.GetRange(0, 24);
                         portsNames.RemoveRange(0, 24);
+                        if (countPorts > 48) {
+                          portNamesForPatch2 = portsNames.GetRange(0, 24);
+                          portsNames.RemoveRange(0, 24);
+                        } else {
+                          portNamesForPatch2 = portsNames;
+                        }
+
+                        socketSymbolsIdsPatch1 = SocketGraphicElementIds(group, portNamesForPatch1);
+                        socketSymbolsIdsPatch2 = SocketGraphicElementIds(group, portNamesForPatch2);
+
+                        socketRoomsForPatch1 = SocketRoomNumbers(group, portNamesForPatch1);
+                        socketRoomsForPatch2 = SocketRoomNumbers(group, portNamesForPatch2);
+
+                        pointFacade = CreatePatch.createPatch48(doc,
+                          viewFasade,
+                          pointFacade,
+                          patch24Symbol,
+                          orgSymbol,
+                          commut48Symbol,
+                          shelfName);
+
+                        pointScheme = CreatePatch.createPatch48Scheme(doc,
+                          viewScheme,
+                          pointScheme,
+                          commutNumber.ToString(),
+                          patch24SchemeSymbol,
+                          commut48SchemeSymbol,
+                          portNamesForPatch1,
+                          portNamesForPatch2,
+                          socketSymbolsIdsPatch1,
+                          socketSymbolsIdsPatch2,
+                          socketRoomsForPatch1,
+                          socketRoomsForPatch2);
+
+                        countPorts -= 48;
+                      } else {
+                        pointFacade = CreatePatch.createPatch24(doc,
+                          viewFasade,
+                          pointFacade,
+                          patch24Symbol,
+                          orgSymbol,
+                          commut24Symbol,
+                          shelfName);
+
+                        portNamesForPatch1 = portsNames;
+                        socketSymbolsIdsPatch1 = SocketGraphicElementIds(group, portNamesForPatch1);
+                        socketRoomsForPatch1 = SocketRoomNumbers(group, portNamesForPatch1);
+
+                        pointScheme = CreatePatch.createPatch24Scheme(doc,
+                          viewScheme,
+                          pointScheme,
+                          commutNumber.ToString(),
+                          patch24SchemeSymbol,
+                          commut24SchemeSymbol,
+                          portNamesForPatch1,
+                          socketSymbolsIdsPatch1,
+                          socketRoomsForPatch1);
+
+
+                        countPorts -= 24;
                       }
-                      else
-                      {
-                        portNamesForPatch2 = portsNames;
-                      }
-
-                      socketSymbolsIdsPatch1 = SocketGraphicElementIds(group, portNamesForPatch1);
-                      socketSymbolsIdsPatch2 = SocketGraphicElementIds(group, portNamesForPatch2);
-
-                      socketRoomsForPatch1 = SocketRoomNumbers(group, portNamesForPatch1);
-                      socketRoomsForPatch2 = SocketRoomNumbers(group, portNamesForPatch2);
-
-                      pointFacade = CreatePatch.createPatch48(doc,
-                        viewFasade,
-                        pointFacade,
-                        patch24Symbol,
-                        orgSymbol,
-                        commut48Symbol,
-                        shelfName);
-
-                      pointScheme = CreatePatch.createPatch48Scheme(doc,
-                        viewScheme,
-                        pointScheme,
-                        commutNumber.ToString(),
-                        patch24SchemeSymbol,
-                        commut48SchemeSymbol,
-                        portNamesForPatch1,
-                        portNamesForPatch2,
-                        socketSymbolsIdsPatch1,
-                        socketSymbolsIdsPatch2,
-                        socketRoomsForPatch1,
-                        socketRoomsForPatch2);
-
-                      countPorts -= 48;
+                      commutNumber++;
                     }
-                    else
-                    {
+                  }
+                  //алгоритм для 24-портовых
+                  else if (typeOfCommutators == 1) {
+
+                    lengthYShkos = countCommuts * 280 / 304.8; // длина проводка у шкоса на схемах
+                    pointScheme = CreatePatch.createShkosScheme(doc, viewScheme, pointScheme, countCommuts, lengthYShkos,
+                      shkosSchemeSymbol);
+
+                    while (countPorts > 0) {
                       pointFacade = CreatePatch.createPatch24(doc,
                         viewFasade,
                         pointFacade,
@@ -343,8 +359,12 @@ namespace ARMOCAD
                         orgSymbol,
                         commut24Symbol,
                         shelfName);
-
-                      portNamesForPatch1 = portsNames;
+                      if (countPorts > 24) {
+                        portNamesForPatch1 = portsNames.GetRange(0, 24);
+                        portsNames.RemoveRange(0, 24);
+                      } else {
+                        portNamesForPatch1 = portsNames;
+                      }
                       socketSymbolsIdsPatch1 = SocketGraphicElementIds(group, portNamesForPatch1);
                       socketRoomsForPatch1 = SocketRoomNumbers(group, portNamesForPatch1);
 
@@ -358,15 +378,14 @@ namespace ARMOCAD
                         socketSymbolsIdsPatch1,
                         socketRoomsForPatch1);
 
-
                       countPorts -= 24;
+                      commutNumber++;
                     }
-                    commutNumber++;
+                    
                   }
 
 
-                  foreach (var s in group)
-                  {
+                  foreach (var s in group) {
                     Parameter parMark1 = s.socket.LookupParameter("Розетка - Марка 1");
                     Parameter parMark2 = s.socket.LookupParameter("Розетка - Марка 2");
 
@@ -388,7 +407,7 @@ namespace ARMOCAD
 
 
                 }
-                
+
               }
 
             }
@@ -404,13 +423,11 @@ namespace ARMOCAD
         return Result.Succeeded;
       }
       // This is where we "catch" potential errors and define how to deal with them
-      catch (Autodesk.Revit.Exceptions.OperationCanceledException)
-      {
+      catch (Autodesk.Revit.Exceptions.OperationCanceledException) {
         // If user decided to cancel the operation return Result.Canceled
         return Result.Cancelled;
       }
-      catch (Exception ex)
-      {
+      catch (Exception ex) {
         // If something went wrong return Result.Failed
         message = ex.Message;
         return Result.Failed;
@@ -430,8 +447,7 @@ namespace ARMOCAD
       viewName = String.Format("{0} {1}_1", prefix, shelfName);
       viewNameCore = String.Format("{0} {1}", prefix, shelfName);
 
-      if (viewCreatedNames.Contains(viewName))
-      {
+      if (viewCreatedNames.Contains(viewName)) {
         maxNumView = viewCreatedNames.Where(a => a.Contains(viewNameCore)).OrderBy(a => Convert.ToInt32(a.Split('_').Last())).Last().Split('_').Last();
         var viewNameSplit = viewName.Split('_');
         viewNamePart1 = viewNameSplit[0];
@@ -447,8 +463,7 @@ namespace ARMOCAD
     {
       List<ElementId> idList = new List<ElementId>();
 
-      foreach (var port in portNamesForPatch)
-      {
+      foreach (var port in portNamesForPatch) {
         var s = sockets.Where(i => i.mark1 == port | i.mark2 == port).First();
         idList.Add(s.symbolId);
       }
@@ -460,8 +475,7 @@ namespace ARMOCAD
     {
       List<string> roomList = new List<string>();
 
-      foreach (var port in portNamesForPatch)
-      {
+      foreach (var port in portNamesForPatch) {
         var s = sockets.Where(i => i.mark1 == port | i.mark2 == port).First();
         roomList.Add(s.roomNumber);
       }
@@ -470,23 +484,28 @@ namespace ARMOCAD
     }
 
 
-    public int countOfCommuts(int ports)
+    public int countOfCommuts(int ports, int typeOfCommutators)
     {
       int commuts;
-      if (ports % 48 > 0)
-      {
-        commuts = ports / 48 + 1;
+      int totalOnCommutator = 0;
+
+      if (typeOfCommutators == 1) {
+        totalOnCommutator = 24;
+      } else if (typeOfCommutators == 0) {
+        totalOnCommutator = 48;
       }
-      else
-      {
-        commuts = ports / 48;
+
+      if (ports % totalOnCommutator > 0) {
+        commuts = ports / totalOnCommutator + 1;
+      } else {
+        commuts = ports / totalOnCommutator;
       }
 
       return commuts;
     }
 
-    
 
-    
+
+
   }
 }
