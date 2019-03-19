@@ -205,6 +205,9 @@ namespace ARMOCAD
               List<ElementId> socketSymbolsIdsPatch1;
               List<ElementId> socketSymbolsIdsPatch2;
 
+              char patch1Number;
+              char patch2Number;
+
 
               string viewFasadeName;
               string viewSchemeName;
@@ -265,7 +268,7 @@ namespace ARMOCAD
                     pointFacade = CreatePatch.createShkos(doc, viewFasade, pointFacade, shkos1U32Symbol, orgSymbol, shelfName);
                   }
 
-
+                  string literals = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
                   commutNumber = 1;
 
@@ -293,6 +296,11 @@ namespace ARMOCAD
                         socketRoomsForPatch1 = SocketRoomNumbers(group, portNamesForPatch1);
                         socketRoomsForPatch2 = SocketRoomNumbers(group, portNamesForPatch2);
 
+                        patch1Number = literals[0];
+                        literals = literals.Remove(0, 1);
+                        patch2Number = literals[0];
+                        literals = literals.Remove(0, 1);
+
                         pointFacade = CreatePatch.createPatch48(doc,
                           viewFasade,
                           pointFacade,
@@ -312,7 +320,9 @@ namespace ARMOCAD
                           socketSymbolsIdsPatch1,
                           socketSymbolsIdsPatch2,
                           socketRoomsForPatch1,
-                          socketRoomsForPatch2);
+                          socketRoomsForPatch2,
+                          patch1Number,
+                          patch2Number);
 
                         countPorts -= 48;
                       } else {
@@ -327,6 +337,8 @@ namespace ARMOCAD
                         portNamesForPatch1 = portsNames;
                         socketSymbolsIdsPatch1 = SocketGraphicElementIds(group, portNamesForPatch1);
                         socketRoomsForPatch1 = SocketRoomNumbers(group, portNamesForPatch1);
+                        patch1Number = literals[0];
+                        literals = literals.Remove(0, 1);
 
                         pointScheme = CreatePatch.createPatch24Scheme(doc,
                           viewScheme,
@@ -336,7 +348,8 @@ namespace ARMOCAD
                           commut24SchemeSymbol,
                           portNamesForPatch1,
                           socketSymbolsIdsPatch1,
-                          socketRoomsForPatch1);
+                          socketRoomsForPatch1,
+                          patch1Number);
 
 
                         countPorts -= 24;
@@ -367,6 +380,8 @@ namespace ARMOCAD
                       }
                       socketSymbolsIdsPatch1 = SocketGraphicElementIds(group, portNamesForPatch1);
                       socketRoomsForPatch1 = SocketRoomNumbers(group, portNamesForPatch1);
+                      patch1Number = literals[0];
+                      literals = literals.Remove(0, 1);
 
                       pointScheme = CreatePatch.createPatch24Scheme(doc,
                         viewScheme,
@@ -376,7 +391,8 @@ namespace ARMOCAD
                         commut24SchemeSymbol,
                         portNamesForPatch1,
                         socketSymbolsIdsPatch1,
-                        socketRoomsForPatch1);
+                        socketRoomsForPatch1,
+                        patch1Number);
 
                       countPorts -= 24;
                       commutNumber++;

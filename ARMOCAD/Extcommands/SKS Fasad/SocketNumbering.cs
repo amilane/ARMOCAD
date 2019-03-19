@@ -19,16 +19,14 @@ namespace ARMOCAD
       string panelName = shelf.get_Parameter(BuiltInParameter.DOOR_NUMBER).AsString();
 
       //дополнительно - марку щита в розетки
-      foreach (var i in socList)
-      {
+      foreach (var i in socList) {
         i.shelfNumber = panelName;
       }
 
       List<IEnumerable<Socket>> socketPurposes = new List<IEnumerable<Socket>>();
 
       // Разделение розеток на системы, если шкаф Кроссовый
-      if (shelf.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString() == "Шкаф СКС: Кроссовый")
-      {
+      if (shelf.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString() == "Шкаф СКС: Кроссовый") {
         var serviceSockets = socList.Where(i =>
           i.system == "СБ");
         var userSockets = socList.Where(i =>
@@ -42,14 +40,12 @@ namespace ARMOCAD
         }
       }
       // для Серверно-кроссового не разделяем
-      else if (shelf.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString() == "Шкаф СКС: Серверно-кроссовый") 
-      {
-        if (socList.Count > 0)
-        {
+      else if (shelf.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString() == "Шкаф СКС: Серверно-кроссовый") {
+        if (socList.Count > 0) {
           socketPurposes.Add(socList);
         }
       }
-      
+
 
 
       return socketPurposes;
@@ -63,10 +59,8 @@ namespace ARMOCAD
     public static int countPorts(IEnumerable<Socket> socketGroup)
     {
       int c = 0;
-      if (socketGroup.Count() > 0)
-      {
-        foreach (var s in socketGroup)
-        {
+      if (socketGroup.Count() > 0) {
+        foreach (var s in socketGroup) {
           c += s.countOfPorts;
         }
       }
@@ -82,24 +76,15 @@ namespace ARMOCAD
     /// <param name="shelf"></param>
     public static List<string> socketMarking(IEnumerable<Socket> sockets, int countOfPorts)
     {
-      int nWifi = 1;
-      int nNet = 1;
-      int nCam = 1;
-      int nPhone = 1;
       int currentPort = 0;
 
-      string numberPatchAndCommut1;
-      string numberPatchAndCommut2;
+      string numberPatch1;
+      string numberPatch2;
       string markSocket1;
       string markSocket2;
       string mark1Value = "";
       string mark2Value = "";
-      string comment;
-      string fullMark1Value;
-      string fullMark2Value;
       string prefixPurpose = "";
-      string prefixComment1 = "";
-      string prefixComment2 = "";
       string prefixCheck = "";
       string shelfNumber = "";
 
@@ -108,94 +93,38 @@ namespace ARMOCAD
 
       //Определяем префикс для розеток
       //S - security (СБ) / U - user (СП)
-      if (sockets.Count() > 0)
-      {
+      if (sockets.Count() > 0) {
         prefixCheck = sockets.First().system;
         shelfNumber = sockets.First().shelfNumber;
       }
 
-      if (prefixCheck == "СБ")
-      {
+      if (prefixCheck == "СБ") {
         prefixPurpose = "S";
-      }
-      else if (prefixCheck == "СП")
-      {
+      } else if (prefixCheck == "СП") {
         prefixPurpose = "U";
       }
 
       //двойные розетки
       var doubleSockets = sockets.Where(i => i.countOfPorts == 2);
 
-      foreach (var s in doubleSockets)
-      {
+      foreach (var s in doubleSockets) {
         currentPort += 1;
-        numberPatchAndCommut1 = currentPatchAndCommut(countOfPorts, currentPort);
+        numberPatch1 = currentPatch(countOfPorts, currentPort);
+        mark1Value = currentPlaceInPatch(currentPort);
 
         currentPort += 1;
-        numberPatchAndCommut2 = currentPatchAndCommut(countOfPorts, currentPort);
+        numberPatch2 = currentPatch(countOfPorts, currentPort);
+        mark2Value = currentPlaceInPatch(currentPort);
+
+        markSocket1 = String.Format("{0}.{1}.{2}.{3}", prefixPurpose, shelfNumber, numberPatch1, mark1Value);
+        markSocket2 = String.Format("{0}.{1}.{2}.{3}", prefixPurpose, shelfNumber, numberPatch2, mark2Value);
 
 
-        comment = s.socketComment;
-        if (comment == null || comment.Trim() == "")
-        {
-          prefixComment1 = "RG";
-          mark1Value = nNet.ToString();
-          nNet++;
-          prefixComment2 = "TL";
-          mark2Value = nPhone.ToString();
-          nPhone++;
+        s.mark1 = markSocket1;
+        s.mark2 = markSocket2;
 
-        }
-        else if (comment.Trim() != "")
-        {
-          switch (comment)
-          {
-            case "Интернет":
-              prefixComment1 = "RG";
-              prefixComment2 = "RG";
-              mark1Value = nNet.ToString();
-              nNet++;
-              mark2Value = nNet.ToString();
-              nNet++;
-              break;
-            case "Телефон":
-              prefixComment1 = "TL";
-              prefixComment2 = "TL";
-              mark1Value = nPhone.ToString();
-              nPhone++;
-              mark2Value = nPhone.ToString();
-              nPhone++;
-              break;
-            case "Камера":
-              prefixComment1 = "AC";
-              prefixComment2 = "AC";
-              mark1Value = nCam.ToString();
-              nCam++;
-              mark2Value = nCam.ToString();
-              nCam++;
-              break;
-            case "WiFi":
-              prefixComment1 = "WF";
-              prefixComment2 = "WF";
-              mark1Value = nWifi.ToString();
-              nWifi++;
-              mark2Value = nWifi.ToString();
-              nWifi++;
-              break;
-          }
-        }
-
-        markSocket1 = String.Format("{0}.{1}.{2}.{3}.", prefixPurpose, prefixComment1, shelfNumber, numberPatchAndCommut1);
-        markSocket2 = String.Format("{0}.{1}.{2}.{3}.", prefixPurpose, prefixComment2, shelfNumber, numberPatchAndCommut2);
-
-        fullMark1Value = markSocket1 + mark1Value;
-        fullMark2Value = markSocket2 + mark2Value;
-
-        s.mark1 = fullMark1Value;
-        s.mark2 = fullMark2Value;
-
-        socketMarks.Add(fullMark1Value);
-        socketMarks.Add(fullMark2Value);
+        socketMarks.Add(markSocket1);
+        socketMarks.Add(markSocket2);
 
       }
 
@@ -203,56 +132,28 @@ namespace ARMOCAD
       //одинарные розетки
 
       var singleSockets = sockets.Where(i => i.countOfPorts == 1);
-      foreach (var s in singleSockets)
-      {
+      foreach (var s in singleSockets) {
         currentPort += 1;
-        numberPatchAndCommut1 = currentPatchAndCommut(countOfPorts, currentPort);
+        numberPatch1 = currentPatch(countOfPorts, currentPort);
+        mark1Value = currentPlaceInPatch(currentPort);
 
-        comment = s.socketComment;
+        markSocket1 = String.Format("{0}.{1}.{2}.{3}", prefixPurpose, shelfNumber, numberPatch1, mark1Value);
 
-        switch (comment)
-        {
-          case "Интернет":
-            prefixComment1 = "RG";
-            mark1Value = nNet.ToString();
-            nNet++;
-            break;
-          case "Телефон":
-            prefixComment1 = "TL";
-            mark1Value = nPhone.ToString();
-            nPhone++;
-            break;
-          case "Камера":
-            prefixComment1 = "AC";
-            mark1Value = nCam.ToString();
-            nCam++;
-            break;
-          case "WiFi":
-            prefixComment1 = "WF";
-            mark1Value = nWifi.ToString();
-            nWifi++;
-            break;
-        }
-
-        markSocket1 = String.Format("{0}.{1}.{2}.{3}.", prefixPurpose, prefixComment1, shelfNumber, numberPatchAndCommut1);
-
-        fullMark1Value = markSocket1 + mark1Value;
-
-        s.mark1 = fullMark1Value;
+        s.mark1 = markSocket1;
         s.mark2 = "";
 
-        socketMarks.Add(fullMark1Value);
+        socketMarks.Add(markSocket1);
       }
 
-      var rgSocketMarks = socketMarks.Where(i => i.Contains("RG"));
-      var tlSocketMarks = socketMarks.Where(i => i.Contains("TL"));
-      var acSocketMarks = socketMarks.Where(i => i.Contains("AC"));
-      var wfSocketMarks = socketMarks.Where(i => i.Contains("WF"));
+      //var rgSocketMarks = socketMarks.Where(i => i.Contains("RG"));
+      //var tlSocketMarks = socketMarks.Where(i => i.Contains("TL"));
+      //var acSocketMarks = socketMarks.Where(i => i.Contains("AC"));
+      //var wfSocketMarks = socketMarks.Where(i => i.Contains("WF"));
 
-      var sorteredSocketMarks = rgSocketMarks.Concat(tlSocketMarks).Concat(acSocketMarks).Concat(wfSocketMarks).ToList();
+      //var sorteredSocketMarks = rgSocketMarks.Concat(tlSocketMarks).Concat(acSocketMarks).Concat(wfSocketMarks).ToList();
 
 
-      return sorteredSocketMarks;
+      return socketMarks;
     }
 
     /// <summary>
@@ -262,54 +163,41 @@ namespace ARMOCAD
     /// <param name="commonPort"></param>
     /// <returns></returns>
 
-    public static string currentPatchAndCommut(int ports, int commonPort)
+    public static string currentPatch(int ports, int commonPort)
     {
-      int commonCommut;
       int commonPatch;
-      string numberPatchAndCommut;
+      string numberPatch = "";
+      string literals = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-      if (ports > 24)
-      {
-        if (commonPort % 48 != 0)
-        {
-          commonCommut = commonPort / 48 + 1;
-        }
-        else
-        {
-          commonCommut = commonPort / 48;
-        }
-      }
-      else
-      {
-        commonCommut = 1;
-      }
 
-      if (commonPort % 24 != 0)
-      {
+
+      if (commonPort % 24 != 0) {
         commonPatch = commonPort / 24 + 1;
-      }
-      else
-      {
+      } else {
         commonPatch = commonPort / 24;
       }
 
+      numberPatch = literals[commonPatch - 1].ToString();
 
-      if (commonPatch % 2 == 0)
-      {
-        commonPatch = 2;
-      }
-      else
-      {
-        commonPatch = 1;
-      }
 
-      numberPatchAndCommut = String.Format("{0}.{1}", commonPatch.ToString(), commonCommut.ToString());
-
-      return numberPatchAndCommut;
+      return numberPatch;
     }
 
+    public static string currentPlaceInPatch(int currentPort)
+    {
+      int placeInPatch;
+      if (currentPort > 24) {
+        placeInPatch = currentPort % 24;
+        if (placeInPatch == 0)
+        {
+          placeInPatch = 24;
+        }
+      } else {
+        placeInPatch = currentPort;
+      }
 
-
+      return placeInPatch.ToString();
+    }
 
 
 

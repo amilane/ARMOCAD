@@ -149,18 +149,16 @@ namespace ARMOCAD
       FamilySymbol commut24SchemeSymbol,
       List<string> portNamesForPatch1,
       List<ElementId> socketSymbolsIdsPatch1,
-      List<string> socketRoomsForPatch1)
+      List<string> socketRoomsForPatch1,
+      char patch1Number)
     {
       double y = point.Y;
-      string patchNumber;
-
+      
       Parameter parCalloutsUp;
       Parameter parPortsCount24;
       Parameter parCountOfPorts;
       Parameter parPatchNumber;
 
-
-      patchNumber = String.Format("{0}.1", commutNumber);
 
       FamilyInstance patch = doc.Create.NewFamilyInstance(new XYZ(0, y, 0), patch24SchemeSymbol, view);
       y -= 130.0 / 304.8;
@@ -174,7 +172,7 @@ namespace ARMOCAD
       parCalloutsUp.Set(0);
       parPortsCount24.Set(1);
       parCountOfPorts.Set(portNamesForPatch1.Count);
-      parPatchNumber.Set(patchNumber);
+      parPatchNumber.Set(patch1Number.ToString());
 
 
       SetParameter(patch, "П", portNamesForPatch1);
@@ -206,20 +204,17 @@ namespace ARMOCAD
       List<ElementId> socketSymbolsIdsPatch1,
       List<ElementId> socketSymbolsIdsPatch2,
       List<string> socketRoomsForPatch1,
-      List<string> socketRoomsForPatch2)
+      List<string> socketRoomsForPatch2,
+      char patch1Number,
+      char patch2Number)
     {
       double y = point.Y;
-      string patchNumber1;
-      string patchNumber2;
-
+      
       Parameter parCalloutsUp;
       Parameter parPortsCount24;
       Parameter parCountOfPorts;
       Parameter parPatchNumber;
 
-
-      patchNumber1 = String.Format("{0}.1", commutNumber);
-      patchNumber2 = String.Format("{0}.2", commutNumber);
 
       FamilyInstance patch1 = doc.Create.NewFamilyInstance(new XYZ(0, y, 0), patch24SchemeSymbol, view);
       y -= 130.0 / 304.8;
@@ -233,7 +228,7 @@ namespace ARMOCAD
       parCalloutsUp.Set(0);
       parPortsCount24.Set(0);
       parCountOfPorts.Set(24);
-      parPatchNumber.Set(patchNumber1);
+      parPatchNumber.Set(patch1Number.ToString());
 
 
       SetParameter(patch1, "П", portNamesForPatch1);
@@ -261,7 +256,7 @@ namespace ARMOCAD
       parCalloutsUp.Set(1);
       parPortsCount24.Set(0);
       parCountOfPorts.Set(socketSymbolsIdsPatch2.Count);
-      parPatchNumber.Set(patchNumber2);
+      parPatchNumber.Set(patch2Number.ToString());
 
 
       SetParameter(patch2, "П", portNamesForPatch2);
