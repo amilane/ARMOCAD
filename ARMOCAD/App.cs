@@ -82,6 +82,8 @@ namespace ARMOCAD
 
       RibbonPanel ribbonPanel2 = application.CreateRibbonPanel(tabName, "Механические системы");
 
+      RibbonPanel ribbonPanel3 = application.CreateRibbonPanel(tabName, "Слаботочные системы");
+
       // Get dll assembly path
       string thisAssemblyPath = Assembly.GetExecutingAssembly().Location;
 
@@ -355,6 +357,31 @@ namespace ARMOCAD
       pb20.ToolTip = "Выбирает элементы в модели по условиям";
       pb20.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/filterIcon.png"));
       pb20.LargeImage = pb20.Image;
+
+      // create push button
+      PushButtonData b21Data = new PushButtonData(
+        "cmdSKSSocketsToShelfsExCommand",
+        "Розетки" + System.Environment.NewLine + "по Шкафам",
+        thisAssemblyPath,
+        "ARMOCAD.SKSSocketsToShelfsExCommand");
+
+      PushButton pb21 = ribbonPanel3.AddItem(b21Data) as PushButton;
+      pb21.ToolTip = "Заполняет в розетках параметр \"Розетка - Шкаф\"";
+      pb21.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/socketIcon.png"));
+      pb21.LargeImage = pb21.Image;
+
+
+      // create push button
+      PushButtonData b22Data = new PushButtonData(
+        "cmdSKSFasadExCommand",
+        "Схемы" + System.Environment.NewLine + "и Фасады",
+        thisAssemblyPath,
+        "ARMOCAD.SKSFasadExCommand");
+
+      PushButton pb22 = ribbonPanel3.AddItem(b22Data) as PushButton;
+      pb22.ToolTip = "Маркирует розетки и создает чертежные виды со схемами и фасадами";
+      pb22.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/schemeIcon.png"));
+      pb22.LargeImage = pb22.Image;
 
       //// create push button
       //PushButtonData b12Data = new PushButtonData(

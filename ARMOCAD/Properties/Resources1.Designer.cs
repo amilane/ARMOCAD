@@ -211,6 +211,16 @@ namespace ARMOCAD.Properties {
         }
         
         /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap schemeIcon {
+            get {
+                object obj = ResourceManager.GetObject("schemeIcon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Поиск локализованного ресурса типа System.Byte[].
         /// </summary>
         internal static byte[] SectionByElement {
@@ -227,6 +237,16 @@ namespace ARMOCAD.Properties {
             get {
                 object obj = ResourceManager.GetObject("SimilarParams", resourceCulture);
                 return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap socketIcon {
+            get {
+                object obj = ResourceManager.GetObject("socketIcon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         

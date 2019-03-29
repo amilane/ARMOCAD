@@ -148,6 +148,7 @@
     <Compile Include="Extcommands\MEPSystemScheme.cs" />
     <Compile Include="Extcommands\MTO.cs" />
     <Compile Include="Extcommands\SKS Fasad\CreatePatch.cs" />
+    <Compile Include="Extcommands\SKS Fasad\SKSSocketsToShelfsExCommand.cs" />
     <Compile Include="Extcommands\SKS Fasad\SKSFasadExCommand.cs" />
     <Compile Include="Extcommands\SKS Fasad\SocketNumbering.cs" />
     <Compile Include="Extcommands\TagOV\TagOV.cs" />
@@ -249,6 +250,8 @@
     <Content Include="Help\UninstallARMOCAD.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Resource Include="Resources\schemeIcon.png" />
+    <Resource Include="Resources\socketIcon.png" />
     <Resource Include="Resources\filterIcon.png" />
     <Resource Include="Resources\copyIcon.png" />
     <EmbeddedResource Include="Resources\MTO.py" />

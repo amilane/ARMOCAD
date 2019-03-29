@@ -27,17 +27,13 @@ namespace ARMOCAD
 
       // Разделение розеток на системы, если шкаф Кроссовый
       if (shelf.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString() == "Шкаф СКС: Кроссовый") {
-        var serviceSockets = socList.Where(i =>
-          i.system == "СБ");
-        var userSockets = socList.Where(i =>
-          i.system == "СП");
 
-        if (serviceSockets.Count() > 0) {
-          socketPurposes.Add(serviceSockets);
+        var groupSockets = socList.GroupBy(s => s.system);
+
+        foreach (var g in groupSockets) {
+          socketPurposes.Add(g.AsEnumerable());
         }
-        if (userSockets.Count() > 0) {
-          socketPurposes.Add(userSockets);
-        }
+
       }
       // для Серверно-кроссового не разделяем
       else if (shelf.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString() == "Шкаф СКС: Серверно-кроссовый") {
@@ -45,8 +41,6 @@ namespace ARMOCAD
           socketPurposes.Add(socList);
         }
       }
-
-
 
       return socketPurposes;
     }
@@ -85,7 +79,6 @@ namespace ARMOCAD
       string mark1Value = "";
       string mark2Value = "";
       string prefixPurpose = "";
-      string prefixCheck = "";
       string shelfNumber = "";
 
       List<string> socketMarks = new List<string>();
@@ -94,14 +87,8 @@ namespace ARMOCAD
       //Определяем префикс для розеток
       //S - security (СБ) / U - user (СП)
       if (sockets.Count() > 0) {
-        prefixCheck = sockets.First().system;
+        prefixPurpose = sockets.First().system;
         shelfNumber = sockets.First().shelfNumber;
-      }
-
-      if (prefixCheck == "СБ") {
-        prefixPurpose = "S";
-      } else if (prefixCheck == "СП") {
-        prefixPurpose = "U";
       }
 
       //двойные розетки
@@ -116,9 +103,13 @@ namespace ARMOCAD
         numberPatch2 = currentPatch(countOfPorts, currentPort);
         mark2Value = currentPlaceInPatch(currentPort);
 
-        markSocket1 = String.Format("{0}.{1}.{2}.{3}", prefixPurpose, shelfNumber, numberPatch1, mark1Value);
-        markSocket2 = String.Format("{0}.{1}.{2}.{3}", prefixPurpose, shelfNumber, numberPatch2, mark2Value);
+        markSocket1 = String.Format("{0}.{1}.{2}", shelfNumber, numberPatch1, mark1Value);
+        markSocket2 = String.Format("{0}.{1}.{2}", shelfNumber, numberPatch2, mark2Value);
 
+        if (prefixPurpose != null && prefixPurpose != "") {
+          markSocket1 = String.Format("{0}.{1}", prefixPurpose, markSocket1);
+          markSocket2 = String.Format("{0}.{1}", prefixPurpose, markSocket2);
+        }
 
         s.mark1 = markSocket1;
         s.mark2 = markSocket2;
@@ -144,14 +135,6 @@ namespace ARMOCAD
 
         socketMarks.Add(markSocket1);
       }
-
-      //var rgSocketMarks = socketMarks.Where(i => i.Contains("RG"));
-      //var tlSocketMarks = socketMarks.Where(i => i.Contains("TL"));
-      //var acSocketMarks = socketMarks.Where(i => i.Contains("AC"));
-      //var wfSocketMarks = socketMarks.Where(i => i.Contains("WF"));
-
-      //var sorteredSocketMarks = rgSocketMarks.Concat(tlSocketMarks).Concat(acSocketMarks).Concat(wfSocketMarks).ToList();
-
 
       return socketMarks;
     }
@@ -188,8 +171,7 @@ namespace ARMOCAD
       int placeInPatch;
       if (currentPort > 24) {
         placeInPatch = currentPort % 24;
-        if (placeInPatch == 0)
-        {
+        if (placeInPatch == 0) {
           placeInPatch = 24;
         }
       } else {
