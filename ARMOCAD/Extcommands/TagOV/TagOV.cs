@@ -178,8 +178,7 @@ namespace ARMOCAD
 
         Element system;
         var filterSystems = mepSystems.Where(i => i.Name == currentSystem | i.Name.StartsWith(currentSystem));
-        if (filterSystems.Count() > 0)
-        {
+        if (filterSystems.Count() > 0) {
           system = filterSystems.First();
           string parSystemCode = system.LookupParameter("Система - Номер для TAG").AsString();
           if (parSystemCode != null && parSystemCode != "") {
@@ -187,9 +186,7 @@ namespace ARMOCAD
           } else {
             sysCode = "??";
           }
-        }
-        else
-        {
+        } else {
           sysCode = "??";
         }
 
@@ -432,7 +429,7 @@ namespace ARMOCAD
 
           //Проверка, вдруг пользователь в одном типоразмере семейства заблокировал ТАГи с разными номерами "0001, 0003"
           //Шаблон для перетагируемых элементов 1-20-CA0000-V-FC-0001A
-          Regex rgxTag = new Regex(@"^[0-9]{1}-[0-9.]{1,}-[A-Z]{2}[0-9]{4}-[A-Z]{1}-[A-Z]{1,}-[0-9]{4}[A-Z]{1,}$");
+          Regex rgxTag = new Regex(@"^[0-9]{1}-[0-9.]{1,}-[A-Z]{2}[0-9]{4}-[A-Z]{1}-[A-Z]{1,}-[0-9]{4}[A-Z]?$");
 
           var handleElemsBySize = handleElements.Where(i =>
             i.LookupParameter("Ручной TAG")?.AsInteger() == 1 &
@@ -607,7 +604,13 @@ namespace ARMOCAD
                   if (i.LookupParameter("Ручной TAG").AsInteger() != 1) {
 
                     string t7Val = getSystemCode(i, mepSystems);
-                    t6Val = availableLetters[k];
+
+                    if (g3.Count() == 1) {
+                      t6Val = "";
+                    } else {
+                      t6Val = availableLetters[k];
+                    }
+
                     string tag = String.Format("{0}-{1}-{2}-{3}-{4}{5}{6}", t1Val, t2Val, t3Val, t4Val, t7Val, t5Val, t6Val);
                     Parameter parTag = i.LookupParameter("TAG");
                     parTag.Set(tag);

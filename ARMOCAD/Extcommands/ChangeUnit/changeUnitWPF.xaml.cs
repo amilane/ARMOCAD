@@ -49,6 +49,12 @@ namespace ARMOCAD
 
       string codeOfListNumber = string.Format("{0}.{1}.{2}.{3}.{4}{5}", UnitData[1], UnitData[2], UnitData[3], UnitData[4], UnitData[5], UnitData[6]);
 
+      string codeForGrid = String.Format("{0}{1}", UnitData[5], UnitData[6]);
+      var grid = new FilteredElementCollector(DOC).OfCategory(BuiltInCategory.OST_Grids).WhereElementIsElementType().Where(i => i.Name == "8мм марка в начале");
+      
+
+
+
       //Работа с TAG 
       IEnumerable<Element> terminals = new FilteredElementCollector(DOC).OfCategory(BuiltInCategory.OST_DuctTerminal).WhereElementIsNotElementType().ToElements();
       IEnumerable<Element> ductAccessory = new FilteredElementCollector(DOC).OfCategory(BuiltInCategory.OST_DuctAccessory).WhereElementIsNotElementType().ToElements();
@@ -65,8 +71,7 @@ namespace ARMOCAD
       IEnumerable<Element> ElementsGroup2 = ducts.Union(duflexDucts).Union(ductFittings);
 
 
-      using (Transaction t = new Transaction(DOC, "Change Unit"))
-      {
+      using (Transaction t = new Transaction(DOC, "Change Unit")) {
         t.Start();
 
         parUnit.Set(Unit);
@@ -80,8 +85,7 @@ namespace ARMOCAD
         parNameObjectRu.Set(UnitData[7]);
         parNameObjectEn.Set(UnitData[8]);
 
-        foreach (Element i in filterSheets)
-        {
+        foreach (Element i in filterSheets) {
           Parameter parSheetNumber = i.get_Parameter(BuiltInParameter.SHEET_NUMBER);
           string sheetNumberValue = parSheetNumber.AsString();
           string[] sheetNumberSplit = sheetNumberValue.Split('-');
@@ -90,12 +94,10 @@ namespace ARMOCAD
           parSheetNumber.Set(newNumberSheet);
         }
 
-        foreach (var i in ElementsGroup1)
-        {
+        foreach (var i in ElementsGroup1) {
           Parameter parTag = i.LookupParameter("TAG");
           string tagValue = parTag.AsString();
-          if (tagValue != null && tagValue != "")
-          {
+          if (tagValue != null && tagValue != "") {
             string[] tagSplit = tagValue.Split('-');
             tagSplit[0] = UnitData[5];
             tagSplit[1] = UnitData[4];
@@ -104,18 +106,21 @@ namespace ARMOCAD
           }
         }
 
-        foreach (var i in ElementsGroup2)
-        {
+        foreach (var i in ElementsGroup2) {
           Parameter parTag = i.LookupParameter("TAG");
           string tagValue = parTag.AsString();
-          if (tagValue != null && tagValue != "")
-          {
+          if (tagValue != null && tagValue != "") {
             string[] tagSplit = tagValue.Split('/');
             tagSplit[0] = UnitData[0];
             string newTag = string.Join("/", tagSplit);
             parTag.Set(newTag);
           }
         }
+
+        if (grid.Count() > 0) {
+          grid.First().LookupParameter("Ось - Префикс").Set(codeForGrid);
+        }
+
         t.Commit();
         TaskDialog.Show("Готово", "ОК");
       }
