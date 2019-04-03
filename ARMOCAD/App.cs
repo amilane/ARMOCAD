@@ -80,6 +80,8 @@ namespace ARMOCAD
 
       RibbonPanel ribbonPanel1 = application.CreateRibbonPanel(tabName, "Электрические системы");
 
+      RibbonPanel ribbonPanelAgpzTag = application.CreateRibbonPanel(tabName, "AGPZ TAG");
+
       RibbonPanel ribbonPanel2 = application.CreateRibbonPanel(tabName, "Механические системы");
 
       RibbonPanel ribbonPanel3 = application.CreateRibbonPanel(tabName, "Слаботочные системы");
@@ -258,16 +260,28 @@ namespace ARMOCAD
 
 
       // create push button
-      PushButtonData b13Data = new PushButtonData(
-          "cmdTagOV",
-          "AGPZ" + System.Environment.NewLine + "TAG",
+      PushButtonData b13_1Data = new PushButtonData(
+          "cmdTagOVDucts",
+          "TAG" + System.Environment.NewLine + "Комплект.",
           thisAssemblyPath,
-          "ARMOCAD.TagOVClass");
+          "ARMOCAD.TagOVDucts");
 
-      PushButton pb13 = ribbonPanel2.AddItem(b13Data) as PushButton;
-      pb13.ToolTip = "Пронумеровать и собрать TAG элементов";
-      pb13.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/tagIcon.png"));
-      pb13.LargeImage = pb13.Image;
+      PushButton pb13_1 = ribbonPanelAgpzTag.AddItem(b13_1Data) as PushButton;
+      pb13_1.ToolTip = "Тагирование воздуховодов и соединительных деталей";
+      pb13_1.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/tagIcon.png"));
+      pb13_1.LargeImage = pb13_1.Image;
+
+      // create push button
+      PushButtonData b13_2Data = new PushButtonData(
+        "cmdTagOVEquip",
+        "TAG" + System.Environment.NewLine + "Оборуд.",
+        thisAssemblyPath,
+        "ARMOCAD.TagOVEquip");
+
+      PushButton pb13_2 = ribbonPanelAgpzTag.AddItem(b13_2Data) as PushButton;
+      pb13_2.ToolTip = "Тагирование оборудования, арматуры воздуховодов, воздухораспределителей, арматуры труб";
+      pb13_2.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/tagIcon.png"));
+      pb13_2.LargeImage = pb13_2.Image;
 
 
       // create push button
