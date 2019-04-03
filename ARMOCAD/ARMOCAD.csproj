@@ -151,6 +151,7 @@
     <Compile Include="Extcommands\SKS Fasad\SKSSocketsToShelfsExCommand.cs" />
     <Compile Include="Extcommands\SKS Fasad\SKSFasadExCommand.cs" />
     <Compile Include="Extcommands\SKS Fasad\SocketNumbering.cs" />
+    <Compile Include="Extcommands\TagOV\TagOVEquipPhase1.cs" />
     <Compile Include="Extcommands\TagOV\TagOVEquip.cs" />
     <Compile Include="Extcommands\TagOV\TagOVDucts.cs" />
     <Compile Include="Extcommands\TagTransfer.cs" />

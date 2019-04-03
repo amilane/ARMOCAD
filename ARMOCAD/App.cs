@@ -273,15 +273,27 @@ namespace ARMOCAD
 
       // create push button
       PushButtonData b13_2Data = new PushButtonData(
+        "cmdTagOVEquipPhase1",
+        "TAG Ф1" + System.Environment.NewLine + "Оборуд.",
+        thisAssemblyPath,
+        "ARMOCAD.TagOVEquipPhase1");
+
+      PushButton pb13_2 = ribbonPanelAgpzTag.AddItem(b13_2Data) as PushButton;
+      pb13_2.ToolTip = "Тагирование (Фаза 1) оборудования, арматуры воздуховодов, воздухораспределителей, арматуры труб";
+      pb13_2.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/tagIcon.png"));
+      pb13_2.LargeImage = pb13_2.Image;
+
+      // create push button
+      PushButtonData b13_3Data = new PushButtonData(
         "cmdTagOVEquip",
-        "TAG" + System.Environment.NewLine + "Оборуд.",
+        "TAG Ф2+" + System.Environment.NewLine + "Оборуд.",
         thisAssemblyPath,
         "ARMOCAD.TagOVEquip");
 
-      PushButton pb13_2 = ribbonPanelAgpzTag.AddItem(b13_2Data) as PushButton;
-      pb13_2.ToolTip = "Тагирование оборудования, арматуры воздуховодов, воздухораспределителей, арматуры труб";
-      pb13_2.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/tagIcon.png"));
-      pb13_2.LargeImage = pb13_2.Image;
+      PushButton pb13_3 = ribbonPanelAgpzTag.AddItem(b13_3Data) as PushButton;
+      pb13_3.ToolTip = "Тагирование (Фаза 2 и сл.) оборудования, арматуры воздуховодов, воздухораспределителей, арматуры труб";
+      pb13_3.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/tagIcon.png"));
+      pb13_3.LargeImage = pb13_3.Image;
 
 
       // create push button

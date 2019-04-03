@@ -10,7 +10,7 @@ using Autodesk.Revit.Attributes;
 namespace ARMOCAD
 {
   [Transaction(TransactionMode.Manual)]
-  public class TagOVEquip : IExternalCommand
+  public class TagOVEquipPhase1 : IExternalCommand
   {
 
     private string size = "";
@@ -31,38 +31,6 @@ namespace ARMOCAD
     }
 
 
-    public string getSystemCode(Element e, IEnumerable<Element> mepSystems)
-    {
-      string sysCode;
-      string currentSystem;
-      string systems = e.get_Parameter(BuiltInParameter.RBS_SYSTEM_NAME_PARAM).AsString();
-      if (systems != null && systems != "") {
-        if (systems.Contains(",")) {
-          currentSystem = systems.Split(',').First();
-        } else {
-          currentSystem = systems;
-        }
-
-        Element system;
-        var filterSystems = mepSystems.Where(i => i.Name == currentSystem | i.Name.StartsWith(currentSystem));
-        if (filterSystems.Count() > 0) {
-          system = filterSystems.First();
-          string parSystemCode = system.LookupParameter("Система - Номер для TAG").AsString();
-          if (parSystemCode != null && parSystemCode != "") {
-            sysCode = parSystemCode;
-          } else {
-            sysCode = "??";
-          }
-        } else {
-          sysCode = "??";
-        }
-
-      } else {
-        sysCode = "??";
-      }
-
-      return sysCode;
-    }
     public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
     {
       // Get application and document objects
@@ -77,15 +45,6 @@ namespace ARMOCAD
         using (Transaction t = new Transaction(doc, "Set TAGs")) {
 
           t.Start();
-          //Механические системы
-          IEnumerable<Element> ductSystems = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_DuctSystem)
-            .WhereElementIsNotElementType()
-            .ToElements();
-          IEnumerable<Element> pipeSystems = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_PipingSystem)
-            .WhereElementIsNotElementType()
-            .ToElements();
-          IEnumerable<Element> mepSystems = ductSystems.Union(pipeSystems);
-
 
           // Воздухораспределители, арматура воздуховодов и труб, оборудование
           // Не перетагирует элементы, у которых стоит галка "Ручной TAG" (даже если TAG пустой)
@@ -139,7 +98,7 @@ namespace ARMOCAD
               Key4 = GetCalcSize(i)
             });
           foreach (var g in handleElemsBySize) {
-            var differentNumbers = g.GroupBy(i => i.LookupParameter("TAG").AsString().Split('-').Last().Substring(2, 2));
+            var differentNumbers = g.GroupBy(i => i.LookupParameter("TAG").AsString().Split('-').Last().Substring(0, 4));
             if (differentNumbers.Count() > 1) {
               msg = "";
               foreach (var gr in differentNumbers) {
@@ -157,7 +116,6 @@ namespace ARMOCAD
             rgxTag.IsMatch(i.LookupParameter("TAG")?.AsString() ?? "")).GroupBy(i => new {
               Key1 = i.LookupParameter("TagCode3").AsString(),
               Key2 = i.LookupParameter("TagCode4").AsString(),
-              Key3 = i.LookupParameter("TAG").AsString().Split('-').Last().Substring(0, 2)
             });
 
           foreach (var g1 in handleElemsByT3T4) {
@@ -170,7 +128,7 @@ namespace ARMOCAD
             foreach (var g2 in groupBySize) {
               List<string> numCheck = new List<string>();
               foreach (var e in g2) {
-                numCheck.Add(e.LookupParameter("TAG").AsString().Split('-').Last().Substring(2, 2));
+                numCheck.Add(e.LookupParameter("TAG").AsString().Split('-').Last().Substring(0, 4));
               }
 
               var numCheckUniq = numCheck.Distinct();
@@ -228,7 +186,7 @@ namespace ARMOCAD
                 foreach (var i in handleTagT3T4) {
                   handleTag = i.LookupParameter("TAG").AsString();
 
-                  t5Val = handleTag.Split('-').Last().Substring(2, 2);
+                  t5Val = handleTag.Split('-').Last().Substring(0, 4);
                   int t5ValInt = Convert.ToInt32(t5Val);
                   //Собирает использованные параметры (0001) в заблокированных элементах
                   if (!usedNumbers.Contains(t5ValInt)) {
@@ -247,7 +205,7 @@ namespace ARMOCAD
               List<string> availableInts = new List<string>();
               for (int i = 1; i <= groupByFamilyAndSize.Count(); i++) {
                 if (!usedNumbers.Contains(i)) {
-                  availableInts.Add(i.ToString().PadLeft(2, '0'));
+                  availableInts.Add(i.ToString().PadLeft(4, '0'));
                 }
               }
 
@@ -264,7 +222,7 @@ namespace ARMOCAD
                 if (handleTagElements.Count() > 0) {
                   foreach (var i in handleTagElements) {
                     handleTag = i.LookupParameter("TAG").AsString();
-                    t5Val = handleTag.Split('-').Last().Substring(2, 2);
+                    t5Val = handleTag.Split('-').Last().Substring(0, 4);
                     t6Val = handleTag.Split('-').Last().Remove(0, 4);
                     usedLetters.Add(t6Val);
                   }
@@ -291,15 +249,13 @@ namespace ARMOCAD
                   //Не трогает элементы с галкой "Ручной TAG"
                   if (i.LookupParameter("Ручной TAG").AsInteger() != 1) {
 
-                    string t7Val = getSystemCode(i, mepSystems);
-
                     if (g3.Count() == 1) {
                       t6Val = "";
                     } else {
                       t6Val = availableLetters[k];
                     }
 
-                    string tag = String.Format("{0}-{1}-{2}-{3}-{4}{5}{6}", t1Val, t2Val, t3Val, t4Val, t7Val, t5Val, t6Val);
+                    string tag = String.Format("{0}-{1}-{2}-{3}-{4}{5}", t1Val, t2Val, t3Val, t4Val, t5Val, t6Val);
                     Parameter parTag = i.LookupParameter("TAG");
                     parTag.Set(tag);
                     k++;
