@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using Autodesk.Revit.UI;
@@ -11,7 +12,7 @@ namespace ARMOCAD
   {
     public static int Security() // Метод по защите программы в зависимости от контрольной даты
     {
-      DateTime ControlDate = new DateTime(2020, 11, 29, 12, 0, 0); // Формируем контрольную дату в формате: год, месяц, день, часы, минуты, секунды
+      DateTime ControlDate = new DateTime(2200, 11, 29, 12, 0, 0); // Формируем контрольную дату в формате: год, месяц, день, часы, минуты, секунды
       DateTime dt = DateTime.Today; // получаем сегодняшнюю дату в таком же формате
       TimeSpan deltaDate = ControlDate - dt; // вычисляем разницу между контрольной и текущей датой
       string deltaDateDays = deltaDate.Days.ToString();
@@ -387,39 +388,47 @@ namespace ARMOCAD
       // create push button
       PushButtonData b21Data = new PushButtonData(
         "cmdSKSSocketsToShelfsExCommand",
-        "Розетки" + System.Environment.NewLine + "по Шкафам",
+        "Розетки по Шкафам",
         thisAssemblyPath,
         "ARMOCAD.SKSSocketsToShelfsExCommand");
-
-      PushButton pb21 = ribbonPanel3.AddItem(b21Data) as PushButton;
-      pb21.ToolTip = "Заполняет в розетках параметр \"Розетка - Шкаф\"";
-      pb21.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/socketIcon.png"));
-      pb21.LargeImage = pb21.Image;
-
+      b21Data.ToolTip = "Заполняет в розетках параметр \"Розетка - Шкаф\"";
+      b21Data.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/socketIcon.png"));
 
       // create push button
       PushButtonData b22Data = new PushButtonData(
         "cmdSKSFasadExCommand",
-        "Схемы" + System.Environment.NewLine + "и Фасады",
+        "Схемы и Фасады",
         thisAssemblyPath,
         "ARMOCAD.SKSFasadExCommand");
+      b22Data.ToolTip = "Маркирует розетки и создает чертежные виды со схемами и фасадами";
+      b22Data.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/schemeIcon.png"));
 
-      PushButton pb22 = ribbonPanel3.AddItem(b22Data) as PushButton;
-      pb22.ToolTip = "Маркирует розетки и создает чертежные виды со схемами и фасадами";
-      pb22.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/schemeIcon.png"));
-      pb22.LargeImage = pb22.Image;
+      List<RibbonItem> ssButtons1 = new List<RibbonItem>();
+      ssButtons1.AddRange(ribbonPanel3.AddStackedItems(b21Data, b22Data));
 
-      //// create push button
-      //PushButtonData b12Data = new PushButtonData(
-      //	"cmdTestara",
-      //	"ara" + System.Environment.NewLine + "vasa",
-      //	thisAssemblyPath,
-      //	"Testara.TestaraClass");
+      // create push button
+      PushButtonData b23Data = new PushButtonData(
+        "cmdSKUDControlPlacementEx",
+        "Точки Доступа",
+        thisAssemblyPath,
+        "ARMOCAD.SKUDControlPlacementEx");
+      b23Data.ToolTip = "Размещение точек доступа по дверям из связанной модели АР";
+      b23Data.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/arrowIcon.png"));
+      ContextualHelp contextHelp23 = new ContextualHelp(ContextualHelpType.ChmFile, @"\\arena\ARMO-GROUP\ИПУ\ЛИЧНЫЕ\САПРомания\RVT-BIMnet\СТП-СКУД Расстановка точек доступа и оборудования.docx");
+      b23Data.SetContextualHelp(contextHelp23);
 
-      //PushButton pb12 = ribbonPanel1.AddItem(b12Data) as PushButton;
-      //pb12.ToolTip = "ararar";
-      //pb12.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/SpreadEvenly_icon.png"));
-      //pb12.LargeImage = pb12.Image;
+      // create push button
+      PushButtonData b24Data = new PushButtonData(
+        "cmdSKUDPlaceEquipmentEx",
+        "ТД -> Оборудование",
+        thisAssemblyPath,
+        "ARMOCAD.SKUDPlaceEquipmentEx");
+      b24Data.ToolTip = "Размещение оборудования СКУД по точкам доступа";
+      b24Data.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/equipIcon.png"));
+      b24Data.SetContextualHelp(contextHelp23);
+
+      List<RibbonItem> skudButtons1 = new List<RibbonItem>();
+      skudButtons1.AddRange(ribbonPanel3.AddStackedItems(b23Data, b24Data));
 
 
     }

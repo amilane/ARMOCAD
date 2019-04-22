@@ -152,7 +152,6 @@
     <Compile Include="Extcommands\SKS Fasad\SKSFasadExCommand.cs" />
     <Compile Include="Extcommands\SKS Fasad\SocketNumbering.cs" />
     <Compile Include="Extcommands\SKUD\SKUDControlPlacementEx.cs" />
-    <Compile Include="Extcommands\SKUD\SKUDPlaceAccessPoints.cs" />
     <Compile Include="Extcommands\SKUD\SKUDPlaceEquipmentEx.cs" />
     <Compile Include="Extcommands\TagOV\TagOVEquipPhase1.cs" />
     <Compile Include="Extcommands\TagOV\TagOVEquip.cs" />
@@ -255,6 +254,8 @@
     <Content Include="Help\UninstallARMOCAD.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Resource Include="Resources\equipIcon.png" />
+    <Resource Include="Resources\arrowIcon.png" />
     <Resource Include="Resources\schemeIcon.png" />
     <Resource Include="Resources\socketIcon.png" />
     <Resource Include="Resources\filterIcon.png" />

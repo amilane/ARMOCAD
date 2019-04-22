@@ -196,4 +196,10 @@
   <data name="schemeIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\schemeIcon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="arrowIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\arrowIcon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="equipIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\equipIcon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
 </root>

@@ -83,6 +83,16 @@ namespace ARMOCAD.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap arrowIcon {
+            get {
+                object obj = ResourceManager.GetObject("arrowIcon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap compareIcon {
             get {
                 object obj = ResourceManager.GetObject("compareIcon", resourceCulture);
@@ -107,6 +117,16 @@ namespace ARMOCAD.Properties {
             get {
                 object obj = ResourceManager.GetObject("DetailLinesLength", resourceCulture);
                 return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap equipIcon {
+            get {
+                object obj = ResourceManager.GetObject("equipIcon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         
