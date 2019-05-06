@@ -156,6 +156,7 @@
     <Compile Include="Extcommands\TagOV\TagOVEquipPhase1.cs" />
     <Compile Include="Extcommands\TagOV\TagOVEquip.cs" />
     <Compile Include="Extcommands\TagOV\TagOVDucts.cs" />
+    <Compile Include="Extcommands\TagsFromSheets\TagsFromSheetsEx.cs" />
     <Compile Include="Extcommands\TagTransfer.cs" />
     <Compile Include="Extcommands\ThiDuct.cs" />
     <Compile Include="Extcommands\SectionByElement.cs" />
@@ -254,6 +255,7 @@
     <Content Include="Help\UninstallARMOCAD.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Resource Include="Resources\tagIconGreen.png" />
     <Resource Include="Resources\equipIcon.png" />
     <Resource Include="Resources\arrowIcon.png" />
     <Resource Include="Resources\schemeIcon.png" />

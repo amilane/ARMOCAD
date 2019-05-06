@@ -296,6 +296,18 @@ namespace ARMOCAD
       pb13_3.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/tagIcon.png"));
       pb13_3.LargeImage = pb13_3.Image;
 
+      // create push button
+      PushButtonData b13_4Data = new PushButtonData(
+        "cmdTagsFromSheetsEx",
+        "TAG" + System.Environment.NewLine + "на листах",
+        thisAssemblyPath,
+        "ARMOCAD.TagsFromSheetsEx");
+
+      PushButton pb13_4 = ribbonPanelAgpzTag.AddItem(b13_4Data) as PushButton;
+      pb13_4.ToolTip = "Собирает информацию о тэгах и листах, на которых они расположены";
+      pb13_4.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/tagIconGreen.png"));
+      pb13_4.LargeImage = pb13_4.Image;
+
 
       // create push button
       PushButtonData b14Data = new PushButtonData(
