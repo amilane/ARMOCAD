@@ -133,6 +133,7 @@
     <Compile Include="Extcommands\Common\ReadDataFromExcel.cs" />
     <Compile Include="Extcommands\Common\ViewDraftingCreate.cs" />
     <Compile Include="Extcommands\CompareModelAndScheme.cs" />
+    <Compile Include="Extcommands\CreateMEPSpaces\CreateMepSpaces.cs" />
     <Compile Include="Extcommands\Filter\CollectorFromTreeView.cs" />
     <Compile Include="Extcommands\Filter\CreateParameterFilter.cs" />
     <Compile Include="Extcommands\Filter\FilterExCommand.cs" />
@@ -255,6 +256,7 @@
     <Content Include="Help\UninstallARMOCAD.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Resource Include="Resources\spaceIcon.png" />
     <Resource Include="Resources\tagIconGreen.png" />
     <Resource Include="Resources\equipIcon.png" />
     <Resource Include="Resources\arrowIcon.png" />

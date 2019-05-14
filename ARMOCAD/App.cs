@@ -90,12 +90,14 @@ namespace ARMOCAD
       // Get dll assembly path
       string thisAssemblyPath = Assembly.GetExecutingAssembly().Location;
 
+
+      #region Common Buttons
       // create push button
       PushButtonData b1Data = new PushButtonData(
-          "cmdDetailLinesLength",
-          "DL" + System.Environment.NewLine + "length",
-          thisAssemblyPath,
-          "DetailLinesLength.DetailLinesLengthClass");
+        "cmdDetailLinesLength",
+        "DL" + System.Environment.NewLine + "length",
+        thisAssemblyPath,
+        "DetailLinesLength.DetailLinesLengthClass");
 
       ContextualHelp contextHelp1 = new ContextualHelp(ContextualHelpType.Url, Path.Combine(GetExeDirectory(), "Help/DetailLinesLength_Help.html"));
       b1Data.SetContextualHelp(contextHelp1);
@@ -105,10 +107,10 @@ namespace ARMOCAD
 
       // create push button
       PushButtonData b2Data = new PushButtonData(
-          "cmdALength",
-          "MEP" + System.Environment.NewLine + "length",
-          thisAssemblyPath,
-          "ALength.OverLength");
+        "cmdALength",
+        "MEP" + System.Environment.NewLine + "length",
+        thisAssemblyPath,
+        "ALength.OverLength");
 
       b2Data.LargeImage = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/measureIcon.png"));
       b2Data.LargeImage = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/measureIcon.png"));
@@ -120,7 +122,6 @@ namespace ARMOCAD
       SplitButton sb1 = ribbonPanel.AddItem(sbdata1) as SplitButton;
       sb1.AddPushButton(b2Data);
       sb1.AddPushButton(b1Data);
-
 
       // create push button for RotateAll
       PushButtonData b3Data = new PushButtonData(
@@ -189,26 +190,12 @@ namespace ARMOCAD
       ContextualHelp contextHelp7 = new ContextualHelp(ContextualHelpType.Url, Path.Combine(GetExeDirectory(), "Help/Paramtextreplace_Help.html"));
       pb7.SetContextualHelp(contextHelp7);
 
-
-      // create push button
-      PushButtonData b8Data = new PushButtonData(
-          "cmdSwapDuct",
-          "Swap" + System.Environment.NewLine + "Duct",
-          thisAssemblyPath,
-          "SwapDuct.SwapDuctClass");
-
-      PushButton pb8 = ribbonPanel2.AddItem(b8Data) as PushButton;
-      pb8.ToolTip = "Нажмите чтобы развернуть воздуховод";
-      pb8.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/swapIcon.png"));
-      pb8.LargeImage = pb8.Image;
-
-
       // create push button
       PushButtonData b9Data = new PushButtonData(
-          "cmdOpeningElevation",
-          "Opening" + System.Environment.NewLine + "Elevation",
-          thisAssemblyPath,
-          "OpeningElevation.OpeningElevationClass");
+        "cmdOpeningElevation",
+        "Opening" + System.Environment.NewLine + "Elevation",
+        thisAssemblyPath,
+        "OpeningElevation.OpeningElevationClass");
 
       PushButton pb9 = ribbonPanel.AddItem(b9Data) as PushButton;
       pb9.ToolTip = "Нажмите чтобы обработать отверстия Cut Opening";
@@ -217,13 +204,56 @@ namespace ARMOCAD
       ContextualHelp contextHelp9 = new ContextualHelp(ContextualHelpType.Url, Path.Combine(GetExeDirectory(), "Help/OpeningElevation_Help.html"));
       pb9.SetContextualHelp(contextHelp9);
 
+      // create push button
+      PushButtonData b11Data = new PushButtonData(
+        "cmdSectionByElement",
+        "Section" + System.Environment.NewLine + "by Element",
+        thisAssemblyPath,
+        "SectionByElement.SectionByElementClass");
+
+      PushButton pb11 = ribbonPanel.AddItem(b11Data) as PushButton;
+      pb11.ToolTip = "Выберите элемент(ы) и нажмите, чтобы создать разрез(ы) вдоль них";
+      pb11.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/section_icon.png"));
+      pb11.LargeImage = pb11.Image;
+
+      // create push button
+      PushButtonData b20Data = new PushButtonData(
+        "cmdFilterExCommand",
+        "Filter" + System.Environment.NewLine + "by Params",
+        thisAssemblyPath,
+        "ARMOCAD.FilterExCommand");
+
+      PushButton pb20 = ribbonPanel.AddItem(b20Data) as PushButton;
+      pb20.ToolTip = "Выбирает элементы в модели по условиям";
+      pb20.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/filterIcon.png"));
+      pb20.LargeImage = pb20.Image;
+
+      // create push button
+      PushButtonData b25Data = new PushButtonData(
+        "cmdCreateMepSpaces",
+        "Пространства" + System.Environment.NewLine + "по АР",
+        thisAssemblyPath,
+        "ARMOCAD.CreateMepSpaces");
+      ContextualHelp contextHelp25 = new ContextualHelp(ContextualHelpType.ChmFile, @"\\arena\ARMO-GROUP\ИПУ\ЛИЧНЫЕ\САПРомания\RVT-BIMnet\СТП-Расстановка пространств по связанной модели АР.docx");
+      b25Data.SetContextualHelp(contextHelp25);
+
+      PushButton pb25 = ribbonPanel.AddItem(b25Data) as PushButton;
+      pb25.ToolTip = "Ставит пространства по модели АР";
+      pb25.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/spaceIcon.png"));
+      pb25.LargeImage = pb25.Image;
+      
+
+
+      #endregion Common Buttons
+
+      #region MyRegion
 
       // create push button
       PushButtonData b10Data = new PushButtonData(
-          "cmdSpreadEvenly",
-          "Spread" + System.Environment.NewLine + "Evenly",
-          thisAssemblyPath,
-          "SpreadEvenly.SpreadEvenlyClass");
+        "cmdSpreadEvenly",
+        "Spread" + System.Environment.NewLine + "Evenly",
+        thisAssemblyPath,
+        "SpreadEvenly.SpreadEvenlyClass");
 
       PushButton pb10 = ribbonPanel1.AddItem(b10Data) as PushButton;
       pb10.ToolTip = "Нажмите чтобы расставить семейства";
@@ -232,33 +262,9 @@ namespace ARMOCAD
       ContextualHelp contextHelp10 = new ContextualHelp(ContextualHelpType.Url, Path.Combine(GetExeDirectory(), "Help/SpreadEvenly_Help.html"));
       pb10.SetContextualHelp(contextHelp10);
 
+      #endregion Electric Buttons
 
-      // create push button
-      PushButtonData b11Data = new PushButtonData(
-          "cmdSectionByElement",
-          "Section" + System.Environment.NewLine + "by Element",
-          thisAssemblyPath,
-          "SectionByElement.SectionByElementClass");
-
-      PushButton pb11 = ribbonPanel.AddItem(b11Data) as PushButton;
-      pb11.ToolTip = "Выберите элемент(ы) и нажмите, чтобы создать разрез(ы) вдоль них";
-      pb11.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/section_icon.png"));
-      pb11.LargeImage = pb11.Image;
-
-
-      // create push button
-      PushButtonData b12Data = new PushButtonData(
-          "cmdThiDuct",
-          "Толщина" + System.Environment.NewLine + "воздуховодов",
-          thisAssemblyPath,
-          "ThiDuct.ThiDuctClass");
-
-      PushButton pb12 = ribbonPanel2.AddItem(b12Data) as PushButton;
-      pb12.ToolTip = "Толщина металла воздуховодов и соединительных деталей";
-      pb12.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/thicknessIcon.png"));
-      pb12.LargeImage = pb12.Image;
-
-
+      #region AGPZ Tag Buttons
 
       // create push button
       PushButtonData b13_1Data = new PushButtonData(
@@ -309,25 +315,51 @@ namespace ARMOCAD
       pb13_4.LargeImage = pb13_4.Image;
 
 
+      #endregion AGPZ Tag Buttons
+
+      #region MEP Buttons
+      // create push button
+      PushButtonData b8Data = new PushButtonData(
+        "cmdSwapDuct",
+        "Swap" + System.Environment.NewLine + "Duct",
+        thisAssemblyPath,
+        "SwapDuct.SwapDuctClass");
+
+      PushButton pb8 = ribbonPanel2.AddItem(b8Data) as PushButton;
+      pb8.ToolTip = "Нажмите чтобы развернуть воздуховод";
+      pb8.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/swapIcon.png"));
+      pb8.LargeImage = pb8.Image;
+
+      // create push button
+      PushButtonData b12Data = new PushButtonData(
+        "cmdThiDuct",
+        "Толщина" + System.Environment.NewLine + "воздуховодов",
+        thisAssemblyPath,
+        "ThiDuct.ThiDuctClass");
+
+      PushButton pb12 = ribbonPanel2.AddItem(b12Data) as PushButton;
+      pb12.ToolTip = "Толщина металла воздуховодов и соединительных деталей";
+      pb12.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/thicknessIcon.png"));
+      pb12.LargeImage = pb12.Image;
+
       // create push button
       PushButtonData b14Data = new PushButtonData(
-          "cmdTagTransfer",
-          "TAG" + System.Environment.NewLine + "transfer",
-          thisAssemblyPath,
-          "TagTransfer.TagTransferClass");
+        "cmdTagTransfer",
+        "TAG" + System.Environment.NewLine + "transfer",
+        thisAssemblyPath,
+        "TagTransfer.TagTransferClass");
 
       PushButton pb14 = ribbonPanel2.AddItem(b14Data) as PushButton;
       pb14.ToolTip = "Перенос TAG с элемента модели в элемент узла на чертежном виде (выберите оба элемента и нажмите кнопку)";
       pb14.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/tagTransferIcon.png"));
       pb14.LargeImage = pb14.Image;
 
-
       // create push button
       PushButtonData b15Data = new PushButtonData(
-          "cmdCompareModelAndScheme",
-          "Model" + System.Environment.NewLine + "Scheme",
-          thisAssemblyPath,
-          "CompareModelAndScheme.CompareModelAndSchemeClass");
+        "cmdCompareModelAndScheme",
+        "Model" + System.Environment.NewLine + "Scheme",
+        thisAssemblyPath,
+        "CompareModelAndScheme.CompareModelAndSchemeClass");
 
       PushButton pb15 = ribbonPanel2.AddItem(b15Data) as PushButton;
       pb15.ToolTip = "Сравнение однолинейки и модели";
@@ -336,10 +368,10 @@ namespace ARMOCAD
 
       // create push button
       PushButtonData b16Data = new PushButtonData(
-          "cmdLengthOfTransition",
-          "Длина" + System.Environment.NewLine + "перехода",
-          thisAssemblyPath,
-          "LengthOfTransition.LengthOfTransitionClass");
+        "cmdLengthOfTransition",
+        "Длина" + System.Environment.NewLine + "перехода",
+        thisAssemblyPath,
+        "LengthOfTransition.LengthOfTransitionClass");
 
       PushButton pb16 = ribbonPanel2.AddItem(b16Data) as PushButton;
       pb16.ToolTip = "Редактирует длину перехода по ВСН 353-86 Таблица 7";
@@ -349,53 +381,31 @@ namespace ARMOCAD
 
       // create push button
       PushButtonData b17Data = new PushButtonData(
-          "cmdMEPSystemScheme",
-          "Аксон." + System.Environment.NewLine + "схемы",
-          thisAssemblyPath,
-          "MEPSystemScheme.MEPSystemSchemeClass");
+        "cmdMEPSystemScheme",
+        "Аксон." + System.Environment.NewLine + "схемы",
+        thisAssemblyPath,
+        "MEPSystemScheme.MEPSystemSchemeClass");
 
       PushButton pb17 = ribbonPanel2.AddItem(b17Data) as PushButton;
       pb17.ToolTip = "Создает 3D виды по механическим системам";
       pb17.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/3dIcon.png"));
       pb17.LargeImage = pb17.Image;
 
-      /*
-      // create push button
-      PushButtonData b18Data = new PushButtonData(
-          "cmdMTO",
-          "AGPZ" + System.Environment.NewLine + "MTO",
-          thisAssemblyPath,
-          "MTO.MTOClass");
-
-      PushButton pb18 = ribbonPanel2.AddItem(b18Data) as PushButton;
-      pb18.ToolTip = "Генерирует МТО для проектов AGPZ";
-      pb18.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/mIcon.png"));
-      pb18.LargeImage = pb18.Image;
-      */
-
       // create push button
       PushButtonData b19Data = new PushButtonData(
-          "cmdChangeUnitExCommand",
-          "AGPZ" + System.Environment.NewLine + "Copy Model",
-          thisAssemblyPath,
-          "ARMOCAD.ChangeUnitExCommand");
+        "cmdChangeUnitExCommand",
+        "AGPZ" + System.Environment.NewLine + "Copy Model",
+        thisAssemblyPath,
+        "ARMOCAD.ChangeUnitExCommand");
 
       PushButton pb19 = ribbonPanel2.AddItem(b19Data) as PushButton;
       pb19.ToolTip = "Заменяет параметры для новой модели AGPZ";
       pb19.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/copyIcon.png"));
       pb19.LargeImage = pb19.Image;
 
-      // create push button
-      PushButtonData b20Data = new PushButtonData(
-        "cmdFilterExCommand",
-        "Filter" + System.Environment.NewLine + "by Params",
-        thisAssemblyPath,
-        "ARMOCAD.FilterExCommand");
+      #endregion MEP Buttons
 
-      PushButton pb20 = ribbonPanel.AddItem(b20Data) as PushButton;
-      pb20.ToolTip = "Выбирает элементы в модели по условиям";
-      pb20.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/filterIcon.png"));
-      pb20.LargeImage = pb20.Image;
+      #region SS Buttons
 
       // create push button
       PushButtonData b21Data = new PushButtonData(
@@ -441,6 +451,16 @@ namespace ARMOCAD
 
       List<RibbonItem> skudButtons1 = new List<RibbonItem>();
       skudButtons1.AddRange(ribbonPanel3.AddStackedItems(b23Data, b24Data));
+
+      #endregion SS Buttons
+
+
+
+
+
+
+
+
 
 
     }

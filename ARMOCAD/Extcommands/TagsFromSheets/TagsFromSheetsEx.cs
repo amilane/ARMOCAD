@@ -28,12 +28,15 @@ namespace ARMOCAD
       {
         foreach (ViewSheet s in sheets)
         {
-          var sheetNumber = s.SheetNumber;
+          var originalSheetNumber = s.SheetNumber;
 
-          var revision = "";
-          if (sheetNumber.Contains("_"))
+          var sheetNumber = string.Empty;
+          var revision = string.Empty;
+
+          if (originalSheetNumber.Contains("_"))
           {
-            revision = sheetNumber.Split('_')[1];
+            sheetNumber = originalSheetNumber.Split('_')[0];
+            revision = originalSheetNumber.Split('_')[1];
           }
 
 
@@ -55,7 +58,7 @@ namespace ARMOCAD
                     var element = doc.GetElement(t.TaggedLocalElementId);
                     var tagText = t.TagText;
                     var tagFromElement = element.LookupParameter("TAG")?.AsString();
-                    if (tagFromElement != null && tagFromElement != "" && tagText.Contains(tagFromElement))
+                    if (!string.IsNullOrWhiteSpace(tagFromElement) && tagText.Contains(tagFromElement))
                     {
                       if (!outDict.ContainsKey(tagFromElement))
                       {
