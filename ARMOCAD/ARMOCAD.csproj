@@ -154,6 +154,14 @@
     <Compile Include="Extcommands\SKS Fasad\SocketNumbering.cs" />
     <Compile Include="Extcommands\SKUD\SKUDControlPlacementEx.cs" />
     <Compile Include="Extcommands\SKUD\SKUDPlaceEquipmentEx.cs" />
+    <Compile Include="Extcommands\TagBridge\ExternalEventMy.cs" />
+    <Compile Include="Extcommands\TagBridge\TagBridge.cs" />
+    <Compile Include="Extcommands\TagBridge\TagBridgeWPF.xaml.cs">
+      <DependentUpon>TagBridgeWPF.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Extcommands\TagBridge\TagItem.cs" />
+    <Compile Include="Extcommands\TagBridge\TagListData.cs" />
+    <Compile Include="Extcommands\TagBridge\TEST.cs" />
     <Compile Include="Extcommands\TagOV\TagOVEquipPhase1.cs" />
     <Compile Include="Extcommands\TagOV\TagOVEquip.cs" />
     <Compile Include="Extcommands\TagOV\TagOVDucts.cs" />
@@ -306,6 +314,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Extcommands\Filter\FilterView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Extcommands\TagBridge\TagBridgeWPF.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
