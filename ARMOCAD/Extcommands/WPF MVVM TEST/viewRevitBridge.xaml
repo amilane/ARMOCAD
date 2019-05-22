@@ -1,0 +1,19 @@
+<Window x:Class="ARMOCAD.viewRevitBridge"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ARMOCAD"
+        mc:Ignorable="d"
+        Title="Revit Bridge Sample" Height="456" Width="279" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" ShowInTaskbar="False" >
+  <Window.DataContext>
+    <local:viewmodelRevitBridge/>
+  </Window.DataContext>
+  <Grid>
+    <ComboBox x:Name="comboBox" Height="35" Margin="10,10,10,0" VerticalAlignment="Top" ItemsSource="{Binding DicWallType}" DisplayMemberPath="Key" SelectedValuePath="Value" SelectedValue="{Binding SelectedWallType}"/>
+    <ListBox x:Name="listBox" Margin="10,95,10,77" ItemsSource="{Binding ListParameters}"/>
+    <Button x:Name="bOk" Content="OK" HorizontalAlignment="Right" Height="37" Margin="0,0,93,10" VerticalAlignment="Bottom" Width="105" IsDefault="True" />
+    <Button x:Name="bCan" Content="Cancel" HorizontalAlignment="Right" Height="27" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="78" IsCancel="True"/>
+    <Button x:Name="bProp" Content="Retrieve Parameters and values" Height="30" Margin="10,50,10,0" VerticalAlignment="Top" Command="{Binding RetrieveParametersValuesCommand, Mode=OneWay}"/>
+  </Grid>
+</Window>
