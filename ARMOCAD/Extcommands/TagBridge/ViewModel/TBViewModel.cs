@@ -1,29 +1,22 @@
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 
 namespace ARMOCAD
 {
-  public class TBViewModel: INotifyPropertyChanged
+  public class TBViewModel : INotifyPropertyChanged
   {
     private TagItem selectedItem;
     private ObservableCollection<TagItem> tagItems;
     private TBModel revitModel;
     private string projectName;
-    private Document doc;
-    private Element eModel;
-    private Element eDraft;
     public ExternalEvent connectEvent;
 
-    
+
 
 
     // Constructor
@@ -62,7 +55,7 @@ namespace ARMOCAD
       }
     }
 
-   
+
     public ObservableCollection<TagItem> TagItems {
       get {
         return RevitModel?.TagItems;
@@ -73,8 +66,7 @@ namespace ARMOCAD
 
     private TagItem newTag;
     public TagItem NewTag {
-      get
-      {
+      get {
         newTag = RevitModel.NewTag;
         return newTag;
       }
@@ -86,16 +78,26 @@ namespace ARMOCAD
 
     // The action function for ConnectButtonAction
     /// <summary>
-    /// Если в списке уже есть tagItem с таким ТЭГом, то вытаскиваем и изменяем его, 
+    /// Если в списке уже есть tagItem с таким ТЭГом, то заменяем его, если нет - добавляем в список
     /// </summary>
     private void ConnectButtonAction()
     {
+      RevitModel.getTwoElements();
       connectEvent.Raise();
 
       if (NewTag != null)
       {
-        
-        TagItems.Add(NewTag);
+        if (TagItems.Any(i => i.ModelId == NewTag.ModelId))
+        {
+          TagItem t = TagItems.Where(i => i.ModelId == NewTag.ModelId).First();
+          int idx = TagItems.IndexOf(t);
+          TagItems[idx] = NewTag;
+        }
+        else
+        {
+          TagItems.Add(NewTag);
+        }
+
       }
       else
       {
@@ -104,29 +106,11 @@ namespace ARMOCAD
 
         TagItems.Add(t);
       }
-      
-      
 
       
+      
 
-      //string eModelTag = EModel.LookupParameter("TAG")?.AsString();
 
-      //var currentTagItems = TagItems.Where(i => i.ModelId == eModelId);
-
-      ////если в списке уже есть такой элемент, изменяем его
-      //if (currentTagItems.Any())
-      //{
-      //  TagItem t = currentTagItems.First();
-      //  t.ModelId = eModelId;
-      //  t.DraftId = eDraftId;
-      //  t.ModelTag = eModelTag;
-      //  t.DraftTag = eModelTag;
-
-      //}
-      //else
-      //{
-      //  TaskDialog.Show("1", "ХЗ");
-      //}
     }
 
     //  Commands

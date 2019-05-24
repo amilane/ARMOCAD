@@ -2,9 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media;
 using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
@@ -27,15 +24,25 @@ namespace ARMOCAD
     public ObservableCollection<TagItem> TagItems;
     public string ProjectName;
 
+
+    private Element eModel;
+    public Element EModel {
+      get { return eModel; }
+      set { eModel = value; }
+    }
+
+    private Element eDraft;
+    public Element EDraft {
+      get { return eDraft; }
+      set { eDraft = value; }
+    }
+
+
     private TagItem newTag;
     public TagItem NewTag {
-      get {
-        return newTag;
-      }
+      get { return newTag; }
 
-      set {
-        newTag = value;
-      }
+      set { newTag = value; }
     }
 
 
@@ -60,13 +67,16 @@ namespace ARMOCAD
       IEnumerable<Element> terminal = new FilteredElementCollector(DOC).OfCategory(BuiltInCategory.OST_DuctTerminal)
         .WhereElementIsNotElementType()
         .ToElements();
-      IEnumerable<Element> ductAccessory = new FilteredElementCollector(DOC).OfCategory(BuiltInCategory.OST_DuctAccessory)
+      IEnumerable<Element> ductAccessory = new FilteredElementCollector(DOC)
+        .OfCategory(BuiltInCategory.OST_DuctAccessory)
         .WhereElementIsNotElementType()
         .ToElements();
-      IEnumerable<Element> pipeAccessory = new FilteredElementCollector(DOC).OfCategory(BuiltInCategory.OST_PipeAccessory)
+      IEnumerable<Element> pipeAccessory = new FilteredElementCollector(DOC)
+        .OfCategory(BuiltInCategory.OST_PipeAccessory)
         .WhereElementIsNotElementType()
         .ToElements();
-      IEnumerable<Element> equipment = new FilteredElementCollector(DOC).OfCategory(BuiltInCategory.OST_MechanicalEquipment)
+      IEnumerable<Element> equipment = new FilteredElementCollector(DOC)
+        .OfCategory(BuiltInCategory.OST_MechanicalEquipment)
         .WhereElementIsNotElementType()
         .ToElements();
       IEnumerable<Element> elems = terminal.Union(ductAccessory).Union(pipeAccessory).Union(equipment);
@@ -81,6 +91,7 @@ namespace ARMOCAD
       {
         result = true;
       }
+
       return result;
     }
 
@@ -100,6 +111,7 @@ namespace ARMOCAD
           }
         }
       }
+
       return schema;
     }
 
@@ -119,7 +131,8 @@ namespace ARMOCAD
       schemaBuilder.SetSchemaName("TagBridgeSchema");
 
       // set documentation
-      schemaBuilder.SetDocumentation("Хранение ElementId элементов узлов из принципиальной схемы внутри экземпляров семейств модели");
+      schemaBuilder.SetDocumentation(
+        "Хранение ElementId элементов узлов из принципиальной схемы внутри экземпляров семейств модели");
 
       // create a field to store the bool value
       FieldBuilder fieldBuilder = schemaBuilder.AddSimpleField("DraftElemFromScheme", typeof(ElementId));
@@ -142,17 +155,10 @@ namespace ARMOCAD
         if (!string.IsNullOrWhiteSpace(modelTag))
         {
           TagItem t = new TagItem();
-          t.ModelTag = modelTag;
           t.ModelId = e.Id;
-          var ent = e.GetEntity(schema);
-          if (ent.Schema != null)
-          {
-            ElementId draftId = ent.Get<ElementId>("DraftElemFromScheme");
-            string draftTag = DOC.GetElement(draftId).LookupParameter("TAG")?.AsString();
-            t.DraftId = draftId;
-            t.DraftTag = draftTag;
-          }
+          t.ModelTag = modelTag;
 
+          setDraftInfoToTagItem(t, e);
 
           tagItems.Add(t);
         }
@@ -162,7 +168,88 @@ namespace ARMOCAD
 
     }
 
-    public // собрать текущие семейства тут и прокинуть во вьюмодель
+    //собирает 2 элемента, делает из них новый tagItem
+    public void getTwoElements()
+    {
+      ICollection<ElementId> selectedIds = UIDOC.Selection.GetElementIds();
+
+      List<Element> elems = new List<Element>();
+      if (selectedIds.Count != 2)
+      {
+        TaskDialog.Show("Ошибка", "Выберите 2 элемента.");
+        NewTag = null;
+      }
+      else
+      {
+        foreach (var i in selectedIds)
+        {
+          elems.Add(DOC.GetElement(i));
+        }
+
+        if (elems.Any(i => i.Category.Id.IntegerValue != (int)BuiltInCategory.OST_DetailComponents) &&
+            elems.Any(i => i.Category.Id.IntegerValue == (int)BuiltInCategory.OST_DetailComponents))
+        {
+          EModel = elems.Where(i => i.Category.Id.IntegerValue != (int)BuiltInCategory.OST_DetailComponents).First();
+          EDraft = elems.Where(i => i.Category.Id.IntegerValue == (int)BuiltInCategory.OST_DetailComponents).First();
+
+          TagItem tag = new TagItem();
+          tag.ModelId = EModel.Id;
+          tag.DraftId = EDraft.Id;
+          string tagValue = EModel.LookupParameter("TAG").AsString();
+          tag.ModelTag = tagValue;
+          tag.DraftTag = tagValue;
+
+          NewTag = tag;
+        }
+        else
+        {
+          TaskDialog.Show("Ошибка", "Выберите 1 элемент модели и 1 элемент узла на чертежном виде.");
+        }
+
+      }
+
+
+    }
+
+
+    public void checkTagList(TagItem t)
+    {
+      ElementId elId = t.ModelId;
+      Element e = DOC.GetElement(elId);
+
+      t.ModelTag = elId.ToString();
+      //setDraftInfoToTagItem(t, e);
+
+    }
+
+
+    public void setDraftInfoToTagItem(TagItem t, Element e)
+    {
+      string draftTag = String.Empty;
+      ElementId draftId = null;
+
+      var ent = e.GetEntity(schema);
+      if (ent.Schema != null)
+      {
+        draftId = ent.Get<ElementId>("DraftElemFromScheme");
+        if (draftId != null && draftId.IntegerValue != -1)
+        {
+          draftTag = DOC.GetElement(draftId).LookupParameter("TAG")?.AsString();
+        }
+      }
+
+      t.DraftId = draftId;
+      t.DraftTag = draftTag;
+
+
+
+
+
+
+
+    }
+
+
 
 
   }
