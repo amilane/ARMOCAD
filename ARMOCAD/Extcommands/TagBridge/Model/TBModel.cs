@@ -6,12 +6,15 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using Autodesk.Revit.ApplicationServices;
+using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.ExtensibleStorage;
 using Autodesk.Revit.UI;
 
 namespace ARMOCAD
 {
+  [Transaction(TransactionMode.Manual)]
+  [Regeneration(RegenerationOption.Manual)]
   class TBModel
   {
     // Just like what you do when creating a Revit command, declare the necessary variable such as below.
@@ -20,9 +23,21 @@ namespace ARMOCAD
     private static UIDocument UIDOC = null;
     private static Document DOC = null;
 
-    private static Schema schema = null;
+    public Schema schema = null;
     public ObservableCollection<TagItem> TagItems;
     public string ProjectName;
+
+    private TagItem newTag;
+    public TagItem NewTag {
+      get {
+        return newTag;
+      }
+
+      set {
+        newTag = value;
+      }
+    }
+
 
     public TBModel(UIApplication uiapp)
     {
@@ -116,7 +131,7 @@ namespace ARMOCAD
     }
 
     // создание первоначального списка элементов
-    public static ObservableCollection<TagItem> tagListData(IEnumerable<Element> elems)
+    public ObservableCollection<TagItem> tagListData(IEnumerable<Element> elems)
     {
       ObservableCollection<TagItem> tagItems = new ObservableCollection<TagItem>();
 
@@ -136,19 +151,8 @@ namespace ARMOCAD
             string draftTag = DOC.GetElement(draftId).LookupParameter("TAG")?.AsString();
             t.DraftId = draftId;
             t.DraftTag = draftTag;
-            if (modelTag != draftTag)
-            {
-              t.Color = Brushes.Salmon;
-            }
-            else
-            {
-              t.Color = Brushes.LightGreen;
-            }
           }
-          else
-          {
-            t.Color = Brushes.White;
-          }
+
 
           tagItems.Add(t);
         }
@@ -157,6 +161,8 @@ namespace ARMOCAD
       return tagItems;
 
     }
+
+    public // собрать текущие семейства тут и прокинуть во вьюмодель
 
 
   }

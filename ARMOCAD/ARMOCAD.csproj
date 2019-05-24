@@ -157,7 +157,8 @@
     <Compile Include="Extcommands\SKS Fasad\SocketNumbering.cs" />
     <Compile Include="Extcommands\SKUD\SKUDControlPlacementEx.cs" />
     <Compile Include="Extcommands\SKUD\SKUDPlaceEquipmentEx.cs" />
-    <Compile Include="Extcommands\TagBridge\ExternalEventMy.cs" />
+    <Compile Include="Extcommands\Common\ExternalEventMy.cs" />
+    <Compile Include="Extcommands\TagBridge\Model\ConnectButtonEventHandler.cs" />
     <Compile Include="Extcommands\TagBridge\Model\TBModel.cs" />
     <Compile Include="Extcommands\TagBridge\TBCommand.cs" />
     <Compile Include="Extcommands\TagBridge\View\TBView.xaml.cs">

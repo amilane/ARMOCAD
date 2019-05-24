@@ -8,6 +8,7 @@ namespace ARMOCAD
 {
 
   [Transaction(TransactionMode.Manual)]
+  [Regeneration(RegenerationOption.Manual)]
   public class TBCommand : IExternalCommand
   {
     public Result Execute(
@@ -22,8 +23,16 @@ namespace ARMOCAD
 
       try
       {
+        ConnectButtonEventHandler connectButtonEventHandler = new ConnectButtonEventHandler();
+        ExternalEvent connectExEvent = ExternalEvent.Create(connectButtonEventHandler);
+
+        TBModel model = new TBModel(uiapp);
+        connectButtonEventHandler.RevitModel = model;
+        
+
         TBViewModel vmod = new TBViewModel();
-        vmod.RevitModel = new TBModel(uiapp);
+        vmod.RevitModel = model;
+        vmod.connectEvent = connectExEvent;
 
         TBView view = new TBView();
         view.DataContext = vmod;

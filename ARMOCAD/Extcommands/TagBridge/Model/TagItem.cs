@@ -20,6 +20,25 @@ namespace ARMOCAD
     {
       if (PropertyChanged != null)
         PropertyChanged(this, new PropertyChangedEventArgs(prop));
+      if (prop == "ChangeModelTag" | prop == "ChangeDraftTag")
+      {
+        if (DraftTag == null)
+        {
+          Color = Brushes.White;
+        }
+        else
+        {
+          if (ModelTag != DraftTag)
+          {
+            Color = Brushes.Salmon;
+          }
+          else
+          {
+            Color = Brushes.LightGreen;
+          }
+        }
+        
+      }
     }
 
     public ElementId ModelId {
