@@ -25,16 +25,21 @@ namespace ARMOCAD
       {
         ConnectButtonEventHandler connectButtonEventHandler = new ConnectButtonEventHandler();
         ExternalEvent connectExEvent = ExternalEvent.Create(connectButtonEventHandler);
+        MoveTagsToDraftElementsEventHandler moveTagsToDraftElementsEventHandler = new MoveTagsToDraftElementsEventHandler();
+        ExternalEvent moveTagsExEvent = ExternalEvent.Create(moveTagsToDraftElementsEventHandler);
+
+
 
         TBModel model = new TBModel(uiapp);
         connectButtonEventHandler.RevitModel = model;
-        
+        moveTagsToDraftElementsEventHandler.RevitModel = model;
 
         TBViewModel vmod = new TBViewModel();
         vmod.RevitModel = model;
         vmod.connectEvent = connectExEvent;
+        vmod.moveTagsEvent = moveTagsExEvent;
 
-        TBView view = new TBView();
+        TBView view = new TBView(uidoc);
         view.DataContext = vmod;
         view.Show();
 

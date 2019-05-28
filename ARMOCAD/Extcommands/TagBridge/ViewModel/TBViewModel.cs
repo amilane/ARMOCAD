@@ -1,8 +1,10 @@
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using System.Windows.Media;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 
@@ -15,6 +17,7 @@ namespace ARMOCAD
     private TBModel revitModel;
     private string projectName;
     public ExternalEvent connectEvent;
+    public ExternalEvent moveTagsEvent;
 
 
 
@@ -58,7 +61,8 @@ namespace ARMOCAD
 
     public ObservableCollection<TagItem> TagItems {
       get {
-        return RevitModel?.TagItems;
+        tagItems = RevitModel?.TagItems;
+        return tagItems;
       }
       set { tagItems = value; }
 
@@ -67,7 +71,7 @@ namespace ARMOCAD
     private TagItem newTag;
     public TagItem NewTag {
       get {
-        newTag = RevitModel.NewTag;
+        newTag = RevitModel?.NewTag;
         return newTag;
       }
 
@@ -76,6 +80,8 @@ namespace ARMOCAD
       }
     }
 
+    
+
     // The action function for ConnectButtonAction
     /// <summary>
     /// Если в списке уже есть tagItem с таким ТЭГом, то заменяем его, если нет - добавляем в список
@@ -83,43 +89,84 @@ namespace ARMOCAD
     private void ConnectButtonAction()
     {
       RevitModel.getTwoElements();
-      connectEvent.Raise();
 
-      if (NewTag != null)
+      if (RevitModel.IsTwoElementsSelected)
       {
-        if (TagItems.Any(i => i.ModelId == NewTag.ModelId))
+        RevitModel.getElementForDeletingDraftId();
+
+        connectEvent.Raise();
+        int idx;
+
+        if (NewTag != null)
         {
-          TagItem t = TagItems.Where(i => i.ModelId == NewTag.ModelId).First();
-          int idx = TagItems.IndexOf(t);
-          TagItems[idx] = NewTag;
+          //закрашивается белым старый тэг, при переназначении элемента узла
+          var tItemsWithErrorDraftId = TagItems.Where(i => i.DraftId == NewTag.DraftId);
+          if (tItemsWithErrorDraftId.Count() != 0)
+          {
+            var tagItemWithErrorDraftId = tItemsWithErrorDraftId.First();
+            idx = TagItems.IndexOf(tagItemWithErrorDraftId);
+
+            TagItem tWithoutDraftTag = new TagItem();
+            tWithoutDraftTag.ModelTag = tagItemWithErrorDraftId.ModelTag;
+            tWithoutDraftTag.ModelId = tagItemWithErrorDraftId.ModelId;
+
+            TagItems[idx] = tWithoutDraftTag;
+
+          }
+          //внесение правки в существующий элемент списка или добавление нового
+          if (TagItems.Any(i => i.ModelId == NewTag.ModelId))
+          {
+            TagItem t = TagItems.Where(i => i.ModelId == NewTag.ModelId).First();
+            idx = TagItems.IndexOf(t);
+            TagItems[idx] = NewTag;
+          }
+          else
+          {
+            TagItems.Add(NewTag);
+          }
+
         }
         else
         {
-          TagItems.Add(NewTag);
+          TagItem t = new TagItem();
+          t.ModelTag = "NewTag is Null";
+
+          TagItems.Add(t);
         }
-
       }
-      else
-      {
-        TagItem t = new TagItem();
-        t.ModelTag = "NewTag is Null";
-
-        TagItems.Add(t);
-      }
-
       
-      
+
+
+
+
+
+
+
 
 
     }
+    private void MoveTagButtonAction()
+    {
+      moveTagsEvent.Raise();
+    }
+
 
     //  Commands
-    // This will be used by the button in the WPF window.
+    // Команда для соединения двух экземпляров семейств (модели и чертежного вида)
     public ICommand ConnectButtonCommand {
       get {
         return new DelegateCommand(ConnectButtonAction);
       }
     }
+
+    //Команда для кнопки переноса тэгов
+    public ICommand MoveTagButtonCommand {
+      get {
+        return new DelegateCommand(MoveTagButtonAction);
+      }
+    }
+
+
 
 
     public event PropertyChangedEventHandler PropertyChanged;

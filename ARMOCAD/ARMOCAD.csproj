@@ -133,6 +133,7 @@
     <Compile Include="Extcommands\Common\Node.cs" />
     <Compile Include="Extcommands\Common\ReadDataFromExcel.cs" />
     <Compile Include="Extcommands\Common\RelayCommand.cs" />
+    <Compile Include="Extcommands\Common\SchemaMethods.cs" />
     <Compile Include="Extcommands\Common\Singleton.cs" />
     <Compile Include="Extcommands\Common\ViewDraftingCreate.cs" />
     <Compile Include="Extcommands\CompareModelAndScheme.cs" />
@@ -159,6 +160,7 @@
     <Compile Include="Extcommands\SKUD\SKUDPlaceEquipmentEx.cs" />
     <Compile Include="Extcommands\Common\ExternalEventMy.cs" />
     <Compile Include="Extcommands\TagBridge\Model\ConnectButtonEventHandler.cs" />
+    <Compile Include="Extcommands\TagBridge\Model\MoveTagsToDraftElementsEventHandler.cs" />
     <Compile Include="Extcommands\TagBridge\Model\TBModel.cs" />
     <Compile Include="Extcommands\TagBridge\TBCommand.cs" />
     <Compile Include="Extcommands\TagBridge\View\TBView.xaml.cs">

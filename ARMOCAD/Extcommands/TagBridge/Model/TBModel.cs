@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
@@ -24,6 +26,7 @@ namespace ARMOCAD
     public ObservableCollection<TagItem> TagItems;
     public string ProjectName;
 
+    public IEnumerable<Element> elems;
 
     private Element eModel;
     public Element EModel {
@@ -37,12 +40,23 @@ namespace ARMOCAD
       set { eDraft = value; }
     }
 
+    private Element eModelDelDraft;
+    public Element EModelDelDraft {
+      get { return eModelDelDraft; }
+      set { eModelDelDraft = value; }
+    }
+
 
     private TagItem newTag;
     public TagItem NewTag {
       get { return newTag; }
-
       set { newTag = value; }
+    }
+
+    private bool isTwoElementsSelected = true;
+    public bool IsTwoElementsSelected {
+      get { return isTwoElementsSelected; }
+      set { isTwoElementsSelected = value; }
     }
 
 
@@ -54,15 +68,17 @@ namespace ARMOCAD
       DOC = UIDOC.Document;
       ProjectName = DOC.Title;
 
-      if (SchemaExist("TagBridgeSchema"))
+      if (SchemaExist("AgSchema"))
       {
-        schema = GetSchema("TagBridgeSchema");
+        schema = GetSchema("AgSchema");
       }
 
       if (schema == null)
       {
         schema = CreateSchema();
       }
+
+      SchemaMethods.schema = schema;
 
       IEnumerable<Element> terminal = new FilteredElementCollector(DOC).OfCategory(BuiltInCategory.OST_DuctTerminal)
         .WhereElementIsNotElementType()
@@ -79,7 +95,7 @@ namespace ARMOCAD
         .OfCategory(BuiltInCategory.OST_MechanicalEquipment)
         .WhereElementIsNotElementType()
         .ToElements();
-      IEnumerable<Element> elems = terminal.Union(ductAccessory).Union(pipeAccessory).Union(equipment);
+      elems = terminal.Union(ductAccessory).Union(pipeAccessory).Union(equipment);
 
       TagItems = tagListData(elems);
     }
@@ -117,7 +133,7 @@ namespace ARMOCAD
 
     public static Schema CreateSchema()
     {
-      Guid schemaGuid = new Guid("3d47d6ed-2bee-414e-a76e-ff9d38829bf2");
+      Guid schemaGuid = new Guid("ce6a412e-1e20-4ac3-a081-0a6bde126466");
 
       SchemaBuilder schemaBuilder = new SchemaBuilder(schemaGuid);
 
@@ -128,14 +144,16 @@ namespace ARMOCAD
       schemaBuilder.SetWriteAccessLevel(AccessLevel.Public);
 
       // set schema name
-      schemaBuilder.SetSchemaName("TagBridgeSchema");
+      schemaBuilder.SetSchemaName("AgSchema");
 
       // set documentation
       schemaBuilder.SetDocumentation(
         "Хранение ElementId элементов узлов из принципиальной схемы внутри экземпляров семейств модели");
 
       // create a field to store the bool value
-      FieldBuilder fieldBuilder = schemaBuilder.AddSimpleField("DraftElemFromScheme", typeof(ElementId));
+      FieldBuilder elemIdField = schemaBuilder.AddMapField("DictElemId", typeof(Int32), typeof(ElementId));
+      FieldBuilder elemStringField = schemaBuilder.AddMapField("DictString", typeof(Int32), typeof(string));
+      FieldBuilder elemIntField = schemaBuilder.AddMapField("DictInt", typeof(Int32), typeof(Int32));
 
       // register the schema
       Schema schema = schemaBuilder.Finish();
@@ -152,18 +170,16 @@ namespace ARMOCAD
       {
         string modelTag = e.LookupParameter("TAG")?.AsString();
 
-        if (!string.IsNullOrWhiteSpace(modelTag))
-        {
-          TagItem t = new TagItem();
-          t.ModelId = e.Id;
-          t.ModelTag = modelTag;
+        TagItem t = new TagItem();
+        t.ModelId = e.Id;
+        t.ModelTag = modelTag;
 
-          setDraftInfoToTagItem(t, e);
+        setDraftInfoToTagItem(t, e);
 
-          tagItems.Add(t);
-        }
+        tagItems.Add(t);
       }
 
+      
       return tagItems;
 
     }
@@ -176,7 +192,8 @@ namespace ARMOCAD
       List<Element> elems = new List<Element>();
       if (selectedIds.Count != 2)
       {
-        TaskDialog.Show("Ошибка", "Выберите 2 элемента.");
+
+        IsTwoElementsSelected = false;
         NewTag = null;
       }
       else
@@ -189,6 +206,8 @@ namespace ARMOCAD
         if (elems.Any(i => i.Category.Id.IntegerValue != (int)BuiltInCategory.OST_DetailComponents) &&
             elems.Any(i => i.Category.Id.IntegerValue == (int)BuiltInCategory.OST_DetailComponents))
         {
+          IsTwoElementsSelected = true;
+
           EModel = elems.Where(i => i.Category.Id.IntegerValue != (int)BuiltInCategory.OST_DetailComponents).First();
           EDraft = elems.Where(i => i.Category.Id.IntegerValue == (int)BuiltInCategory.OST_DetailComponents).First();
 
@@ -203,7 +222,7 @@ namespace ARMOCAD
         }
         else
         {
-          TaskDialog.Show("Ошибка", "Выберите 1 элемент модели и 1 элемент узла на чертежном виде.");
+          IsTwoElementsSelected = false;
         }
 
       }
@@ -211,42 +230,34 @@ namespace ARMOCAD
 
     }
 
-
-    public void checkTagList(TagItem t)
-    {
-      ElementId elId = t.ModelId;
-      Element e = DOC.GetElement(elId);
-
-      t.ModelTag = elId.ToString();
-      //setDraftInfoToTagItem(t, e);
-
-    }
 
 
     public void setDraftInfoToTagItem(TagItem t, Element e)
     {
       string draftTag = String.Empty;
-      ElementId draftId = null;
 
-      var ent = e.GetEntity(schema);
-      if (ent.Schema != null)
+      ElementId draftId = SchemaMethods.getSchemaDictValue<ElementId>(e, "DictElemId", 0) as ElementId;
+
+      if (draftId != null && draftId.IntegerValue != -1)
       {
-        draftId = ent.Get<ElementId>("DraftElemFromScheme");
-        if (draftId != null && draftId.IntegerValue != -1)
-        {
-          draftTag = DOC.GetElement(draftId).LookupParameter("TAG")?.AsString();
-        }
+        draftTag = DOC.GetElement(draftId).LookupParameter("TAG")?.AsString();
       }
 
       t.DraftId = draftId;
       t.DraftTag = draftTag;
+    }
 
 
+    //проверка, есть ли в модели уже где-то назначенный данный EDraft, если есть, то удаляем оттуда ElementId
+    //чтобы в модели не оказывалось множественного назначения одного элемента узла разным экземплярям семейств
+    public void getElementForDeletingDraftId()
+    {
+      var x = elems.Where(e => SchemaMethods.getSchemaDictValue<ElementId>(e, "DictElemId", 0) as ElementId == EDraft.Id);
 
-
-
-
-
+      if (x.Count() != 0)
+      {
+        EModelDelDraft = x.First();
+      }
     }
 
 

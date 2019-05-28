@@ -13,6 +13,7 @@ namespace ARMOCAD
     private string modelTag;
     private string draftTag;
     private Brush color;
+    private string itemName;
 
 
     public event PropertyChangedEventHandler PropertyChanged;
@@ -23,7 +24,7 @@ namespace ARMOCAD
       if (prop == "ChangeModelTag" |
           prop == "ChangeDraftTag")
       {
-        if (DraftId == null || DraftTag == null)
+        if (DraftId == null || DraftId.IntegerValue == -1 || DraftTag == null)
         {
           Color = Brushes.White;
         }
@@ -50,7 +51,6 @@ namespace ARMOCAD
         modelId = value;
         OnPropertyChanged("ChangeModelId");
       }
-
     }
 
     public ElementId DraftId {
@@ -95,7 +95,20 @@ namespace ARMOCAD
 
     }
 
-
+    public string ItemName {
+      get {
+        if (!string.IsNullOrWhiteSpace(ModelTag))
+        {
+          itemName = ModelTag;
+        }
+        else
+        {
+          itemName = ModelId.ToString();
+        }
+        return itemName;
+      }
+      
+    }
   }
 }
 

@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ARMOCAD"
              mc:Ignorable="d" 
-             d:DesignHeight="450" Width="500"
+             d:DesignHeight="700" Width="500"
              WindowStartupLocation="CenterScreen"
              Topmost="True"
              Title="TAG BRIDGE">
@@ -13,9 +13,14 @@
     <local:TBViewModel/>
   </Window.DataContext>
 
+
   <Grid >
     <Grid.RowDefinitions>
       <RowDefinition Height="25"/>
+      <RowDefinition Height="25"/>
+      <RowDefinition Height="50"/>
+      <RowDefinition Height="50"/>
+      <RowDefinition Height="50"/>
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
     <Grid.ColumnDefinitions>
@@ -31,8 +36,10 @@
     </Grid>
 
 
-    <Button Content="Button" Command ="{Binding ConnectButtonCommand}" HorizontalAlignment="Left" Margin="76,12,0,0" VerticalAlignment="Top" Width="75" Grid.Row="1" Grid.Column="1" />
-    <ListBox  Grid.Row="1" ItemsSource ="{Binding TagItems}" DisplayMemberPath ="ModelTag" SelectedItem ="{Binding SelectedItem}" >
+    <Button Grid.Row="2" Grid.Column="1" Content="Сцепить два элемента" Command ="{Binding ConnectButtonCommand}"/>
+    <Button Grid.Row="4" Grid.Column="1" Content="Перенести тэги из модели на схемы" Command ="{Binding MoveTagButtonCommand}"/>
+
+    <ListBox  Grid.Row="1" Grid.RowSpan="5" ItemsSource ="{Binding TagItems}" DisplayMemberPath ="ItemName" SelectedItem ="{Binding SelectedItem}" SelectionChanged="Selector_OnSelectionChanged"  >
       <ListBox.ItemContainerStyle>
         <Style>
           <Setter Property="ListBoxItem.Background" Value="{Binding Color}"/>
@@ -42,6 +49,16 @@
       </ListBox.ItemContainerStyle>
 
     </ListBox>
+    <Rectangle Grid.Column="1" Grid.Row="5" Fill="#FFFFFFFF" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="20" Margin="10,60,0,0"  Stroke="Black"/>
+    <TextBlock Grid.Column="1" Grid.Row="5" Margin="35,60,0,392" HorizontalAlignment="Left" VerticalAlignment="Top" Text="- элемент модели не связан со схемой" Height="20"/>
+    <Rectangle Grid.Column="1" Grid.Row="5" Fill="#FFFA8072" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="20" Margin="10,90,0,0"  Stroke="Black" />
+    <TextBlock Grid.Column="1" Grid.Row="5" Margin="35,90,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"  Text="- тэги не совпадают" Height="20" />
+    <Rectangle Grid.Column="1" Grid.Row="5" Fill="#FF90EE90" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="20" Margin="10,120,0,0"  Stroke="Black" />
+    <TextBlock Grid.Column="1" Grid.Row="5" Margin="35,120,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"  Text="- тэги совпадают" Height="20" />
+
+
+
+
 
   </Grid>
 </Window>

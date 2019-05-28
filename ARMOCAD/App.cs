@@ -314,6 +314,18 @@ namespace ARMOCAD
       pb13_4.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/tagIconGreen.png"));
       pb13_4.LargeImage = pb13_4.Image;
 
+      // create push button
+      PushButtonData b13_5Data = new PushButtonData(
+        "cmdTBCommand",
+        "TAG" + System.Environment.NewLine + "bridge",
+        thisAssemblyPath,
+        "ARMOCAD.TBCommand");
+
+      PushButton pb13_5 = ribbonPanelAgpzTag.AddItem(b13_5Data) as PushButton;
+      pb13_5.ToolTip = "Сцепляет элементы модели и схем";
+      pb13_5.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/tagTransferIcon.png"));
+      pb13_5.LargeImage = pb13_5.Image;
+
 
       #endregion AGPZ Tag Buttons
 
