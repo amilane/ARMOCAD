@@ -1,11 +1,8 @@
-using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
-using System.Windows.Media;
-using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 
 namespace ARMOCAD
@@ -14,7 +11,7 @@ namespace ARMOCAD
   {
     private TagItem selectedItem;
     private ObservableCollection<TagItem> tagItems;
-    private TBModel revitModel;
+
     private string projectName;
     public ExternalEvent connectEvent;
     public ExternalEvent moveTagsEvent;
@@ -28,6 +25,7 @@ namespace ARMOCAD
 
     }
 
+    private TBModel revitModel;
     internal TBModel RevitModel {
       get {
         return revitModel;
@@ -61,11 +59,10 @@ namespace ARMOCAD
 
     public ObservableCollection<TagItem> TagItems {
       get {
-        tagItems = RevitModel?.TagItems;
+        tagItems = RevitModel.TagItems;
         return tagItems;
       }
-      set { tagItems = value; }
-
+      
     }
 
     private TagItem newTag;
@@ -80,7 +77,7 @@ namespace ARMOCAD
       }
     }
 
-    
+
 
     // The action function for ConnectButtonAction
     /// <summary>
@@ -92,27 +89,12 @@ namespace ARMOCAD
 
       if (RevitModel.IsTwoElementsSelected)
       {
-        RevitModel.getElementForDeletingDraftId();
 
         connectEvent.Raise();
         int idx;
 
         if (NewTag != null)
         {
-          //закрашивается белым старый тэг, при переназначении элемента узла
-          var tItemsWithErrorDraftId = TagItems.Where(i => i.DraftId == NewTag.DraftId);
-          if (tItemsWithErrorDraftId.Count() != 0)
-          {
-            var tagItemWithErrorDraftId = tItemsWithErrorDraftId.First();
-            idx = TagItems.IndexOf(tagItemWithErrorDraftId);
-
-            TagItem tWithoutDraftTag = new TagItem();
-            tWithoutDraftTag.ModelTag = tagItemWithErrorDraftId.ModelTag;
-            tWithoutDraftTag.ModelId = tagItemWithErrorDraftId.ModelId;
-
-            TagItems[idx] = tWithoutDraftTag;
-
-          }
           //внесение правки в существующий элемент списка или добавление нового
           if (TagItems.Any(i => i.ModelId == NewTag.ModelId))
           {
@@ -126,23 +108,8 @@ namespace ARMOCAD
           }
 
         }
-        else
-        {
-          TagItem t = new TagItem();
-          t.ModelTag = "NewTag is Null";
 
-          TagItems.Add(t);
-        }
       }
-      
-
-
-
-
-
-
-
-
 
     }
     private void MoveTagButtonAction()
@@ -150,6 +117,16 @@ namespace ARMOCAD
       moveTagsEvent.Raise();
     }
 
+    private void RefreshList()
+    {
+      TagItems.Clear();
+      foreach (var t in RevitModel.tagListData())
+      {
+        TagItems.Add(t);
+      }
+
+
+    }
 
     //  Commands
     // Команда для соединения двух экземпляров семейств (модели и чертежного вида)
@@ -166,6 +143,13 @@ namespace ARMOCAD
       }
     }
 
+    // Команда для обновления списка
+    public ICommand RefreshListButtonCommand {
+      get {
+        return new DelegateCommand(RefreshList);
+      }
+    }
+
 
 
 
@@ -174,7 +158,14 @@ namespace ARMOCAD
     {
       if (PropertyChanged != null)
         PropertyChanged(this, new PropertyChangedEventArgs(prop));
+      
     }
+
+
+
+
+
+
 
   }
 }

@@ -31,22 +31,23 @@ namespace ARMOCAD
 
           foreach (Level level in levels) {
             // шкафы СКС на данном уровне, в которые собираются розетки
-            IList<Element> shelfs = new FilteredElementCollector(doc)
-              .OfCategory(BuiltInCategory.OST_CommunicationDevices)
-              .WhereElementIsNotElementType()
-              .Where(i => (i.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString() == "Шкаф СКС: Кроссовый" |
-                          i.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString() == "Шкаф СКС: Серверно-кроссовый") &&
-                          i.LevelId == level.Id).ToList();
+
+            var shelfs = Util.GetElementsByStringParameter(
+                doc,
+                BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM,
+                "СКС_Шкаф_[серверный, кроссовый] : Кроссовый")
+              .Where(i=>i.LevelId == level.Id)
+              .ToList();
 
             // розетки на данном уровне
-            IList<Element> sockets = new FilteredElementCollector(doc)
-              .OfCategory(BuiltInCategory.OST_CommunicationDevices)
-              .WhereElementIsNotElementType()
-              .Where(i => ((FamilyInstance)i).Symbol.get_Parameter(BuiltInParameter.ALL_MODEL_DESCRIPTION).AsString() == "Розетка СКС" &&
-                          i.LevelId == level.Id &&
-                          i.LookupParameter("Розетка - Система")?.AsString() != null).ToList();
+            IList<Element> sockets = Util.GetElementsByStringParameter(
+                doc,
+                BuiltInParameter.ELEM_FAMILY_PARAM,
+                "СКС_Розетка_[1xRJ45, 2xRJ45, TV, radio]")
+              .Where(i => i.LevelId == level.Id)
+              .ToList();
 
-
+            
             if (shelfs.Count > 0 && sockets.Count > 0) {
 
               List<Element> errorSockets = new List<Element>(); //розетки, которые не входят в радиус ни одного шкафа (60 м)

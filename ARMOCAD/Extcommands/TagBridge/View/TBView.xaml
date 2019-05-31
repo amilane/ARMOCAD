@@ -22,6 +22,7 @@
       <RowDefinition Height="50"/>
       <RowDefinition Height="50"/>
       <RowDefinition Height="*"/>
+      <RowDefinition Height="50"/>
     </Grid.RowDefinitions>
     <Grid.ColumnDefinitions>
       <ColumnDefinition></ColumnDefinition>
@@ -38,8 +39,9 @@
 
     <Button Grid.Row="2" Grid.Column="1" Content="Сцепить два элемента" Command ="{Binding ConnectButtonCommand}"/>
     <Button Grid.Row="4" Grid.Column="1" Content="Перенести тэги из модели на схемы" Command ="{Binding MoveTagButtonCommand}"/>
+    <Button Grid.Row="6" Grid.Column="1" Content="&lt;= Обновить список" Command ="{Binding RefreshListButtonCommand}"/>
 
-    <ListBox  Grid.Row="1" Grid.RowSpan="5" ItemsSource ="{Binding TagItems}" DisplayMemberPath ="ItemName" SelectedItem ="{Binding SelectedItem}" SelectionChanged="Selector_OnSelectionChanged"  >
+    <ListBox  Grid.Row="1" Grid.RowSpan="6" ItemsSource ="{Binding TagItems}" DisplayMemberPath ="ItemName" SelectedItem ="{Binding SelectedItem}" SelectionChanged="Selector_OnSelectionChanged"  >
       <ListBox.ItemContainerStyle>
         <Style>
           <Setter Property="ListBoxItem.Background" Value="{Binding Color}"/>
@@ -55,6 +57,8 @@
     <TextBlock Grid.Column="1" Grid.Row="5" Margin="35,90,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"  Text="- тэги не совпадают" Height="20" />
     <Rectangle Grid.Column="1" Grid.Row="5" Fill="#FF90EE90" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="20" Margin="10,120,0,0"  Stroke="Black" />
     <TextBlock Grid.Column="1" Grid.Row="5" Margin="35,120,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"  Text="- тэги совпадают" Height="20" />
+    <Rectangle Grid.Column="1" Grid.Row="5" Fill="#FFFF69B4" HorizontalAlignment="Left" VerticalAlignment="Top" Height="20" Width="20" Margin="10,150,0,0"  Stroke="Black" />
+    <TextBlock Grid.Column="1" Grid.Row="5" Margin="35,150,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"  Text="- модели ссылаются на один экземпляр схемы" Height="30" TextWrapping="Wrap" />
 
 
 

@@ -26,7 +26,7 @@ namespace ARMOCAD
       List<IEnumerable<Socket>> socketPurposes = new List<IEnumerable<Socket>>();
 
       // Разделение розеток на системы, если шкаф Кроссовый
-      if (shelf.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString() == "Шкаф СКС: Кроссовый") {
+      if (shelf.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString() == "СКС_Шкаф_[серверный, кроссовый] : Кроссовый") {
 
         var groupSockets = socList.GroupBy(s => s.system);
 
@@ -35,13 +35,7 @@ namespace ARMOCAD
         }
 
       }
-      // для Серверно-кроссового не разделяем
-      else if (shelf.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString() == "Шкаф СКС: Серверно-кроссовый") {
-        if (socList.Count > 0) {
-          socketPurposes.Add(socList);
-        }
-      }
-
+      
       return socketPurposes;
     }
 

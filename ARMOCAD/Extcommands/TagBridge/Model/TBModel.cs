@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
@@ -22,8 +20,8 @@ namespace ARMOCAD
     private static UIDocument UIDOC = null;
     private static Document DOC = null;
 
-    public Schema schema = null;
     public ObservableCollection<TagItem> TagItems;
+    public Schema schema = null;
     public string ProjectName;
 
     public IEnumerable<Element> elems;
@@ -40,13 +38,6 @@ namespace ARMOCAD
       set { eDraft = value; }
     }
 
-    private Element eModelDelDraft;
-    public Element EModelDelDraft {
-      get { return eModelDelDraft; }
-      set { eModelDelDraft = value; }
-    }
-
-
     private TagItem newTag;
     public TagItem NewTag {
       get { return newTag; }
@@ -59,7 +50,7 @@ namespace ARMOCAD
       set { isTwoElementsSelected = value; }
     }
 
-
+    
     public TBModel(UIApplication uiapp)
     {
       UIAPP = uiapp;
@@ -80,24 +71,7 @@ namespace ARMOCAD
 
       SchemaMethods.schema = schema;
 
-      IEnumerable<Element> terminal = new FilteredElementCollector(DOC).OfCategory(BuiltInCategory.OST_DuctTerminal)
-        .WhereElementIsNotElementType()
-        .ToElements();
-      IEnumerable<Element> ductAccessory = new FilteredElementCollector(DOC)
-        .OfCategory(BuiltInCategory.OST_DuctAccessory)
-        .WhereElementIsNotElementType()
-        .ToElements();
-      IEnumerable<Element> pipeAccessory = new FilteredElementCollector(DOC)
-        .OfCategory(BuiltInCategory.OST_PipeAccessory)
-        .WhereElementIsNotElementType()
-        .ToElements();
-      IEnumerable<Element> equipment = new FilteredElementCollector(DOC)
-        .OfCategory(BuiltInCategory.OST_MechanicalEquipment)
-        .WhereElementIsNotElementType()
-        .ToElements();
-      elems = terminal.Union(ductAccessory).Union(pipeAccessory).Union(equipment);
-
-      TagItems = tagListData(elems);
+      TagItems = tagListData();
     }
 
     public static bool SchemaExist(string schemaName)
@@ -162,8 +136,25 @@ namespace ARMOCAD
     }
 
     // создание первоначального списка элементов
-    public ObservableCollection<TagItem> tagListData(IEnumerable<Element> elems)
+    public ObservableCollection<TagItem> tagListData()
     {
+      IEnumerable<Element> terminal = new FilteredElementCollector(DOC).OfCategory(BuiltInCategory.OST_DuctTerminal)
+        .WhereElementIsNotElementType()
+        .ToElements();
+      IEnumerable<Element> ductAccessory = new FilteredElementCollector(DOC)
+        .OfCategory(BuiltInCategory.OST_DuctAccessory)
+        .WhereElementIsNotElementType()
+        .ToElements();
+      IEnumerable<Element> pipeAccessory = new FilteredElementCollector(DOC)
+        .OfCategory(BuiltInCategory.OST_PipeAccessory)
+        .WhereElementIsNotElementType()
+        .ToElements();
+      IEnumerable<Element> equipment = new FilteredElementCollector(DOC)
+        .OfCategory(BuiltInCategory.OST_MechanicalEquipment)
+        .WhereElementIsNotElementType()
+        .ToElements();
+      elems = terminal.Union(ductAccessory).Union(pipeAccessory).Union(equipment);
+
       ObservableCollection<TagItem> tagItems = new ObservableCollection<TagItem>();
 
       foreach (var e in elems)
@@ -179,7 +170,22 @@ namespace ARMOCAD
         tagItems.Add(t);
       }
 
-      
+
+      var groupTagItemsByDraftIds = tagItems.GroupBy(i => i.DraftId);
+      foreach (var g in groupTagItemsByDraftIds)
+      {
+        if (g.Count() > 1 && g.Key != null && g.Key.IntegerValue != -1)
+        {
+          foreach (TagItem t in g)
+          {
+            t.ConnectError = true;
+          }
+        }
+      }
+
+
+
+      tagItems = new ObservableCollection<TagItem>(tagItems.OrderBy(i => i.ItemName));
       return tagItems;
 
     }
@@ -246,20 +252,6 @@ namespace ARMOCAD
       t.DraftId = draftId;
       t.DraftTag = draftTag;
     }
-
-
-    //проверка, есть ли в модели уже где-то назначенный данный EDraft, если есть, то удаляем оттуда ElementId
-    //чтобы в модели не оказывалось множественного назначения одного элемента узла разным экземплярям семейств
-    public void getElementForDeletingDraftId()
-    {
-      var x = elems.Where(e => SchemaMethods.getSchemaDictValue<ElementId>(e, "DictElemId", 0) as ElementId == EDraft.Id);
-
-      if (x.Count() != 0)
-      {
-        EModelDelDraft = x.First();
-      }
-    }
-
 
 
 

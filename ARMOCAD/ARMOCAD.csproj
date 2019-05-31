@@ -134,7 +134,7 @@
     <Compile Include="Extcommands\Common\ReadDataFromExcel.cs" />
     <Compile Include="Extcommands\Common\RelayCommand.cs" />
     <Compile Include="Extcommands\Common\SchemaMethods.cs" />
-    <Compile Include="Extcommands\Common\Singleton.cs" />
+    <Compile Include="Extcommands\Common\Util.cs" />
     <Compile Include="Extcommands\Common\ViewDraftingCreate.cs" />
     <Compile Include="Extcommands\CompareModelAndScheme.cs" />
     <Compile Include="Extcommands\CreateMEPSpaces\CreateMepSpaces.cs" />
@@ -152,7 +152,6 @@
     <Compile Include="Extcommands\LengthOfTransition.cs" />
     <Compile Include="Extcommands\MEPSystemScheme.cs" />
     <Compile Include="Extcommands\MTO.cs" />
-    <Compile Include="Extcommands\SKS Fasad\CreatePatch.cs" />
     <Compile Include="Extcommands\SKS Fasad\SKSSocketsToShelfsExCommand.cs" />
     <Compile Include="Extcommands\SKS Fasad\SKSFasadExCommand.cs" />
     <Compile Include="Extcommands\SKS Fasad\SocketNumbering.cs" />

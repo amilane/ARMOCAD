@@ -15,6 +15,7 @@ namespace ARMOCAD
     public UIDocument UIDOC;
     public Document DOC;
 
+
     public TBView(UIDocument uidoc)
     {
       UIDOC = uidoc;
@@ -36,7 +37,7 @@ namespace ARMOCAD
       ElementId mdlId = i.ModelId;
       ElementId drId = i.DraftId;
 
-      if(mdlId != null && mdlId.IntegerValue != -1 && DOC.GetElement(mdlId) != null) { ids.Add(mdlId);}
+      if (mdlId != null && mdlId.IntegerValue != -1 && DOC.GetElement(mdlId) != null) { ids.Add(mdlId); }
       if (drId != null && drId.IntegerValue != -1 && DOC.GetElement(drId) != null) { ids.Add(drId); }
 
       if (ids.Count != 0)
@@ -44,7 +45,9 @@ namespace ARMOCAD
         UIDOC.Selection.SetElementIds(ids);
         UIDOC.ShowElements(ids);
       }
-      
+
     }
+
+   
   }
 }

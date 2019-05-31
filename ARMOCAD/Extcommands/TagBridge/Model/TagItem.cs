@@ -14,6 +14,7 @@ namespace ARMOCAD
     private string draftTag;
     private Brush color;
     private string itemName;
+    private bool connectError;
 
 
     public event PropertyChangedEventHandler PropertyChanged;
@@ -39,7 +40,17 @@ namespace ARMOCAD
             Color = Brushes.LightGreen;
           }
         }
-        
+
+      }
+
+      if (prop == "ConnectError")
+      {
+        if (ConnectError)
+        {
+          Color = Brushes.HotPink;
+          ItemName = $"{ItemName} - {DraftId?.ToString()}";
+        }
+
       }
     }
 
@@ -69,6 +80,17 @@ namespace ARMOCAD
       }
       set {
         modelTag = value;
+
+        if (!string.IsNullOrWhiteSpace(modelTag))
+        {
+          ItemName = modelTag;
+        }
+        else
+        {
+          ItemName = ModelId.ToString();
+        }
+
+
         OnPropertyChanged("ChangeModelTag");
       }
     }
@@ -87,8 +109,7 @@ namespace ARMOCAD
       get {
         return color;
       }
-      set
-      {
+      set {
         color = value;
         OnPropertyChanged("ChangeColor");
       }
@@ -97,17 +118,17 @@ namespace ARMOCAD
 
     public string ItemName {
       get {
-        if (!string.IsNullOrWhiteSpace(ModelTag))
-        {
-          itemName = ModelTag;
-        }
-        else
-        {
-          itemName = ModelId.ToString();
-        }
         return itemName;
       }
-      
+      set { itemName = value; }
+    }
+
+    public bool ConnectError {
+      get { return connectError; }
+      set {
+        connectError = value;
+        OnPropertyChanged("ConnectError");
+      }
     }
   }
 }
