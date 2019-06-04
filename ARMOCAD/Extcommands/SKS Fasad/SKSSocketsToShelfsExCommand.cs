@@ -20,69 +20,94 @@ namespace ARMOCAD
       UIDocument ui_doc = ui_app?.ActiveUIDocument;
       Document doc = ui_doc?.Document;
 
+      #region Проверка наличия шкафов, розеток и параметров
+
+      var shelfsAll = Util.GetElementsByStringParameter(
+        doc,
+        BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM,
+        "СКС_Шкаф_[серверный, кроссовый] : Кроссовый").ToList();
+
+      IList<Element> socketsAll = Util.GetElementsByStringParameter(
+        doc,
+        BuiltInParameter.ELEM_FAMILY_PARAM,
+        "СКС_Розетка_[1xRJ45, 2xRJ45, TV, radio]").ToList();
+
+      if (shelfsAll.Count == 0)
+      {
+        Util.InfoMsg2("В модели не расставлены шкафы:", "СКС_Шкаф_[серверный, кроссовый] : Кроссовый");
+        return Result.Cancelled;
+      }
+      if (socketsAll.Count == 0)
+      {
+        Util.InfoMsg2("В модели не расставлены розетки:", "СКС_Розетка_[1xRJ45, 2xRJ45, TV, radio]");
+        return Result.Cancelled;
+      }
+
+      if (socketsAll.Any(i => i.LookupParameter("Розетка - Шкаф") == null))
+      {
+        Util.InfoMsg2("У розеток нет текстового параметра (по экземпляру):", "Розетка - Шкаф");
+        return Result.Cancelled;
+      }
+
+      #endregion
+
+
+
+
+
+
       try {
-        using (Transaction t = new Transaction(doc, "SKSSocketsToShelfs")) {
+        using (Transaction t = new Transaction(doc, "Марка шкафа в розетки")) {
           t.Start();
 
-          var levels = new FilteredElementCollector(doc)
-          .OfCategory(BuiltInCategory.OST_Levels)
-          .WhereElementIsNotElementType()
-          .ToElements().OrderBy(i => ((Level)i).Elevation);
-
-          foreach (Level level in levels) {
-            // шкафы СКС на данном уровне, в которые собираются розетки
-
-            var shelfs = Util.GetElementsByStringParameter(
-                doc,
-                BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM,
-                "СКС_Шкаф_[серверный, кроссовый] : Кроссовый")
-              .Where(i=>i.LevelId == level.Id)
+          foreach (var shelfsAtLevel in shelfsAll.GroupBy(i=> i.LevelId.IntegerValue))
+          {
+            IList<Element> socketsAtLevel = socketsAll
+              .Where(i => i.LevelId.IntegerValue == shelfsAtLevel.Key)
               .ToList();
 
-            // розетки на данном уровне
-            IList<Element> sockets = Util.GetElementsByStringParameter(
-                doc,
-                BuiltInParameter.ELEM_FAMILY_PARAM,
-                "СКС_Розетка_[1xRJ45, 2xRJ45, TV, radio]")
-              .Where(i => i.LevelId == level.Id)
-              .ToList();
-
-            
-            if (shelfs.Count > 0 && sockets.Count > 0) {
-
+            if (socketsAtLevel.Count != 0)
+            {
               List<Element> errorSockets = new List<Element>(); //розетки, которые не входят в радиус ни одного шкафа (60 м)
 
-              foreach (var s in sockets) {
+              foreach (var s in socketsAtLevel)
+              {
                 XYZ locSocket = ((LocationPoint)s.Location).Point;
 
                 //ближайший шкаф к розетке
                 var nearestShelf =
-                  shelfs.OrderBy(i => ((LocationPoint)i.Location).Point.DistanceTo(locSocket)).First();
+                  shelfsAtLevel.OrderBy(i => ((LocationPoint)i.Location).Point.DistanceTo(locSocket)).First();
 
                 XYZ locNearestShelf = ((LocationPoint)nearestShelf.Location).Point;
 
-                if (locSocket.DistanceTo(locNearestShelf) < 60000 / 304.8) {
+                if (locSocket.DistanceTo(locNearestShelf) < 60000 / 304.8)
+                {
 
                   Parameter parSocShelf = s.LookupParameter("Розетка - Шкаф");
                   string shelfNumber = nearestShelf.get_Parameter(BuiltInParameter.DOOR_NUMBER).AsString();
                   parSocShelf.Set(shelfNumber);
 
-                } else {
+                }
+                else
+                {
                   errorSockets.Add(s);
                 }
               }
 
 
-              string alert = "";
+              string alert = String.Empty;
 
-              if (errorSockets.Count > 0) {
+              if (errorSockets.Count > 0)
+              {
                 alert = "Розетки, не попавшие в шкаф:\n";
-                foreach (var s in errorSockets) {
+                foreach (var s in errorSockets)
+                {
                   alert += s.Id.ToString() + "\n";
                 }
               }
 
-              if (alert != "") {
+              if (alert != String.Empty)
+              {
                 TaskDialog.Show("Предупреждение", alert);
               }
 
@@ -90,10 +115,12 @@ namespace ARMOCAD
 
           }
 
+
+
+
+
           t.Commit();
         }
-
-
 
         TaskDialog.Show("Готово", "ОК");
         return Result.Succeeded;

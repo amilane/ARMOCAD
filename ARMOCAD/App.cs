@@ -60,7 +60,13 @@ namespace ARMOCAD
 
     }
 
-
+    //словарь для ссылок на F1
+    public static Dictionary<string, ContextualHelp> helpButtonsDictionary = new Dictionary<string, ContextualHelp>
+    {
+      ["cmdValve"] = new ContextualHelp(ContextualHelpType.Url, @"https://drive.google.com/file/d/1P-C7OjLGbRaU1pXQDMKCZu0Czdl_WkOq/view"),
+      ["cmdValvelocSS"] = new ContextualHelp(ContextualHelpType.Url, @"https://drive.google.com/file/d/1CeW3zqnXjwJWzqRVn-JGDh64fAsNGlqf/view"),
+      
+    };
 
     // define a method that will create our tab and button
     static void AddRibbonPanel(UIControlledApplication application)
@@ -79,9 +85,9 @@ namespace ARMOCAD
       // Add a new ribbon panel
       RibbonPanel ribbonPanel = application.CreateRibbonPanel(tabName, "Программки общего назначения");
 
-      RibbonPanel ribbonPanel1 = application.CreateRibbonPanel(tabName, "Электрические системы");
+      RibbonPanel electricRibbonPanel = application.CreateRibbonPanel(tabName, "Электрические системы");
 
-      RibbonPanel ribbonPanelAgpzTag = application.CreateRibbonPanel(tabName, "AGPZ TAG");
+      RibbonPanel agpzTagRibbonPanel = application.CreateRibbonPanel(tabName, "AGPZ TAG");
 
       RibbonPanel ribbonPanel2 = application.CreateRibbonPanel(tabName, "Механические системы");
 
@@ -241,90 +247,137 @@ namespace ARMOCAD
       pb25.ToolTip = "Ставит пространства по модели АР";
       pb25.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/spaceIcon.png"));
       pb25.LargeImage = pb25.Image;
-      
+
 
 
       #endregion Common Buttons
 
-      #region MyRegion
+      #region Electric Buttons
 
       // create push button
-      PushButtonData b10Data = new PushButtonData(
+      PushButtonData elB1Data = new PushButtonData(
         "cmdSpreadEvenly",
         "Spread" + System.Environment.NewLine + "Evenly",
         thisAssemblyPath,
         "SpreadEvenly.SpreadEvenlyClass");
 
-      PushButton pb10 = ribbonPanel1.AddItem(b10Data) as PushButton;
-      pb10.ToolTip = "Нажмите чтобы расставить семейства";
-      pb10.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/SpreadEvenly_icon.png"));
-      pb10.LargeImage = pb10.Image;
-      ContextualHelp contextHelp10 = new ContextualHelp(ContextualHelpType.Url, Path.Combine(GetExeDirectory(), "Help/SpreadEvenly_Help.html"));
-      pb10.SetContextualHelp(contextHelp10);
+      PushButton elPB1 = electricRibbonPanel.AddItem(elB1Data) as PushButton;
+      elPB1.ToolTip = "Нажмите чтобы расставить семейства";
+      elPB1.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/SpreadEvenly_icon.png"));
+      elPB1.LargeImage = elPB1.Image;
+      ContextualHelp contextHelpEl1 = new ContextualHelp(ContextualHelpType.ChmFile, @"\\arena\ARMO-GROUP\ИПУ\ЛИЧНЫЕ\САПРомания\RVT-BIMnet\СТП-Расстановка семейств массивом SpreadEvenly.docx");
+      elPB1.SetContextualHelp(contextHelpEl1);
+
+      //DenisButtons
+      // create push button
+      PushButtonData elB2Data = new PushButtonData(
+        "cmdConPoints",
+        "Размещение\n ТП",
+        thisAssemblyPath,
+        "ARMOCAD.ConPoint");
+
+      ContextualHelp contextHelpEl2 = new ContextualHelp(ContextualHelpType.Url, @"https://drive.google.com/file/d/1Dyy2vsOLukdFzAEIVvzUv_tu3tWKD1je/view");
+      elB2Data.SetContextualHelp(contextHelpEl2);
+      elB2Data.LargeImage = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/tpointsIcon.png"));
+      elB2Data.ToolTip = "ЭМ_Размещение точек подключения из связи";
+
+      // create push button
+      PushButtonData elB3Data = new PushButtonData(
+        "cmdConPointLocation",
+        "Проверка\n ТП",
+        thisAssemblyPath,
+        "ARMOCAD.ConPointLocation");
+
+      ContextualHelp contextHelpEl3 = new ContextualHelp(ContextualHelpType.Url, @"https://drive.google.com/file/d/1J5HuVRW80eRR3kKp4TenDmcRmpm66oaE/view");
+      elB3Data.SetContextualHelp(contextHelpEl3);
+      elB3Data.LargeImage = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/checkIcon.png"));
+      elB3Data.ToolTip = "ЭМ_Проверка размещенных точек подключения";
+
+      // Создаём выпадающие кнопки
+      SplitButtonData sbElData1 = new SplitButtonData("ConPoints", "ConPointLocation");
+      SplitButton sbEl1 = electricRibbonPanel.AddItem(sbElData1) as SplitButton;
+      sbEl1.AddPushButton(elB2Data);
+      sbEl1.AddPushButton(elB3Data);
+      //sbEl1.CurrentButton.Name
+
+
 
       #endregion Electric Buttons
 
       #region AGPZ Tag Buttons
 
       // create push button
-      PushButtonData b13_1Data = new PushButtonData(
+      PushButtonData tagB1Data = new PushButtonData(
           "cmdTagOVDucts",
-          "TAG" + System.Environment.NewLine + "Комплект.",
+          "TAG\n Комплект.",
           thisAssemblyPath,
           "ARMOCAD.TagOVDucts");
-
-      PushButton pb13_1 = ribbonPanelAgpzTag.AddItem(b13_1Data) as PushButton;
-      pb13_1.ToolTip = "Тагирование воздуховодов и соединительных деталей";
-      pb13_1.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/tagIcon.png"));
-      pb13_1.LargeImage = pb13_1.Image;
+      
+      tagB1Data.LargeImage = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/tagIcon.png"));
+      tagB1Data.ToolTip = "Тагирование воздуховодов и соединительных деталей";
 
       // create push button
-      PushButtonData b13_2Data = new PushButtonData(
+      PushButtonData tagB2Data = new PushButtonData(
         "cmdTagOVEquipPhase1",
-        "TAG Ф1" + System.Environment.NewLine + "Оборуд.",
+        "TAG Ф1\n Оборуд.",
         thisAssemblyPath,
         "ARMOCAD.TagOVEquipPhase1");
 
-      PushButton pb13_2 = ribbonPanelAgpzTag.AddItem(b13_2Data) as PushButton;
-      pb13_2.ToolTip = "Тагирование (Фаза 1) оборудования, арматуры воздуховодов, воздухораспределителей, арматуры труб";
-      pb13_2.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/tagIcon.png"));
-      pb13_2.LargeImage = pb13_2.Image;
+      tagB2Data.ToolTip = "Тагирование (Фаза 1) оборудования, арматуры воздуховодов, воздухораспределителей, арматуры труб";
+      tagB2Data.LargeImage = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/tagIcon.png"));
 
       // create push button
-      PushButtonData b13_3Data = new PushButtonData(
+      PushButtonData tagB3Data = new PushButtonData(
         "cmdTagOVEquip",
-        "TAG Ф2+" + System.Environment.NewLine + "Оборуд.",
+        "TAG Ф2+\n Оборуд.",
         thisAssemblyPath,
         "ARMOCAD.TagOVEquip");
 
-      PushButton pb13_3 = ribbonPanelAgpzTag.AddItem(b13_3Data) as PushButton;
-      pb13_3.ToolTip = "Тагирование (Фаза 2 и сл.) оборудования, арматуры воздуховодов, воздухораспределителей, арматуры труб";
-      pb13_3.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/tagIcon.png"));
-      pb13_3.LargeImage = pb13_3.Image;
+      tagB3Data.ToolTip = "Тагирование (Фаза 2 и сл.) оборудования, арматуры воздуховодов, воздухораспределителей, арматуры труб";
+      tagB3Data.LargeImage = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/tagIcon.png"));
 
       // create push button
-      PushButtonData b13_4Data = new PushButtonData(
+      PushButtonData tagB4Data = new PushButtonData(
+        "cmdTagOVEquipReplace",
+        "TAG Ф2+\n Замена",
+        thisAssemblyPath,
+        "ARMOCAD.TagOVEquipReplace");
+
+      tagB4Data.ToolTip = "Тагирование (Фаза 2 и сл.) заменяет часть тэга на код системы 0001А => 9901А, не создавая новых тэгов";
+      tagB4Data.LargeImage = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/tagIcon.png"));
+
+      // Создаём выпадающие кнопки
+      SplitButtonData sbTagData1 = new SplitButtonData("AGPZ", "TAGButtons");
+      SplitButton sbTag1 = agpzTagRibbonPanel.AddItem(sbTagData1) as SplitButton;
+      sbTag1.AddPushButton(tagB1Data);
+      sbTag1.AddPushButton(tagB2Data);
+      sbTag1.AddPushButton(tagB3Data);
+      sbTag1.AddPushButton(tagB4Data);
+
+
+      // create push button
+      PushButtonData tagB5Data = new PushButtonData(
         "cmdTagsFromSheetsEx",
         "TAG" + System.Environment.NewLine + "на листах",
         thisAssemblyPath,
         "ARMOCAD.TagsFromSheetsEx");
 
-      PushButton pb13_4 = ribbonPanelAgpzTag.AddItem(b13_4Data) as PushButton;
-      pb13_4.ToolTip = "Собирает информацию о тэгах и листах, на которых они расположены";
-      pb13_4.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/tagIconGreen.png"));
-      pb13_4.LargeImage = pb13_4.Image;
+      PushButton tagPB5 = agpzTagRibbonPanel.AddItem(tagB5Data) as PushButton;
+      tagPB5.ToolTip = "Собирает информацию о тэгах и листах, на которых они расположены";
+      tagPB5.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/tagIconGreen.png"));
+      tagPB5.LargeImage = tagPB5.Image;
 
       // create push button
-      PushButtonData b13_5Data = new PushButtonData(
+      PushButtonData tagB6Data = new PushButtonData(
         "cmdTBCommand",
-        "TAG" + System.Environment.NewLine + "bridge",
+        "TAG\n bridge",
         thisAssemblyPath,
         "ARMOCAD.TBCommand");
 
-      PushButton pb13_5 = ribbonPanelAgpzTag.AddItem(b13_5Data) as PushButton;
-      pb13_5.ToolTip = "Сцепляет элементы модели и схем";
-      pb13_5.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/tagTransferIcon.png"));
-      pb13_5.LargeImage = pb13_5.Image;
+      PushButton tagPB6 = agpzTagRibbonPanel.AddItem(tagB6Data) as PushButton;
+      tagPB6.ToolTip = "Сцепляет элементы модели и схем";
+      tagPB6.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/tagTransferIcon.png"));
+      tagPB6.LargeImage = tagPB6.Image;
 
 
       #endregion AGPZ Tag Buttons
@@ -353,30 +406,6 @@ namespace ARMOCAD
       pb12.ToolTip = "Толщина металла воздуховодов и соединительных деталей";
       pb12.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/thicknessIcon.png"));
       pb12.LargeImage = pb12.Image;
-
-      // create push button
-      PushButtonData b14Data = new PushButtonData(
-        "cmdTagTransfer",
-        "TAG" + System.Environment.NewLine + "transfer",
-        thisAssemblyPath,
-        "TagTransfer.TagTransferClass");
-
-      PushButton pb14 = ribbonPanel2.AddItem(b14Data) as PushButton;
-      pb14.ToolTip = "Перенос TAG с элемента модели в элемент узла на чертежном виде (выберите оба элемента и нажмите кнопку)";
-      pb14.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/tagTransferIcon.png"));
-      pb14.LargeImage = pb14.Image;
-
-      // create push button
-      PushButtonData b15Data = new PushButtonData(
-        "cmdCompareModelAndScheme",
-        "Model" + System.Environment.NewLine + "Scheme",
-        thisAssemblyPath,
-        "CompareModelAndScheme.CompareModelAndSchemeClass");
-
-      PushButton pb15 = ribbonPanel2.AddItem(b15Data) as PushButton;
-      pb15.ToolTip = "Сравнение однолинейки и модели";
-      pb15.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/compareIcon.png"));
-      pb15.LargeImage = pb15.Image;
 
       // create push button
       PushButtonData b16Data = new PushButtonData(
@@ -463,6 +492,53 @@ namespace ARMOCAD
 
       List<RibbonItem> skudButtons1 = new List<RibbonItem>();
       skudButtons1.AddRange(ribbonPanel3.AddStackedItems(b23Data, b24Data));
+
+      //========================= DenisButtons
+      // create push button
+      PushButtonData b26Data = new PushButtonData(
+        "cmdValve",
+        "Размещение\n клапанов",
+        thisAssemblyPath,
+        "ARMOCAD.Valve");
+
+      b26Data.SetContextualHelp(helpButtonsDictionary["cmdValve"]);
+      b26Data.LargeImage = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/valveIcon.png"));
+      b26Data.ToolTip = "Размещение клапанов ОЗК, КДУ из связной модели";
+
+      // create push button
+      PushButtonData b27Data = new PushButtonData(
+        "cmdValvelocSS",
+        "Проверка\n клапанов",
+        thisAssemblyPath,
+        "ARMOCAD.ValvelocSS");
+
+      b27Data.SetContextualHelp(helpButtonsDictionary["cmdValvelocSS"]);
+      b27Data.LargeImage = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/checkIcon.png"));
+      b27Data.ToolTip = "Проверка клапанов размещенных ОЗК, КДУ";
+
+      // Создаём выпадающие кнопки
+      SplitButtonData sbdata2 = new SplitButtonData("Valve", "SS valve");
+      SplitButton sb2 = ribbonPanel3.AddItem(sbdata2) as SplitButton;
+      sb2.AddPushButton(b26Data);
+      sb2.AddPushButton(b27Data);
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
       #endregion SS Buttons
 

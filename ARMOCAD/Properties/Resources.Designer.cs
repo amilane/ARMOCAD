@@ -93,20 +93,10 @@ namespace ARMOCAD.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap compareIcon {
+        internal static System.Drawing.Bitmap checkIcon {
             get {
-                object obj = ResourceManager.GetObject("compareIcon", resourceCulture);
+                object obj = ResourceManager.GetObject("checkIcon", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Поиск локализованного ресурса типа System.Byte[].
-        /// </summary>
-        internal static byte[] CompareModelAndScheme {
-            get {
-                object obj = ResourceManager.GetObject("CompareModelAndScheme", resourceCulture);
-                return ((byte[])(obj));
             }
         }
         
@@ -167,16 +157,6 @@ namespace ARMOCAD.Properties {
             get {
                 object obj = ResourceManager.GetObject("MEPSystemScheme", resourceCulture);
                 return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap mIcon {
-            get {
-                object obj = ResourceManager.GetObject("mIcon", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
             }
         }
         
@@ -321,16 +301,6 @@ namespace ARMOCAD.Properties {
         }
         
         /// <summary>
-        ///   Поиск локализованного ресурса типа System.Byte[].
-        /// </summary>
-        internal static byte[] TagTransfer {
-            get {
-                object obj = ResourceManager.GetObject("TagTransfer", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap tagTransferIcon {
@@ -353,9 +323,29 @@ namespace ARMOCAD.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap tpointsIcon {
+            get {
+                object obj = ResourceManager.GetObject("tpointsIcon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap transIcon {
             get {
                 object obj = ResourceManager.GetObject("transIcon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap valveIcon {
+            get {
+                object obj = ResourceManager.GetObject("valveIcon", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

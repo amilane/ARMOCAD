@@ -1642,6 +1642,21 @@ namespace ARMOCAD
         .FirstOrDefault(q => q.Name.Equals(name)) as FamilySymbol;
     }
     /// <summary>
+    /// Возвращает первый типоразмер семейства.
+    /// </summary>
+    /// <param name="doc"></param>
+    /// <param name="name"></param>
+    /// <returns></returns>
+    public static FamilySymbol GetFamilySymbolByFamilyName(
+      Document doc,
+      string name)
+    {
+      return new FilteredElementCollector(doc)
+        .OfClass(typeof(FamilySymbol))
+        .FirstOrDefault(q => ((FamilySymbol)q).FamilyName.Equals(name)) as FamilySymbol;
+    }
+
+    /// <summary>
     /// Возвращает список элементов по имени и типоразмеру семейства
     /// </summary>
     /// <returns></returns>
@@ -1657,6 +1672,13 @@ namespace ARMOCAD
 
       return new FilteredElementCollector(doc)
         .OfClass(typeof(FamilyInstance)).WherePasses(filter).ToList();
+    }
+
+    public static IList<Element> GetElementsOfCategory(
+      Document doc,
+      BuiltInCategory bic)
+    {
+      return new FilteredElementCollector(doc).OfCategory(bic).WhereElementIsNotElementType().ToElements();
     }
 
     #endregion // Element Filtering

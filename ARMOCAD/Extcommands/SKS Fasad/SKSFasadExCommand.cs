@@ -126,7 +126,7 @@ namespace ARMOCAD
       string alert = String.Empty;
       foreach (var name in symbolNames)
       {
-        var x = Util.GetFamilySymbolByName(doc, name);
+        var x = Util.GetFamilySymbolByFamilyName(doc, name);
         if (x == null)
         {
           alert += $"{name};\n";
@@ -588,7 +588,7 @@ namespace ARMOCAD
 
     public void checkCorrectSockets(IList<Element> shelfs, IList<Element> sockets)
     {
-      string alert = "";
+      string alert = String.Empty;
 
       List<string> namesOfShelfs = new List<string>();
       foreach (var s in shelfs)

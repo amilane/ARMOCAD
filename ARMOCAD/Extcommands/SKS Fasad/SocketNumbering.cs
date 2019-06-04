@@ -70,10 +70,10 @@ namespace ARMOCAD
       string numberPatch2;
       string markSocket1;
       string markSocket2;
-      string mark1Value = "";
-      string mark2Value = "";
-      string prefixPurpose = "";
-      string shelfNumber = "";
+      string mark1Value = String.Empty;
+      string mark2Value = String.Empty;
+      string prefixPurpose = String.Empty;
+      string shelfNumber = String.Empty;
 
       List<string> socketMarks = new List<string>();
 
@@ -100,7 +100,7 @@ namespace ARMOCAD
         markSocket1 = String.Format("{0}.{1}.{2}", shelfNumber, numberPatch1, mark1Value);
         markSocket2 = String.Format("{0}.{1}.{2}", shelfNumber, numberPatch2, mark2Value);
 
-        if (prefixPurpose != null && prefixPurpose != "") {
+        if (!string.IsNullOrWhiteSpace(prefixPurpose)) {
           markSocket1 = String.Format("{0}.{1}", prefixPurpose, markSocket1);
           markSocket2 = String.Format("{0}.{1}", prefixPurpose, markSocket2);
         }
@@ -125,7 +125,7 @@ namespace ARMOCAD
         markSocket1 = String.Format("{0}.{1}.{2}.{3}", prefixPurpose, shelfNumber, numberPatch1, mark1Value);
 
         s.mark1 = markSocket1;
-        s.mark2 = "";
+        s.mark2 = String.Empty;
 
         socketMarks.Add(markSocket1);
       }
@@ -143,7 +143,7 @@ namespace ARMOCAD
     public static string currentPatch(int ports, int commonPort)
     {
       int commonPatch;
-      string numberPatch = "";
+      string numberPatch = String.Empty;
       string literals = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 

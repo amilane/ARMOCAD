@@ -134,10 +134,13 @@
     <Compile Include="Extcommands\Common\ReadDataFromExcel.cs" />
     <Compile Include="Extcommands\Common\RelayCommand.cs" />
     <Compile Include="Extcommands\Common\SchemaMethods.cs" />
+    <Compile Include="Extcommands\Common\TEST.cs" />
     <Compile Include="Extcommands\Common\Util.cs" />
     <Compile Include="Extcommands\Common\ViewDraftingCreate.cs" />
-    <Compile Include="Extcommands\CompareModelAndScheme.cs" />
     <Compile Include="Extcommands\CreateMEPSpaces\CreateMepSpaces.cs" />
+    <Compile Include="Extcommands\Electric\ConPickFilter.cs" />
+    <Compile Include="Extcommands\Electric\ConPoint.cs" />
+    <Compile Include="Extcommands\Electric\ConPointLocation.cs" />
     <Compile Include="Extcommands\Filter\CollectorFromTreeView.cs" />
     <Compile Include="Extcommands\Filter\CreateParameterFilter.cs" />
     <Compile Include="Extcommands\Filter\FilterExCommand.cs" />
@@ -151,13 +154,15 @@
     <Compile Include="Extcommands\Filter\ValuesFromParameter.cs" />
     <Compile Include="Extcommands\LengthOfTransition.cs" />
     <Compile Include="Extcommands\MEPSystemScheme.cs" />
-    <Compile Include="Extcommands\MTO.cs" />
     <Compile Include="Extcommands\SKS Fasad\SKSSocketsToShelfsExCommand.cs" />
     <Compile Include="Extcommands\SKS Fasad\SKSFasadExCommand.cs" />
     <Compile Include="Extcommands\SKS Fasad\SocketNumbering.cs" />
     <Compile Include="Extcommands\SKUD\SKUDControlPlacementEx.cs" />
     <Compile Include="Extcommands\SKUD\SKUDPlaceEquipmentEx.cs" />
     <Compile Include="Extcommands\Common\ExternalEventMy.cs" />
+    <Compile Include="Extcommands\SS\PickFilter.cs" />
+    <Compile Include="Extcommands\SS\Valve.cs" />
+    <Compile Include="Extcommands\SS\ValvelocSS.cs" />
     <Compile Include="Extcommands\TagBridge\Model\ConnectButtonEventHandler.cs" />
     <Compile Include="Extcommands\TagBridge\Model\MoveTagsToDraftElementsEventHandler.cs" />
     <Compile Include="Extcommands\TagBridge\Model\TBModel.cs" />
@@ -167,11 +172,11 @@
     </Compile>
     <Compile Include="Extcommands\TagBridge\Model\TagItem.cs" />
     <Compile Include="Extcommands\TagBridge\ViewModel\TBViewModel.cs" />
+    <Compile Include="Extcommands\TagOV\TagOVEquipReplace.cs" />
     <Compile Include="Extcommands\TagOV\TagOVEquipPhase1.cs" />
     <Compile Include="Extcommands\TagOV\TagOVEquip.cs" />
     <Compile Include="Extcommands\TagOV\TagOVDucts.cs" />
     <Compile Include="Extcommands\TagsFromSheets\TagsFromSheetsEx.cs" />
-    <Compile Include="Extcommands\TagTransfer.cs" />
     <Compile Include="Extcommands\ThiDuct.cs" />
     <Compile Include="Extcommands\SectionByElement.cs" />
     <Compile Include="Extcommands\CopySheet.cs" />
@@ -185,14 +190,8 @@
     <Compile Include="Extcommands\RotateAll.cs" />
     <Compile Include="Extcommands\ScheduleToExcel.cs" />
     <Compile Include="Extcommands\SimilarParams.cs" />
-    <Compile Include="Extcommands\WPF MVVM TEST\modelRevitBridge.cs" />
-    <Compile Include="Extcommands\WPF MVVM TEST\RevitBridgeCommand.cs" />
-    <Compile Include="Extcommands\WPF MVVM TEST\viewmodelRevitBridge.cs" />
-    <Compile Include="Extcommands\WPF MVVM TEST\viewRevitBridge.xaml.cs">
-      <DependentUpon>viewRevitBridge.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\Resources1.Designer.cs">
+    <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
@@ -201,8 +200,8 @@
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources1.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
@@ -275,6 +274,9 @@
     <Content Include="Help\UninstallARMOCAD.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Resource Include="Resources\tpointsIcon.png" />
+    <Resource Include="Resources\checkIcon.png" />
+    <Resource Include="Resources\valveIcon.png" />
     <Resource Include="Resources\spaceIcon.png" />
     <Resource Include="Resources\tagIconGreen.png" />
     <Resource Include="Resources\equipIcon.png" />
@@ -283,15 +285,10 @@
     <Resource Include="Resources\socketIcon.png" />
     <Resource Include="Resources\filterIcon.png" />
     <Resource Include="Resources\copyIcon.png" />
-    <EmbeddedResource Include="Resources\MTO.py" />
-    <Resource Include="Resources\mIcon.png" />
     <EmbeddedResource Include="Resources\MEPSystemScheme.py" />
     <Resource Include="Resources\3dIcon.png" />
     <EmbeddedResource Include="Resources\LengthOfTransition.py" />
     <Resource Include="Resources\transIcon.png" />
-    <EmbeddedResource Include="Resources\CompareModelAndScheme.py" />
-    <Resource Include="Resources\compareIcon.png" />
-    <EmbeddedResource Include="Resources\TagTransfer.py" />
     <Resource Include="Resources\tagTransferIcon.png" />
     <Resource Include="Resources\tagIcon.png" />
     <EmbeddedResource Include="Resources\ThiDuct.py" />
@@ -329,10 +326,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Extcommands\TagBridge\View\TBView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Extcommands\WPF MVVM TEST\viewRevitBridge.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

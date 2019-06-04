@@ -160,15 +160,6 @@
   <data name="thicknessIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\thicknessIcon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="compareIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\compareIcon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="CompareModelAndScheme" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\CompareModelAndScheme.py;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="TagTransfer" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\TagTransfer.py;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
   <data name="tagTransferIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\tagTransferIcon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -183,9 +174,6 @@
   </data>
   <data name="MEPSystemScheme" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\MEPSystemScheme.py;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="mIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\mIcon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="filterIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\filterIcon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -207,5 +195,14 @@
   </data>
   <data name="spaceIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\spaceIcon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="valveIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\valveIcon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="checkIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\checkIcon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="tpointsIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\tpointsIcon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>
