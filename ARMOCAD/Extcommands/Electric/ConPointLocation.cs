@@ -1,13 +1,14 @@
 using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
+using Autodesk.Revit.DB.ExtensibleStorage;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
-using Autodesk.Revit.DB.ExtensibleStorage;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using Autodesk.Revit.DB.Structure;
+using WinForms = System.Windows.Forms;
 
 namespace ARMOCAD
 {
@@ -24,6 +25,7 @@ namespace ARMOCAD
       Application app = uiApp.Application;
       Document doc = uidoc.Document;
       Schema sch = null;
+      string LinkUniqid = null;
       string SchemaGuid = "ea07dfeb-9c7f-4233-b516-6621abc6744e";
       ObjectType obt = ObjectType.Element;
       Reference refElemLinked;
@@ -43,7 +45,8 @@ namespace ARMOCAD
           var LinkUniq = linkInstance.UniqueId;
           var LinkName = docLinked.Title;
           var LinkPath = docLinked.PathName;
-          TaskDialog.Show("Информация ", "Связь:  " + LinkName + "\r\n");
+          //TaskDialog.Show("Информация ", "Связь:  " + LinkName + "\r\n");
+
           FilteredElementCollector collectorlink = new FilteredElementCollector(docLinked);
           IList<Element> CatsElems = new List<Element>();
           collectorlink.WherePasses(new LogicalOrFilter(new List<ElementFilter>
@@ -83,21 +86,29 @@ namespace ARMOCAD
           var PSE = 0;
           var countId = 0;
           int countLink = elems.Count();
-          using (Transaction tr = new Transaction(doc, "Set Element Override"))
+          using (Transaction tr = new Transaction(doc, "Проверка элементов из связи"))
           {
             tr.Start();
-            foreach (Element origElement in elems)
+            foreach (Element targEL in targetElems)
             {
-              LocationPoint pPoint = origElement.Location as LocationPoint;
-              XYZ pointLink = pPoint.Point;
-              var ElemUniq = origElement.UniqueId;
-              foreach (Element targEL in targetElems)
+              var cntEl = 0;
+              foreach (Element origElement in elems)
               {
+                LocationPoint pPoint = origElement.Location as LocationPoint;
+                XYZ pointLink = pPoint.Point;
+                var ElemUniq = origElement.UniqueId;
+                
                 Entity entity = targEL.GetEntity(sch);
-                Field fLuniq = sch.GetField("Link_Element_UniqueId");
-                string LinkUniqid = entity.Get<string>(fLuniq);
+                if (entity.Schema != null )
+                {
+                  Field fLuniq = sch.GetField("Link_Element_UniqueId");
+                  LinkUniqid = entity.Get<string>(fLuniq);
+                  if (LinkUniqid == null) { continue; }
+                }
+                else { continue; }
                 if (LinkUniqid == ElemUniq)
                 {
+                  cntEl++;
                   countId++;
                   LocationPoint locEl = targEL.Location as LocationPoint;
                   XYZ pointEl = locEl.Point;
@@ -108,29 +119,35 @@ namespace ARMOCAD
                   if (pointEl.ToString() != pointLink.ToString())
                   {
                     NSE++;
-                    OverrideGraphicSettings ogs = new OverrideGraphicSettings();
-                    ogs.SetProjectionLineColor(new Color(255, 0, 0));
-                    ElementId id = targEL.Id;
-                    doc.ActiveView.SetElementOverrides(id, ogs);
-                    targEL.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).Set("Размещен неправильно!");
+                    targEL.LookupParameter("УГО_Перемещенный").Set(1);
+                    targEL.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).Set("Элемент перемещен!!!");
                   }
                 }
+               
+              }
+              if (cntEl == 0)
+              {
+                NSE++;
+                targEL.LookupParameter("УГО_Удаленный").Set(1);
+                targEL.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).Set("Элемент удален!!!");
               }
             }
+            string U1, U2, U3; U1 = string.Empty; U2 = string.Empty; U3 = string.Empty;
             if (countLink > countId)
             {
               var q = countLink - countId;
-              TaskDialog.Show("Предупреждение", "Не размещено " + q + " элементов");
+              U1 = "Не размещено " + q + " элементов" + " \n";
             }
             if (NSE > 0)
             {
-              TaskDialog.Show("Предупреждение", "Неправильно размещенных элементов: " + NSE);
+              U2 = "Неправильно размещенных элементов: " + NSE + " \n";
             }
             if (NSE == 0)
             {
-              TaskDialog.Show("Предупреждение", "Элементы размещены правильно");
+              U3 = "Нет неправильно размещенных элементов \n";
             }
-            TaskDialog.Show("Предупреждение", "На своих местах: " + PSE + " из " + countLink);
+            var U4 = "На своих местах: " + PSE + " из " + countLink;
+            InfoMsg("Связь: " + LinkName + "\n" + "Количество элементов в связи: " + elems.Count().ToString() + " \n \n" + U1 + U2 + U3 + U4);
             tr.Commit();
           }
         }
@@ -147,7 +164,13 @@ namespace ARMOCAD
       }
 
       return Result.Succeeded;
+
+    }
+    public static void InfoMsg(string msg)
+    {
+      Debug.WriteLine(msg);
+      WinForms.MessageBox.Show(msg, "Информация", WinForms.MessageBoxButtons.OK, WinForms.MessageBoxIcon.Information);
     }
   }
-  
+
 }

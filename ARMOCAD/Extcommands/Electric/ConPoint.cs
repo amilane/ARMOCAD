@@ -1,19 +1,20 @@
 using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
+using Autodesk.Revit.DB.ExtensibleStorage;
+using Autodesk.Revit.DB.Structure;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
-using Autodesk.Revit.DB.ExtensibleStorage;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using Autodesk.Revit.DB.Structure;
+using WinForms = System.Windows.Forms;
 
 namespace ARMOCAD
 {
   [TransactionAttribute(TransactionMode.Manual)]
   [RegenerationAttribute(RegenerationOption.Manual)]
-
 
   public class ConPoint : IExternalCommand
   {
@@ -32,18 +33,54 @@ namespace ARMOCAD
         try
         {
           FilteredElementCollector collector = new FilteredElementCollector(doc);
-          ISelectionFilter selectionFilter = new ConPickFilter(doc);
-          refElemLinked = uidoc.Selection.PickObject(obt, selectionFilter, "Выберите связь");
-          RevitLinkInstance linkInstance = doc.GetElement(refElemLinked.ElementId) as RevitLinkInstance;
-          Document docLinked = linkInstance.GetLinkDocument();
           string taskguid = "893e72a1-b208-4d12-bb26-6bcc4a444d0c";
           string famname1 = "ME_Точка_подключения_(1 фазная сеть)";
           string famname2 = "ME_Точка_подключения_(2 коннектора, 3 фазная сеть)";
           string famname3 = "ME_Точка_подключения_(3 фазная сеть)";
+          FilteredElementCollector collfams = collector.OfClass(typeof(Family));
+          Family fam1 = collfams.FirstOrDefault<Element>(e => e.Name.Equals(famname1)) as Family;
+          Family fam2 = collfams.FirstOrDefault<Element>(e => e.Name.Equals(famname2)) as Family;
+          Family fam3 = collfams.FirstOrDefault<Element>(e => e.Name.Equals(famname3)) as Family;
+          if (fam1 == null || fam2 == null || fam3 == null)
+          {
+            string n1, n2, n3; n1 = ""; n2 = ""; n3 = "";
+            if (fam1 == null) { n1 = famname1 + "\n "; }
+            if (fam2 == null) { n2 = famname2 + "\n "; }
+            if (fam3 == null) { n3 = famname3 + "\n "; }
+            var DiagRes = FamErrorMsg("Не загружены семейства:\n " + n1 + n3 + n2 + "\n Загрузить ?");
+            if (DiagRes == true)
+            {
+              using (Transaction t = new Transaction(doc, "Загрузить семейство"))
+              {
+                t.Start();
+                string path1 = @"\\arena\ARMO-GROUP\ИПУ\ЛИЧНЫЕ\САПРомания\RVT\02-БИБЛИОТЕКА\10-Семейства\90-Электрооборудование и освещение (ЭО)\Оборудование\ME_Точка_подключения_(1 фазная сеть).rfa";
+                string path2 = @"\\arena\ARMO-GROUP\ИПУ\ЛИЧНЫЕ\САПРомания\RVT\02-БИБЛИОТЕКА\10-Семейства\90-Электрооборудование и освещение (ЭО)\Оборудование\ME_Точка_подключения_(2 коннектора, 3 фазная сеть).rfa";
+                string path3 = @"\\arena\ARMO-GROUP\ИПУ\ЛИЧНЫЕ\САПРомания\RVT\02-БИБЛИОТЕКА\10-Семейства\90-Электрооборудование и освещение (ЭО)\Оборудование\ME_Точка_подключения_(3 фазная сеть).rfa";
+                if (fam1 == null) { doc.LoadFamily(path1, out fam1); }
+                if (fam2 == null) { doc.LoadFamily(path2, out fam2); }
+                if (fam3 == null) { doc.LoadFamily(path3, out fam3); }
+                t.Commit();
+              }
+            }
+            if (DiagRes == false)
+            {
+              return Result.Cancelled;
+            }
+
+            //TaskDialog.Show("Предупреждение", "Не загружены семейства:\n " + n1 + n3 + n2);
+            //return Result.Cancelled;
+          }
+
+          ISelectionFilter selectionFilter = new ConPickFilter(doc);
+          refElemLinked = uidoc.Selection.PickObject(obt, selectionFilter, "Выберите связь");
+          RevitLinkInstance linkInstance = doc.GetElement(refElemLinked.ElementId) as RevitLinkInstance;
+          Document docLinked = linkInstance.GetLinkDocument();
+
           var LinkUniq = linkInstance.UniqueId;
           var LinkName = docLinked.Title;
           var LinkPath = docLinked.PathName;
-          TaskDialog.Show("Информация ", "Связь:  " + LinkName + "\r\n");
+          //TaskDialog.Show("Информация ", "Связь:  " + LinkName + "\r\n");
+
           FilteredElementCollector collectorlink = new FilteredElementCollector(docLinked);
           IList<Element> CatsElems = new List<Element>();
           collectorlink.WherePasses(new LogicalOrFilter(new List<ElementFilter>
@@ -64,19 +101,7 @@ namespace ARMOCAD
           CatsElems = collectorlink.WhereElementIsNotElementType().ToElements(); //элементы по категориям
           var ElemsWithParam = CatsElems.Where(f => f.get_Parameter(new Guid(taskguid)) != null);
           var elems = ElemsWithParam.Where(f => f.get_Parameter(new Guid(taskguid)).AsInteger() == 1);  //фильтр по параметру "Задание ЭМ"
-          FilteredElementCollector collfams = collector.OfClass(typeof(Family));
-          Family fam1 = collfams.FirstOrDefault<Element>(e => e.Name.Equals(famname1)) as Family;
-          Family fam2 = collfams.FirstOrDefault<Element>(e => e.Name.Equals(famname2)) as Family;
-          Family fam3 = collfams.FirstOrDefault<Element>(e => e.Name.Equals(famname3)) as Family;
-          if (fam1 == null || fam2 == null || fam3 == null)
-          {
-            string n1, n2, n3; n1 = ""; n2 = ""; n3 = "";
-            if (fam1 == null) { n1 = famname1 + "\n"; }
-            if (fam2 == null) { n2 = famname2 + "\n"; }
-            if (fam3 == null) { n3 = famname3 + "\n"; }
-            TaskDialog.Show("Предупреждение", "Не загружены семейства:\n " + n1 + n3 + n2);
-            return Result.Cancelled;
-          }
+          InfoMsg("Связь: " + LinkName + "\n" + "Количество элементов в связи: " + elems.Count().ToString());
           ISet<ElementId> elementSet1 = fam1.GetFamilySymbolIds();
           ISet<ElementId> elementSet2 = fam2.GetFamilySymbolIds();
           ISet<ElementId> elementSet3 = fam3.GetFamilySymbolIds();
@@ -87,7 +112,7 @@ namespace ARMOCAD
           var targetElems = MEcollector.WhereElementIsNotElementType().Where(i => i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == famname1
           || i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == famname3);
           var targetElems2 = MEcollector.WhereElementIsNotElementType().Where(i => i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == famname2);
-          using (Transaction t = new Transaction(doc, "trans"))
+          using (Transaction t = new Transaction(doc, "Размещение элементов"))
           {
             t.Start();
             type1.Activate();
@@ -97,6 +122,7 @@ namespace ARMOCAD
             string ozk = "ce22f60b-9ae0-4c79-a624-873f39099510";   // параметр "Нормально отк/закр." для клапанов озк
             string Nname = "b4cfdcbd-5668-4572-bcd6-3d504043bd65"; // параметр "Наименование"
             string KM = "e3c1a4b0-78c8-49f5-b3c7-01869252c30e";// параметр "Коэф. мощности"
+            string date = "2e2e42ce-3e29-4fac-a314-d6d5574ac27b";// параметр "Дата выгрузки"
             IList<string> Guids = new List<string> // общие параметры
           {
             "303f67e6-3fd6-469b-9356-dccb116a3277", // параметр "Имя системы"
@@ -114,17 +140,17 @@ namespace ARMOCAD
             "Ввод2_Коэффициент_мощности",
             "Ввод2_Напряжение"
           };
-            bool check1 = CheckStorageExists(fam1, SchemaGuid);
-            bool check2 = CheckStorageExists(fam2, SchemaGuid);
-            bool check3 = CheckStorageExists(fam3, SchemaGuid);
-            if (check1 == false || check3 == false || check2 == false)
+            bool check = CheckStorageExists(SchemaGuid);
+            if (check == false)
             {
+              sch = CreateSchema(SchemaGuid);
               SchemaBuilder sb = new SchemaBuilder(new Guid(SchemaGuid));
               sb.SetReadAccessLevel(AccessLevel.Public);
               FieldBuilder fbName = sb.AddSimpleField("Link_Name", typeof(string));
               FieldBuilder fbUniq = sb.AddSimpleField("Link_Instance_UniqueId", typeof(string));
               FieldBuilder fbLUniq = sb.AddSimpleField("Link_Element_UniqueId", typeof(string));
               FieldBuilder fbLinkPath = sb.AddSimpleField("Link_Path", typeof(string));
+              FieldBuilder fbDate = sb.AddSimpleField("Load_Date", typeof(string));
               sb.SetSchemaName("Elements_from_Link");
               sch = sb.Finish();
             }
@@ -132,6 +158,7 @@ namespace ARMOCAD
             {
               sch = Schema.Lookup(new Guid(SchemaGuid));
             }
+            var countTarget = 0;
             foreach (Element origElement in elems)
             {
               LocationPoint pPoint = origElement.Location as LocationPoint;
@@ -146,12 +173,15 @@ namespace ARMOCAD
                 foreach (Element targEL in targetElems2)
                 {
                   Entity entity = targEL.GetEntity(sch);
-                  Field fLuniq = sch.GetField("Link_Element_UniqueId");
-                  string LinkUniqid = entity.Get<string>(fLuniq);
-                  if (LinkUniqid == ElemUniq)
+                  if (entity != null)
                   {
-                    Uniq = true;
-                    continue;
+                    Field fLuniq = sch.GetField("Link_Element_UniqueId");
+                    string LinkUniqid = entity.Get<string>(fLuniq);
+                    if (LinkUniqid == ElemUniq)
+                    {
+                      Uniq = true;
+                      continue;
+                    }
                   }
                 }
               }
@@ -161,6 +191,8 @@ namespace ARMOCAD
               {
                 FamilySymbol Newtype = Utils.FindElementByName(doc, typeof(FamilySymbol), typename) as FamilySymbol ?? CreateNewType(type2, typename);
                 var targElement = doc.Create.NewFamilyInstance(coords, Newtype, StructuralType.NonStructural);
+                countTarget++;
+
                 foreach (string nameparam in NamesParam)
                 {
                   if (FamSymbol.LookupParameter(nameparam) != null)
@@ -177,14 +209,19 @@ namespace ARMOCAD
                 NameSystemParameter(origElement, targElement, Guids[0]);
                 targElement.get_Parameter(new Guid(Nname)).Set(origElement.Name);
                 SetEntity(targElement, sch, LinkName, LinkUniq, ElemUniq, LinkPath);
+                targElement.get_Parameter(new Guid(date)).Set(DateTime.Now.ToShortDateString());
+                
                 continue;
               }
               foreach (Element targEL in targetElems)
               {
                 Entity entity = targEL.GetEntity(sch);
-                Field fLuniq = sch.GetField("Link_Element_UniqueId");
-                string LinkUniqid = entity.Get<string>(fLuniq);
-                if (LinkUniqid == ElemUniq) { Uniq = true; continue; }
+                if (entity != null)
+                {
+                  Field fLuniq = sch.GetField("Link_Element_UniqueId");
+                  string LinkUniqid = entity.Get<string>(fLuniq);
+                  if (LinkUniqid == ElemUniq) { Uniq = true; continue; }
+                }
               }
               if (Uniq == true) { continue; }
               FamilyInstance targetElement = null;
@@ -194,11 +231,15 @@ namespace ARMOCAD
                 {
                   FamilySymbol Newtype = Utils.FindElementByName(doc, typeof(FamilySymbol), typename) as FamilySymbol ?? CreateNewType(type1, typename);
                   targetElement = doc.Create.NewFamilyInstance(coords, Newtype, StructuralType.NonStructural);
+                  targetElement.get_Parameter(new Guid(date)).Set(DateTime.Now.ToShortDateString());
+                  countTarget++;
                 }
                 if (origElement.get_Parameter(new Guid(poles))?.AsInteger() == 3 || FamSymbol.get_Parameter(new Guid(poles))?.AsInteger() == 3)
                 {
                   FamilySymbol Newtype = Utils.FindElementByName(doc, typeof(FamilySymbol), typename) as FamilySymbol ?? CreateNewType(type3, typename);
                   targetElement = doc.Create.NewFamilyInstance(coords, Newtype, StructuralType.NonStructural);
+                  targetElement.get_Parameter(new Guid(date)).Set(DateTime.Now.ToShortDateString());
+                  countTarget++;
                 }
               }
               else { continue; }
@@ -260,6 +301,7 @@ namespace ARMOCAD
               }
             }
             t.Commit();
+            TaskDialog.Show("Информация ", "Размещено в проекте элементов: " + countTarget);
             break;
           }
         }
@@ -275,7 +317,27 @@ namespace ARMOCAD
       }
       return Result.Succeeded;
     }
-
+    public static Schema CreateSchema(string guid)
+    {
+      Guid schemaGuid = new Guid(guid);
+      SchemaBuilder schemaBuilder = new SchemaBuilder(schemaGuid);
+      // set read access
+      schemaBuilder.SetReadAccessLevel(AccessLevel.Public);
+      // set write access
+      schemaBuilder.SetWriteAccessLevel(AccessLevel.Public);
+      // set schema name
+      schemaBuilder.SetSchemaName("AgSchema");
+      // set documentation
+      //schemaBuilder.SetDocumentation(
+      //  "Хранение ElementId элементов узлов из принципиальной схемы внутри экземпляров семейств модели");
+      // create a field to store the bool value      
+      FieldBuilder elemIdField = schemaBuilder.AddMapField("DictElemId", typeof(Int32), typeof(ElementId));
+      FieldBuilder elemStringField = schemaBuilder.AddMapField("DictString", typeof(Int32), typeof(string));
+      FieldBuilder elemIntField = schemaBuilder.AddMapField("DictInt", typeof(Int32), typeof(Int32));
+      // register the schema
+      Schema schema = schemaBuilder.Finish();
+      return schema;
+    }
     private void SetEntity(Element targetElement, Schema sch, string LinkName, string LinkUniq, string ElemUniq, string LinkPath)
     {
       Entity ent = new Entity(sch);
@@ -283,12 +345,33 @@ namespace ARMOCAD
       Field fdUniq = sch.GetField("Link_Instance_UniqueId");
       Field fdLuniq = sch.GetField("Link_Element_UniqueId");
       Field fdLPath = sch.GetField("Link_Path");
+      Field fdDate = sch.GetField("Load_Date");
       ent.Set<string>(fdName, LinkName.ToString());
       ent.Set<string>(fdUniq, LinkUniq.ToString());
       ent.Set<string>(fdLuniq, ElemUniq.ToString());
       ent.Set<string>(fdLPath, LinkPath.ToString());
+      ent.Set<string>(fdDate, DateTime.Now.ToShortDateString());
       targetElement.SetEntity(ent);
       return;
+    }
+    public bool FamErrorMsg(string msg)
+    {
+      Debug.WriteLine(msg);
+      var dialogResult = WinForms.MessageBox.Show(msg, "Предупреждение", WinForms.MessageBoxButtons.YesNo, WinForms.MessageBoxIcon.Warning);
+      if (dialogResult == WinForms.DialogResult.Yes)
+      {
+        return true;
+      }
+      if (dialogResult == WinForms.DialogResult.No)
+      {
+        return false;
+      }
+      return true;
+    }
+    public static void InfoMsg(string msg)
+    {
+      Debug.WriteLine(msg);
+      WinForms.MessageBox.Show(msg, "Информация", WinForms.MessageBoxButtons.OKCancel, WinForms.MessageBoxIcon.Information);
     }
     private void NameSystemParameter(Element origElement, Element targetElement, string guid)
     {
@@ -303,12 +386,12 @@ namespace ARMOCAD
         targetElement.get_Parameter(new Guid(guid)).Set(origParam);
       }
     }
-    private bool CheckStorageExists(Family fam, string sGuid)
+    private bool CheckStorageExists(string sGuid)
     {
       try
       {
         Schema sch = Schema.Lookup(new Guid(sGuid));
-        Entity ent = fam.GetEntity(sch);
+        //Entity ent = fam.GetEntity(sch);
         if (sch != null) return true;
       }
       catch { }
@@ -326,6 +409,6 @@ namespace ARMOCAD
         return new FilteredElementCollector(doc).OfClass(targetType).FirstOrDefault<Element>(e => e.Name.Equals(targetName));
       }
     }
-    
   }
 }
+
