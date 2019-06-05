@@ -19,23 +19,26 @@ namespace ARMOCAD
       string panelName = shelf.get_Parameter(BuiltInParameter.DOOR_NUMBER).AsString();
 
       //дополнительно - марку щита в розетки
-      foreach (var i in socList) {
+      foreach (var i in socList)
+      {
         i.shelfNumber = panelName;
       }
 
       List<IEnumerable<Socket>> socketPurposes = new List<IEnumerable<Socket>>();
 
       // Разделение розеток на системы, если шкаф Кроссовый
-      if (shelf.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString() == "СКС_Шкаф_[серверный, кроссовый] : Кроссовый") {
+      if (shelf.get_Parameter(BuiltInParameter.ELEM_FAMILY_AND_TYPE_PARAM).AsValueString() == "СКС_Шкаф_[серверный, кроссовый] : Кроссовый")
+      {
 
         var groupSockets = socList.GroupBy(s => s.system);
 
-        foreach (var g in groupSockets) {
+        foreach (var g in groupSockets)
+        {
           socketPurposes.Add(g.AsEnumerable());
         }
 
       }
-      
+
       return socketPurposes;
     }
 
@@ -47,8 +50,10 @@ namespace ARMOCAD
     public static int countPorts(IEnumerable<Socket> socketGroup)
     {
       int c = 0;
-      if (socketGroup.Count() > 0) {
-        foreach (var s in socketGroup) {
+      if (socketGroup.Count() > 0)
+      {
+        foreach (var s in socketGroup)
+        {
           c += s.countOfPorts;
         }
       }
@@ -80,7 +85,8 @@ namespace ARMOCAD
 
       //Определяем префикс для розеток
       //S - security (СБ) / U - user (СП)
-      if (sockets.Count() > 0) {
+      if (sockets.Count() > 0)
+      {
         prefixPurpose = sockets.First().system;
         shelfNumber = sockets.First().shelfNumber;
       }
@@ -88,7 +94,8 @@ namespace ARMOCAD
       //двойные розетки
       var doubleSockets = sockets.Where(i => i.countOfPorts == 2);
 
-      foreach (var s in doubleSockets) {
+      foreach (var s in doubleSockets)
+      {
         currentPort += 1;
         numberPatch1 = currentPatch(countOfPorts, currentPort);
         mark1Value = currentPlaceInPatch(currentPort);
@@ -100,7 +107,8 @@ namespace ARMOCAD
         markSocket1 = String.Format("{0}.{1}.{2}", shelfNumber, numberPatch1, mark1Value);
         markSocket2 = String.Format("{0}.{1}.{2}", shelfNumber, numberPatch2, mark2Value);
 
-        if (!string.IsNullOrWhiteSpace(prefixPurpose)) {
+        if (!string.IsNullOrWhiteSpace(prefixPurpose))
+        {
           markSocket1 = String.Format("{0}.{1}", prefixPurpose, markSocket1);
           markSocket2 = String.Format("{0}.{1}", prefixPurpose, markSocket2);
         }
@@ -117,12 +125,19 @@ namespace ARMOCAD
       //одинарные розетки
 
       var singleSockets = sockets.Where(i => i.countOfPorts == 1);
-      foreach (var s in singleSockets) {
+      foreach (var s in singleSockets)
+      {
         currentPort += 1;
         numberPatch1 = currentPatch(countOfPorts, currentPort);
         mark1Value = currentPlaceInPatch(currentPort);
 
-        markSocket1 = String.Format("{0}.{1}.{2}.{3}", prefixPurpose, shelfNumber, numberPatch1, mark1Value);
+        markSocket1 = String.Format("{0}.{1}.{2}", shelfNumber, numberPatch1, mark1Value);
+        if (!string.IsNullOrWhiteSpace(prefixPurpose))
+        {
+          markSocket1 = String.Format("{0}.{1}", prefixPurpose, markSocket1);
+        }
+
+       
 
         s.mark1 = markSocket1;
         s.mark2 = String.Empty;
@@ -148,9 +163,12 @@ namespace ARMOCAD
 
 
 
-      if (commonPort % 24 != 0) {
+      if (commonPort % 24 != 0)
+      {
         commonPatch = commonPort / 24 + 1;
-      } else {
+      }
+      else
+      {
         commonPatch = commonPort / 24;
       }
 
@@ -163,12 +181,16 @@ namespace ARMOCAD
     public static string currentPlaceInPatch(int currentPort)
     {
       int placeInPatch;
-      if (currentPort > 24) {
+      if (currentPort > 24)
+      {
         placeInPatch = currentPort % 24;
-        if (placeInPatch == 0) {
+        if (placeInPatch == 0)
+        {
           placeInPatch = 24;
         }
-      } else {
+      }
+      else
+      {
         placeInPatch = currentPort;
       }
 

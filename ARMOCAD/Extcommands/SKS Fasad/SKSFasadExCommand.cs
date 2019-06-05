@@ -83,9 +83,7 @@ namespace ARMOCAD
     public Dictionary<string, ElementId> socketSymbolDict;
 
     
-   
-
-  public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+    public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
     {
 
 
@@ -178,27 +176,10 @@ namespace ARMOCAD
         ["1xRJ-45, Размещение в коробе"] = socketInBox.Id,
         ["2xRJ-45, Размещение в коробе"] = socketInBox.Id,
       };
-      
 
-      frameSymbol.Activate();
-      orgSymbol.Activate();
-      patch24Symbol.Activate();
-      commut24Symbol.Activate();
-      commut24Symbol.Activate();
-      commut48Symbol.Activate();
-      shkos1U32Symbol.Activate();
-      shkos2U96Symbol.Activate();
-      patch24SchemeSymbol.Activate();
-      commut48SchemeSymbol.Activate();
-      commut24SchemeSymbol.Activate();
-      shkosSchemeSymbol.Activate();
-      core24sSymbol.Activate();
-      core24tSymbol.Activate();
-      routerSymbol.Activate();
-
-      
       #region try
 
+      
 
       try
       {
@@ -208,7 +189,21 @@ namespace ARMOCAD
         {
           t.Start();
 
-
+          frameSymbol.Activate();
+          orgSymbol.Activate();
+          patch24Symbol.Activate();
+          commut24Symbol.Activate();
+          commut24Symbol.Activate();
+          commut48Symbol.Activate();
+          shkos1U32Symbol.Activate();
+          shkos2U96Symbol.Activate();
+          patch24SchemeSymbol.Activate();
+          commut48SchemeSymbol.Activate();
+          commut24SchemeSymbol.Activate();
+          shkosSchemeSymbol.Activate();
+          core24sSymbol.Activate();
+          core24tSymbol.Activate();
+          routerSymbol.Activate();
 
           // Кроссовые шкафы, в которые собираются розетки
           IList<Element> shelfs = Util.GetElementsByStringParameter(
@@ -261,7 +256,11 @@ namespace ARMOCAD
                 }
 
                 //система
-                socket.system = s.LookupParameter("Розетка - Система").AsString();
+                string sys = s.LookupParameter("Розетка - Система").AsString();
+                if (!string.IsNullOrWhiteSpace(sys))
+                {
+                  socket.system = sys;
+                }
 
                 var space = ((FamilyInstance)s).Space;
                 if (space != null)
@@ -273,7 +272,7 @@ namespace ARMOCAD
                   socket.roomNumber = string.Empty;
                 }
 
-                sas.socketList.Add(socket);      
+                sas.socketList.Add(socket);
 
               }
 
@@ -290,13 +289,13 @@ namespace ARMOCAD
             //имена существующих чертежных видов
             var viewCreatedNames = ViewDraftingCreate.viewDraftingNames(doc);
 
-            
+
             string viewFasadeName;
             string viewSchemeName;
 
             int countPorts;
             int commutNumber;
-            
+
             int typeOfCommutators;
 
             foreach (var i in shelfAndSockets)
@@ -458,7 +457,7 @@ namespace ARMOCAD
             }
 
           }
-          
+
 
 
           t.Commit();
@@ -486,7 +485,7 @@ namespace ARMOCAD
 
       #endregion
 
-     
+
 
 
 
@@ -631,7 +630,7 @@ namespace ARMOCAD
       y -= h / 304.8;
       return y;
     }
-    
+
     /// создание шкоса для фасадов
     public XYZ createShkos()
     {
@@ -791,7 +790,7 @@ namespace ARMOCAD
       return pointScheme;
     }
 
-    public  XYZ createPatch24()
+    public XYZ createPatch24()
     {
       double y = pointFacade.Y;
 
