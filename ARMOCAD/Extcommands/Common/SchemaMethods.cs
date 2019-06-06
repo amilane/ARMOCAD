@@ -58,15 +58,11 @@ namespace ARMOCAD
         }
         
       }
-      if (T == typeof(double))
+      if (newId.GetType() == typeof(double) | newId.GetType() == typeof(XYZ))
       {
         entity.Set(field, dictId,DisplayUnitType.DUT_DECIMAL_FEET);
       }
-      if (T == typeof(XYZ))
-      {
-        entity.Set(field, dictId, DisplayUnitType.DUT_DECIMAL_FEET);
-      }
-      if (T != typeof(double) || T != typeof(XYZ))
+      else
       {
         entity.Set(field, dictId);
       }
