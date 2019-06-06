@@ -12,15 +12,15 @@ namespace ARMOCAD
     public static object getSchemaDictValue<T>(Element e, string fieldName, int key)
     {
       object result = null;
-      IDictionary<int, T> Dict;
+      IDictionary<int, T> dict;
 
       var ent = e.GetEntity(schema);
       if (ent.Schema != null)
       {
-        Dict = ent.Get<IDictionary<int, T>>(schema.GetField(fieldName));
-        if (Dict != null && Dict.ContainsKey(key))
+        dict = ent.Get<IDictionary<int, T>>(schema.GetField(fieldName));
+        if (dict != null && dict.ContainsKey(key))
         {
-          result = Dict[key];
+          result = dict[key];
         }
       }
 
@@ -29,10 +29,10 @@ namespace ARMOCAD
 
     //записывает значение в поле схемы,
     //создает новый entity и вешает его на элемент или редактирует существующий entity элемента
-    public static void setValueToEntity<T>(Element e, string fieldName, int key, T newId)
+    public static void setValueToEntity<T>(Element e, string fieldName, int key, T value)
     {
       Entity entity;
-      IDictionary<int, T> dictId = null;
+      IDictionary<int, T> dict = null;
       Field field = schema.GetField(fieldName);
 
       entity = e.GetEntity(schema);
@@ -40,33 +40,34 @@ namespace ARMOCAD
       if (entity.Schema == null)
       {
         entity = new Entity(schema);
-        dictId = new Dictionary<int, T> { [key] = newId };
+        dict = new Dictionary<int, T> { [key] = value };
       }
       else
       {
-        dictId = entity.Get<IDictionary<int, T>>(field);
-        if (dictId != null)
+        dict = entity.Get<IDictionary<int, T>>(field);
+        if (dict != null)
         {
-          if (dictId.ContainsKey(key))
+          if (dict.ContainsKey(key))
           {
-            dictId[key] = newId;
+            dict[key] = value;
           }
           else
           {
-            dictId.Add(key, newId);
-          }          
+            dict.Add(key, value);
+          }
         }
-        
+
       }
-      if (newId.GetType() == typeof(double) | newId.GetType() == typeof(XYZ))
+      if (value.GetType() == typeof(double) | value.GetType() == typeof(XYZ))
       {
-        entity.Set(field, dictId,DisplayUnitType.DUT_DECIMAL_FEET);
+        entity.Set(field, dict, DisplayUnitType.DUT_DECIMAL_FEET);
       }
       else
       {
-        entity.Set(field, dictId);
+        entity.Set(field, dict);
       }
-        e.SetEntity(entity);
+
+      e.SetEntity(entity);
 
     }
 
