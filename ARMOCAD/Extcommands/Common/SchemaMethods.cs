@@ -45,10 +45,19 @@ namespace ARMOCAD
       else
       {
         dictId = entity.Get<IDictionary<int, T>>(field);
-        if (dictId != null && dictId.ContainsKey(key))
+        if (dictId != null)
         {
-          dictId[key] = newId;
+          if (dictId.ContainsKey(key))
+          {
+            dictId[key] = newId;
+          }
+          else
+          {
+            dictId.Add(key, newId);
+          }
+          
         }
+        
       }
 
       entity.Set(field, dictId);
