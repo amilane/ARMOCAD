@@ -65,7 +65,21 @@ namespace ARMOCAD
     {
       ["cmdValve"] = new ContextualHelp(ContextualHelpType.Url, @"https://drive.google.com/file/d/1P-C7OjLGbRaU1pXQDMKCZu0Czdl_WkOq/view"),
       ["cmdValvelocSS"] = new ContextualHelp(ContextualHelpType.Url, @"https://drive.google.com/file/d/1CeW3zqnXjwJWzqRVn-JGDh64fAsNGlqf/view"),
-      
+      ["cmdDetailLinesLength"] = new ContextualHelp(ContextualHelpType.Url, Path.Combine(GetExeDirectory(), "Help/DetailLinesLength_Help.html")),
+      ["cmdSimilarParamsClass"] = new ContextualHelp(ContextualHelpType.Url, Path.Combine(GetExeDirectory(), "Help/SimilarParameters_Help.html")),
+      ["cmdParamtextreplaceClass"] = new ContextualHelp(ContextualHelpType.Url, Path.Combine(GetExeDirectory(), "Help/Paramtextreplace_Help.html")),
+      ["cmdOpeningElevation"] = new ContextualHelp(ContextualHelpType.Url, Path.Combine(GetExeDirectory(), "Help/OpeningElevation_Help.html")),
+      ["cmdCreateMepSpaces"] = new ContextualHelp(ContextualHelpType.ChmFile, @"\\arena\ARMO-GROUP\ИПУ\ЛИЧНЫЕ\САПРомания\RVT-BIMnet\СТП-Расстановка пространств по связанной модели АР.docx"),
+
+      ["cmdSpreadEvenly"] = new ContextualHelp(ContextualHelpType.ChmFile, @"\\arena\ARMO-GROUP\ИПУ\ЛИЧНЫЕ\САПРомания\RVT-BIMnet\СТП-Расстановка семейств массивом SpreadEvenly.docx"),
+      ["cmdConPoints"] = new ContextualHelp(ContextualHelpType.Url, @"https://drive.google.com/file/d/1Dyy2vsOLukdFzAEIVvzUv_tu3tWKD1je/view"),
+      ["cmdConPointLocation"] = new ContextualHelp(ContextualHelpType.Url, @"https://drive.google.com/file/d/1J5HuVRW80eRR3kKp4TenDmcRmpm66oaE/view"),
+
+      ["cmdSKUDControlPlacementEx"] = new ContextualHelp(ContextualHelpType.ChmFile, @"\\arena\ARMO-GROUP\ИПУ\ЛИЧНЫЕ\САПРомания\RVT-BIMnet\СТП-СКУД Расстановка точек доступа и оборудования.docx"),
+
+
+
+
     };
 
     // define a method that will create our tab and button
@@ -105,8 +119,7 @@ namespace ARMOCAD
         thisAssemblyPath,
         "DetailLinesLength.DetailLinesLengthClass");
 
-      ContextualHelp contextHelp1 = new ContextualHelp(ContextualHelpType.Url, Path.Combine(GetExeDirectory(), "Help/DetailLinesLength_Help.html"));
-      b1Data.SetContextualHelp(contextHelp1);
+      b1Data.SetContextualHelp(helpButtonsDictionary["cmdDetailLinesLength"]);
       b1Data.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/DetailLinesLength_icon.png"));
       b1Data.LargeImage = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/DetailLinesLength_icon.png"));
       b1Data.ToolTip = "Нажмите чтобы измерить длину линий детализации";
@@ -178,8 +191,7 @@ namespace ARMOCAD
       pb6.ToolTip = "Запись одинкаовых параметров в разные семейства";
       pb6.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/SimilarParams_icon.png"));
       pb6.LargeImage = pb6.Image;
-      ContextualHelp contextHelp6 = new ContextualHelp(ContextualHelpType.Url, Path.Combine(GetExeDirectory(), "Help/SimilarParameters_Help.html"));
-      pb6.SetContextualHelp(contextHelp6);
+      pb6.SetContextualHelp(helpButtonsDictionary["cmdSimilarParamsClass"]);
 
 
       // create push button
@@ -193,8 +205,7 @@ namespace ARMOCAD
       pb7.ToolTip = "Поиск и замена выбранных параметров в выбранных семействах";
       pb7.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/Paramtextreplace_icon.png"));
       pb7.LargeImage = pb7.Image;
-      ContextualHelp contextHelp7 = new ContextualHelp(ContextualHelpType.Url, Path.Combine(GetExeDirectory(), "Help/Paramtextreplace_Help.html"));
-      pb7.SetContextualHelp(contextHelp7);
+      pb7.SetContextualHelp(helpButtonsDictionary["cmdParamtextreplaceClass"]);
 
       // create push button
       PushButtonData b9Data = new PushButtonData(
@@ -207,8 +218,7 @@ namespace ARMOCAD
       pb9.ToolTip = "Нажмите чтобы обработать отверстия Cut Opening";
       pb9.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/openElevIcon.png"));
       pb9.LargeImage = pb9.Image;
-      ContextualHelp contextHelp9 = new ContextualHelp(ContextualHelpType.Url, Path.Combine(GetExeDirectory(), "Help/OpeningElevation_Help.html"));
-      pb9.SetContextualHelp(contextHelp9);
+      pb9.SetContextualHelp(helpButtonsDictionary["cmdOpeningElevation"]);
 
       // create push button
       PushButtonData b11Data = new PushButtonData(
@@ -240,8 +250,7 @@ namespace ARMOCAD
         "Пространства" + System.Environment.NewLine + "по АР",
         thisAssemblyPath,
         "ARMOCAD.CreateMepSpaces");
-      ContextualHelp contextHelp25 = new ContextualHelp(ContextualHelpType.ChmFile, @"\\arena\ARMO-GROUP\ИПУ\ЛИЧНЫЕ\САПРомания\RVT-BIMnet\СТП-Расстановка пространств по связанной модели АР.docx");
-      b25Data.SetContextualHelp(contextHelp25);
+      b25Data.SetContextualHelp(helpButtonsDictionary["cmdCreateMepSpaces"]);
 
       PushButton pb25 = ribbonPanel.AddItem(b25Data) as PushButton;
       pb25.ToolTip = "Ставит пространства по модели АР";
@@ -265,8 +274,7 @@ namespace ARMOCAD
       elPB1.ToolTip = "Нажмите чтобы расставить семейства";
       elPB1.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/SpreadEvenly_icon.png"));
       elPB1.LargeImage = elPB1.Image;
-      ContextualHelp contextHelpEl1 = new ContextualHelp(ContextualHelpType.ChmFile, @"\\arena\ARMO-GROUP\ИПУ\ЛИЧНЫЕ\САПРомания\RVT-BIMnet\СТП-Расстановка семейств массивом SpreadEvenly.docx");
-      elPB1.SetContextualHelp(contextHelpEl1);
+      elPB1.SetContextualHelp(helpButtonsDictionary["cmdSpreadEvenly"]);
 
       //DenisButtons
       // create push button
@@ -276,8 +284,7 @@ namespace ARMOCAD
         thisAssemblyPath,
         "ARMOCAD.ConPoint");
 
-      ContextualHelp contextHelpEl2 = new ContextualHelp(ContextualHelpType.Url, @"https://drive.google.com/file/d/1Dyy2vsOLukdFzAEIVvzUv_tu3tWKD1je/view");
-      elB2Data.SetContextualHelp(contextHelpEl2);
+      elB2Data.SetContextualHelp(helpButtonsDictionary["cmdConPoints"]);
       elB2Data.LargeImage = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/tpointsIcon.png"));
       elB2Data.ToolTip = "ЭМ_Размещение точек подключения из связи";
 
@@ -288,8 +295,7 @@ namespace ARMOCAD
         thisAssemblyPath,
         "ARMOCAD.ConPointLocation");
 
-      ContextualHelp contextHelpEl3 = new ContextualHelp(ContextualHelpType.Url, @"https://drive.google.com/file/d/1J5HuVRW80eRR3kKp4TenDmcRmpm66oaE/view");
-      elB3Data.SetContextualHelp(contextHelpEl3);
+      elB3Data.SetContextualHelp(helpButtonsDictionary["cmdConPointLocation"]);
       elB3Data.LargeImage = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/checkIcon.png"));
       elB3Data.ToolTip = "ЭМ_Проверка размещенных точек подключения";
 
@@ -477,8 +483,7 @@ namespace ARMOCAD
         "ARMOCAD.SKUDControlPlacementEx");
       b23Data.ToolTip = "Размещение точек доступа по дверям из связанной модели АР";
       b23Data.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/arrowIcon.png"));
-      ContextualHelp contextHelp23 = new ContextualHelp(ContextualHelpType.ChmFile, @"\\arena\ARMO-GROUP\ИПУ\ЛИЧНЫЕ\САПРомания\RVT-BIMnet\СТП-СКУД Расстановка точек доступа и оборудования.docx");
-      b23Data.SetContextualHelp(contextHelp23);
+      b23Data.SetContextualHelp(helpButtonsDictionary["cmdSKUDControlPlacementEx"]);
 
       // create push button
       PushButtonData b24Data = new PushButtonData(
@@ -488,7 +493,7 @@ namespace ARMOCAD
         "ARMOCAD.SKUDPlaceEquipmentEx");
       b24Data.ToolTip = "Размещение оборудования СКУД по точкам доступа";
       b24Data.Image = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/equipIcon.png"));
-      b24Data.SetContextualHelp(contextHelp23);
+      b24Data.SetContextualHelp(helpButtonsDictionary["cmdSKUDControlPlacementEx"]);
 
       List<RibbonItem> skudButtons1 = new List<RibbonItem>();
       skudButtons1.AddRange(ribbonPanel3.AddStackedItems(b23Data, b24Data));
@@ -523,16 +528,6 @@ namespace ARMOCAD
       sb2.AddPushButton(b27Data);
       
       
-
-
-
-
-
-
-
-
-
-
 
 
 
