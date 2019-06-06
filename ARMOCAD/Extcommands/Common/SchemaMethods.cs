@@ -54,14 +54,23 @@ namespace ARMOCAD
           else
           {
             dictId.Add(key, newId);
-          }
-          
+          }          
         }
         
       }
-
-      entity.Set(field, dictId);
-      e.SetEntity(entity);
+      if (T == typeof(double))
+      {
+        entity.Set(field, dictId,DisplayUnitType.DUT_DECIMAL_FEET);
+      }
+      if (T == typeof(XYZ))
+      {
+        entity.Set(field, dictId, DisplayUnitType.DUT_DECIMAL_FEET);
+      }
+      if (T != typeof(double) || T != typeof(XYZ))
+      {
+        entity.Set(field, dictId);
+      }
+        e.SetEntity(entity);
 
     }
 
