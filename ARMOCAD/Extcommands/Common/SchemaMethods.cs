@@ -52,7 +52,7 @@ namespace ARMOCAD
       if (ent.Schema != null)
       {
         
-        dict = ent.Get<IDictionary<int, T>>(schema.GetField(fieldName));
+        dict = ent.Get<IDictionary<int, T>>(Schema.GetField(fieldName));
         if (dict != null && dict.ContainsKey(key))
         {
           result = dict[key];
