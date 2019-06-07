@@ -22,47 +22,35 @@ namespace ARMOCAD
       Document doc = uidoc?.Document;
       Document docAR = null;
 
-      ICollection<ElementId> selectedIds = uidoc.Selection.GetElementIds();
+      ElementId selectedId = uidoc.Selection.GetElementIds().First();
 
-      if (0 == selectedIds.Count)
-      {
-        TaskDialog.Show("Предупреждение", "Выделите модель в АР");
-        return Result.Cancelled;
-      }
-      else
-      {
-        foreach (ElementId id in selectedIds)
-        {
-          var link = doc.GetElement(id);
-          if (link.Category.Id.IntegerValue == (int)BuiltInCategory.OST_RvtLinks)
-          {
-            docAR = ((RevitLinkInstance)link).GetLinkDocument();
-          }
-        }
-      }
+      var elem = doc.GetElement(selectedId);
+      
 
-      Reference refElemLinked = uidoc.Selection.PickObject(ObjectType.LinkedElement, "Выберите стену в связанной модели АР");
-      Element wall = docAR.GetElement(refElemLinked.LinkedElementId);
-      Reference mep = uidoc.Selection.PickObject(ObjectType.Element, "Выберите коммуникацию");
+     
 
       
 
-      //var kek = refElemLinked.
+      
       try
       {
         using (Transaction t = new Transaction(doc, "TEST"))
         {
           t.Start();
-          //Reference refElemLinked = uidoc.Selection.PickObject(ObjectType.LinkedElement, "Выберите стену в связанной модели АР");
-          //Element elem = docAR.GetElement(refElemLinked.LinkedElementId);
 
+          SchemaMethods sm = new SchemaMethods("2b6a75d7-a580-4786-9d6c-6739437c2170", "TestSchema","Схема всякой фигни");
+          sm.setValueToEntity(elem, "Dict_String", 0, "lal kek cheburek");
+          sm.setValueToEntity(elem, "Dict_Double", 0, 15.2);
+
+          string ret = (string)sm.getSchemaDictValue<string>(elem, "Dict_String", 0);
+          //Util.InfoMsg2("Результат:", ret);
+          //var kek = UnitUtils.GetValidUnitTypes();
 
           t.Commit();
         }
 
 
 
-        TaskDialog.Show("Готово", "ОК");
         return Result.Succeeded;
       }
       // This is where we "catch" potential errors and define how to deal with them

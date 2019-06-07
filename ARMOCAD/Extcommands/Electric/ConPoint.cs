@@ -123,7 +123,7 @@ namespace ARMOCAD
           FamilySymbol type2 = doc.GetElement(elementSet2.First()) as FamilySymbol;
           FamilySymbol type3 = doc.GetElement(elementSet3.First()) as FamilySymbol;
           sch = CreateGetSchema(SchemaGuid);
-          SchemaMethods.schema = sch;
+          //SchemaMethods.schema = sch;
           FilteredElementCollector MEcollector = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_MechanicalEquipment).WhereElementIsNotElementType();         
             var targetElems = MEcollector.Where(i => i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == famname1
           || i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == famname3);
@@ -381,13 +381,13 @@ namespace ARMOCAD
         ent = new Entity(sch);
       }
       IDictionary<int, double> dict = new Dictionary<int, double>();
-      SchemaMethods.setValueToEntity(e, "Dict_String", (int)Keys.Linked_Element_UniqueId, ElemUniq);
-      SchemaMethods.setValueToEntity(e, "Dict_String", (int)Keys.Link_Instance_UniqueId, LinkUniq);
-      SchemaMethods.setValueToEntity(e, "Dict_String", (int)Keys.Link_Name, LinkName);
-      SchemaMethods.setValueToEntity(e, "Dict_String", (int)Keys.Link_Path, LinkPath);
-      SchemaMethods.setValueToEntity(e, "Dict_String", (int)Keys.Linked_FamilyName, typename);
-      SchemaMethods.setValueToEntity(e, "Dict_String", (int)Keys.Element_UniqueId, e.UniqueId.ToString());
-      SchemaMethods.setValueToEntity(e, "Dict_String", (int)Keys.Load_Date, DateTime.Now.ToShortDateString());
+      //SchemaMethods.setValueToEntity(e, "Dict_String", (int)Keys.Linked_Element_UniqueId, ElemUniq);
+      //SchemaMethods.setValueToEntity(e, "Dict_String", (int)Keys.Link_Instance_UniqueId, LinkUniq);
+      //SchemaMethods.setValueToEntity(e, "Dict_String", (int)Keys.Link_Name, LinkName);
+      //SchemaMethods.setValueToEntity(e, "Dict_String", (int)Keys.Link_Path, LinkPath);
+      //SchemaMethods.setValueToEntity(e, "Dict_String", (int)Keys.Linked_FamilyName, typename);
+      //SchemaMethods.setValueToEntity(e, "Dict_String", (int)Keys.Element_UniqueId, e.UniqueId.ToString());
+      //SchemaMethods.setValueToEntity(e, "Dict_String", (int)Keys.Load_Date, DateTime.Now.ToShortDateString());
       //SchemaMethods.setValueToEntitySpecified(e, "Dict_Double", 1, 1123.12321);
       dict.Add((int)Keys.Linked_Elem_Coords, 123.213);
       ent.Set("Dict_Double", dict, DisplayUnitType.DUT_DECIMAL_FEET);
@@ -440,7 +440,7 @@ namespace ARMOCAD
           FieldBuilder fbElemId = sb.AddMapField("Dict_ElemId", typeof(int), typeof(ElementId));
           FieldBuilder fbXYZ = sb.AddSimpleField("Dict_XYZ", typeof(XYZ));
           fbXYZ.SetUnitType(UnitType.UT_Length);
-          fbDouble.SetUnitType(UnitType.UT_Length);
+          //fbDouble.SetUnitType(UnitType.UT_Length);
           sb.SetSchemaName("Ag_Schema");
           sch = sb.Finish();
           return sch;
