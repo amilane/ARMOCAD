@@ -51,11 +51,17 @@ namespace ARMOCAD
       var ent = e.GetEntity(Schema);
       if (ent.Schema != null)
       {
-        dict = ent.Get<IDictionary<int, T>>(Schema.GetField(fieldName));
+<<<<<<< HEAD
+=======
+        
+        dict = ent.Get<IDictionary<int, T>>(schema.GetField(fieldName));
+>>>>>>> a1666373fc9e5e7e41206d404066d7c7b4227696
         if (dict != null && dict.ContainsKey(key))
         {
           result = dict[key];
         }
+
+
       }
 
       return result;
@@ -93,6 +99,7 @@ namespace ARMOCAD
           }
         }
 
+        
       }
       if (value.GetType() == typeof(double) | value.GetType() == typeof(XYZ))
       {
@@ -102,10 +109,9 @@ namespace ARMOCAD
       {
         entity.Set(field, dict);
       }
-
       e.SetEntity(entity);
-
     }
+
 
     /// <summary>
     /// Проверяет наличие схемы по имени
@@ -182,6 +188,7 @@ namespace ARMOCAD
 
 
     #endregion methods
+
 
 
 
