@@ -47,7 +47,7 @@ namespace ARMOCAD
       }
       else
       {
-        dict = entity.Get<IDictionary<int, T>>(field, DisplayUnitType.DUT_DECIMAL_FEET);
+        dict = entity.Get<IDictionary<int, T>>(field);
         if (dict != null)
         {
           if (dict.ContainsKey(key))
@@ -69,12 +69,7 @@ namespace ARMOCAD
       {
         entity.Set(field, dict);
       }
-
       e.SetEntity(entity);
-
     }
-
-
-
   }
 }
