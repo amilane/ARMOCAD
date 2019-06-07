@@ -438,9 +438,7 @@ namespace ARMOCAD
           FieldBuilder fbString = sb.AddMapField("Dict_String",typeof(int),typeof(string));
           FieldBuilder fbInt = sb.AddMapField("Dict_Int", typeof(int), typeof(int));          
           FieldBuilder fbElemId = sb.AddMapField("Dict_ElemId", typeof(int), typeof(ElementId));
-          FieldBuilder fbDouble = sb.AddMapField("Dict_Double", typeof(int), typeof(double));
-          //FieldBuilder fbXYZ = sb.AddSimpleField("Dict_XYZ", typeof(XYZ));
-          FieldBuilder fbXYZ = sb.AddMapField("Dict_XYZ", typeof(int), typeof(XYZ));
+          FieldBuilder fbXYZ = sb.AddSimpleField("Dict_XYZ", typeof(XYZ));
           fbXYZ.SetUnitType(UnitType.UT_Length);
           fbDouble.SetUnitType(UnitType.UT_Length);
           sb.SetSchemaName("Ag_Schema");

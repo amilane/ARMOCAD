@@ -51,11 +51,8 @@ namespace ARMOCAD
       var ent = e.GetEntity(Schema);
       if (ent.Schema != null)
       {
-<<<<<<< HEAD
-=======
         
         dict = ent.Get<IDictionary<int, T>>(schema.GetField(fieldName));
->>>>>>> a1666373fc9e5e7e41206d404066d7c7b4227696
         if (dict != null && dict.ContainsKey(key))
         {
           result = dict[key];
@@ -175,7 +172,7 @@ namespace ARMOCAD
       // create a field to store the bool value
       FieldBuilder fbString = schemaBuilder.AddMapField("Dict_String", typeof(int), typeof(string));
       FieldBuilder fbInt = schemaBuilder.AddMapField("Dict_Int", typeof(int), typeof(int));
-      FieldBuilder fbDouble = schemaBuilder.AddMapField("Dict_Double", typeof(int), typeof(double));
+      FieldBuilder fbDouble = schemaBuilder.AddSimpleField("Dict_Double", typeof(double));
       FieldBuilder fbElemId = schemaBuilder.AddMapField("Dict_ElemId", typeof(int), typeof(ElementId));
       FieldBuilder fbXYZ = schemaBuilder.AddSimpleField("Dict_XYZ", typeof(XYZ));
 
