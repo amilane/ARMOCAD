@@ -69,7 +69,7 @@ namespace ARMOCAD
         schema = CreateSchema();
       }
 
-      SchemaMethods.schema = schema;
+      //SchemaMethods.schema = schema;
 
       TagItems = tagListData();
     }
@@ -242,7 +242,7 @@ namespace ARMOCAD
     {
       string draftTag = String.Empty;
 
-      ElementId draftId = SchemaMethods.getSchemaDictValue<ElementId>(e, "DictElemId", 0) as ElementId;
+      ElementId draftId = getSchemaDictValue<ElementId>(e, "DictElemId", 0) as ElementId;
 
       if (draftId != null && draftId.IntegerValue != -1)
       {
@@ -253,7 +253,23 @@ namespace ARMOCAD
       t.DraftTag = draftTag;
     }
 
+    public object getSchemaDictValue<T>(Element e, string fieldName, int key)
+    {
+      object result = null;
+      IDictionary<int, T> dict;
 
+      var ent = e.GetEntity(schema);
+      if (ent.Schema != null)
+      {
+        dict = ent.Get<IDictionary<int, T>>(schema.GetField(fieldName));
+        if (dict != null && dict.ContainsKey(key))
+        {
+          result = dict[key];
+        }
+      }
+
+      return result;
+    }
 
   }
 }

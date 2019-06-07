@@ -7,17 +7,32 @@ namespace ARMOCAD
 {
   public class SchemaMethods
   {
-    public static Schema schema;
+
+    public string GuidValue { get; set; }
+    public string SchemaName { get; set; }
+    public string SchemaDocDescription { get; set; }
+    public Schema Schema { get; set; }
 
     #region constructor
 
-    public SchemaMethods(string guidValue)
+    public SchemaMethods(string guidValue, string schemaName, string schemaDocDescription)
     {
-      private 
+      GuidValue = guidValue;
+      SchemaName = schemaName;
+      SchemaDocDescription = schemaDocDescription;
+
+      if (SchemaExist())
+      {
+        Schema = GetSchema();
+      }
+      else
+      {
+        Schema = CreateSchema();
+      }
+      
     }
 
-
-    #endregion
+    #endregion constructor
 
 
 
@@ -28,15 +43,15 @@ namespace ARMOCAD
     /// <summary>
     /// возвращает значение поля схемы (поле - словарь <int, value>)
     /// </summary>
-    public static object getSchemaDictValue<T>(Element e, string fieldName, int key)
+    public object getSchemaDictValue<T>(Element e, string fieldName, int key)
     {
       object result = null;
       IDictionary<int, T> dict;
 
-      var ent = e.GetEntity(schema);
+      var ent = e.GetEntity(Schema);
       if (ent.Schema != null)
       {
-        dict = ent.Get<IDictionary<int, T>>(schema.GetField(fieldName));
+        dict = ent.Get<IDictionary<int, T>>(Schema.GetField(fieldName));
         if (dict != null && dict.ContainsKey(key))
         {
           result = dict[key];
@@ -50,17 +65,17 @@ namespace ARMOCAD
     /// записывает значение в поле схемы,
     /// создает новый entity и вешает его на элемент или редактирует существующий entity элемента
     /// </summary>
-    public static void setValueToEntity<T>(Element e, string fieldName, int key, T value)
+    public void setValueToEntity<T>(Element e, string fieldName, int key, T value)
     {
       Entity entity;
       IDictionary<int, T> dict = null;
-      Field field = schema.GetField(fieldName);
+      Field field = Schema.GetField(fieldName);
 
-      entity = e.GetEntity(schema);
+      entity = e.GetEntity(Schema);
 
       if (entity.Schema == null)
       {
-        entity = new Entity(schema);
+        entity = new Entity(Schema);
         dict = new Dictionary<int, T> { [key] = value };
       }
       else
@@ -95,10 +110,10 @@ namespace ARMOCAD
     /// <summary>
     /// Проверяет наличие схемы по имени
     /// </summary>
-    public static bool SchemaExist(string schemaName)
+    public bool SchemaExist()
     {
       bool result = false;
-      if (GetSchema(schemaName) != null)
+      if (GetSchema() != null)
       {
         result = true;
       }
@@ -109,7 +124,7 @@ namespace ARMOCAD
     /// <summary>
     /// Возвращает схему по имени
     /// </summary>
-    public static Schema GetSchema(string schemaName)
+    public Schema GetSchema()
     {
       Schema schema = null;
       IList<Schema> schemas = Schema.ListSchemas();
@@ -118,7 +133,7 @@ namespace ARMOCAD
         // get schema
         foreach (Schema s in schemas)
         {
-          if (s.SchemaName == schemaName)
+          if (s.SchemaName == SchemaName)
           {
             schema = s;
             break;
@@ -133,9 +148,9 @@ namespace ARMOCAD
     /// Создает схему
     /// </summary>
     /// <returns></returns>
-    public static Schema CreateSchema()
+    public Schema CreateSchema()
     {
-      Guid schemaGuid = new Guid("ce6a412e-1e20-4ac3-a081-0a6bde126466");
+      Guid schemaGuid = new Guid(GuidValue);
 
       SchemaBuilder schemaBuilder = new SchemaBuilder(schemaGuid);
 
@@ -146,16 +161,17 @@ namespace ARMOCAD
       schemaBuilder.SetWriteAccessLevel(AccessLevel.Public);
 
       // set schema name
-      schemaBuilder.SetSchemaName("AgSchema");
+      schemaBuilder.SetSchemaName(SchemaName);
 
       // set documentation
-      schemaBuilder.SetDocumentation(
-        "Хранение ElementId элементов узлов из принципиальной схемы внутри экземпляров семейств модели");
+      schemaBuilder.SetDocumentation(SchemaDocDescription);
 
       // create a field to store the bool value
-      FieldBuilder elemIdField = schemaBuilder.AddMapField("DictElemId", typeof(Int32), typeof(ElementId));
-      FieldBuilder elemStringField = schemaBuilder.AddMapField("DictString", typeof(Int32), typeof(string));
-      FieldBuilder elemIntField = schemaBuilder.AddMapField("DictInt", typeof(Int32), typeof(Int32));
+      FieldBuilder fbString = schemaBuilder.AddMapField("Dict_String", typeof(int), typeof(string));
+      FieldBuilder fbInt = schemaBuilder.AddMapField("Dict_Int", typeof(int), typeof(int));
+      FieldBuilder fbDouble = schemaBuilder.AddMapField("Dict_Double", typeof(int), typeof(double));
+      FieldBuilder fbElemId = schemaBuilder.AddMapField("Dict_ElemId", typeof(int), typeof(ElementId));
+      FieldBuilder fbXYZ = schemaBuilder.AddSimpleField("Dict_XYZ", typeof(XYZ));
 
       // register the schema
       Schema schema = schemaBuilder.Finish();

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Windows;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.ExtensibleStorage;
@@ -32,7 +33,7 @@ namespace ARMOCAD
           Element eModel = RevitModel.EModel;
           Element eDraft = RevitModel.EDraft;
 
-          SchemaMethods.setValueToEntity<ElementId>(eModel, "DictElemId", 0, eDraft.Id);
+          setValueToEntity<ElementId>(eModel, "DictElemId", 0, eDraft.Id);
 
           
           Parameter parTagDraft = eDraft.LookupParameter("TAG");
@@ -61,8 +62,40 @@ namespace ARMOCAD
       return "Revit Addin";
     }
 
+    public void setValueToEntity<T>(Element e, string fieldName, int key, T value)
+    {
+      Entity entity;
+      IDictionary<int, T> dict = null;
+      Field field = schema.GetField(fieldName);
 
-    
+      entity = e.GetEntity(schema);
+
+      if (entity.Schema == null)
+      {
+        entity = new Entity(schema);
+        dict = new Dictionary<int, T> { [key] = value };
+      }
+      else
+      {
+        dict = entity.Get<IDictionary<int, T>>(field);
+        if (dict != null)
+        {
+          if (dict.ContainsKey(key))
+          {
+            dict[key] = value;
+          }
+          else
+          {
+            dict.Add(key, value);
+          }
+        }
+
+      }
+      
+      e.SetEntity(entity);
+
+    }
+
 
 
   }
