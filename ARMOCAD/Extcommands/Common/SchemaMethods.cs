@@ -17,11 +17,14 @@ namespace ARMOCAD
       var ent = e.GetEntity(schema);
       if (ent.Schema != null)
       {
+        
         dict = ent.Get<IDictionary<int, T>>(schema.GetField(fieldName));
         if (dict != null && dict.ContainsKey(key))
         {
           result = dict[key];
         }
+
+
       }
 
       return result;
@@ -44,7 +47,7 @@ namespace ARMOCAD
       }
       else
       {
-        dict = entity.Get<IDictionary<int, T>>(field);
+        dict = entity.Get<IDictionary<int, T>>(field, DisplayUnitType.DUT_DECIMAL_FEET);
         if (dict != null)
         {
           if (dict.ContainsKey(key))

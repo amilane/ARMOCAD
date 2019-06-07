@@ -335,7 +335,8 @@ namespace ARMOCAD
               }
             }
             t.Commit();
-            TaskDialog.Show("Информация ", "Размещено в проекте элементов: " + countTarget);
+
+            //TaskDialog.Show("Информация ", "Размещено в проекте элементов: " + countTarget);
             break;
           }
         }
@@ -381,7 +382,7 @@ namespace ARMOCAD
       SchemaMethods.setValueToEntity<string>(e, "Dict_String", (int)Keys.Linked_FamilyName, typename);
       SchemaMethods.setValueToEntity<string>(e, "Dict_String", (int)Keys.Element_UniqueId, e.UniqueId.ToString());
       SchemaMethods.setValueToEntity<string>(e, "Dict_String", (int)Keys.Load_Date, DateTime.Now.ToShortDateString());
-      //SchemaMethods.setValueToEntity<XYZ>(e, "Dict_XYZ", (int)Keys.Linked_Elem_Coords, coords);
+      SchemaMethods.setValueToEntity<XYZ>(e, "Dict_XYZ", (int)Keys.Linked_Elem_Coords, coords);
     }
     public bool FamErrorMsg(string msg)
     {
@@ -400,7 +401,7 @@ namespace ARMOCAD
     public static void InfoMsg(string msg)
     {
       Debug.WriteLine(msg);
-      WinForms.MessageBox.Show(msg, "Информация", WinForms.MessageBoxButtons.OKCancel, WinForms.MessageBoxIcon.Information);
+      WinForms.MessageBox.Show(msg, "Информация", WinForms.MessageBoxButtons.OK, WinForms.MessageBoxIcon.Information);
     }
     private void NameSystemParameter(Element origElement, Element targetElement, string guid)
     {
@@ -428,14 +429,15 @@ namespace ARMOCAD
           sb.SetReadAccessLevel(AccessLevel.Public);
           sb.SetWriteAccessLevel(AccessLevel.Public);
           FieldBuilder fbString = sb.AddMapField("Dict_String",typeof(int),typeof(string));
-          FieldBuilder fbInt = sb.AddMapField("Dict_Int", typeof(int), typeof(int));
-          FieldBuilder fbDouble = sb.AddMapField("Dict_Double", typeof(int), typeof(double));
+          FieldBuilder fbInt = sb.AddMapField("Dict_Int", typeof(int), typeof(int));          
           FieldBuilder fbElemId = sb.AddMapField("Dict_ElemId", typeof(int), typeof(ElementId));
-          FieldBuilder fbXYZ = sb.AddSimpleField("Dict_XYZ", typeof(XYZ));  
+          FieldBuilder fbDouble = sb.AddMapField("Dict_Double", typeof(int), typeof(double));
+          FieldBuilder fbXYZ = sb.AddMapField("Dict_XYZ", typeof(int), typeof(XYZ));
           fbXYZ.SetUnitType(UnitType.UT_Length);
           fbDouble.SetUnitType(UnitType.UT_Length);
           sb.SetSchemaName("Ag_Schema");
-          sb.Finish();
+          sch = sb.Finish();
+          return sch;
         }
       }
       catch { }
