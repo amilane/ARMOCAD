@@ -1,14 +1,33 @@
+using System;
 using Autodesk.Revit.DB;
 using System.Collections.Generic;
 using Autodesk.Revit.DB.ExtensibleStorage;
 
 namespace ARMOCAD
 {
-  public static class SchemaMethods
+  public class SchemaMethods
   {
     public static Schema schema;
 
-    //возвращает значение поля схемы (поле - словарь <int, value>)
+    #region constructor
+
+    public SchemaMethods(string guidValue)
+    {
+      private 
+    }
+
+
+    #endregion
+
+
+
+
+    #region methods
+
+
+    /// <summary>
+    /// возвращает значение поля схемы (поле - словарь <int, value>)
+    /// </summary>
     public static object getSchemaDictValue<T>(Element e, string fieldName, int key)
     {
       object result = null;
@@ -27,8 +46,10 @@ namespace ARMOCAD
       return result;
     }
 
-    //записывает значение в поле схемы,
-    //создает новый entity и вешает его на элемент или редактирует существующий entity элемента
+    /// <summary>
+    /// записывает значение в поле схемы,
+    /// создает новый entity и вешает его на элемент или редактирует существующий entity элемента
+    /// </summary>
     public static void setValueToEntity<T>(Element e, string fieldName, int key, T value)
     {
       Entity entity;
@@ -70,6 +91,84 @@ namespace ARMOCAD
       e.SetEntity(entity);
 
     }
+
+    /// <summary>
+    /// Проверяет наличие схемы по имени
+    /// </summary>
+    public static bool SchemaExist(string schemaName)
+    {
+      bool result = false;
+      if (GetSchema(schemaName) != null)
+      {
+        result = true;
+      }
+
+      return result;
+    }
+
+    /// <summary>
+    /// Возвращает схему по имени
+    /// </summary>
+    public static Schema GetSchema(string schemaName)
+    {
+      Schema schema = null;
+      IList<Schema> schemas = Schema.ListSchemas();
+      if (schemas != null && schemas.Count > 0)
+      {
+        // get schema
+        foreach (Schema s in schemas)
+        {
+          if (s.SchemaName == schemaName)
+          {
+            schema = s;
+            break;
+          }
+        }
+      }
+
+      return schema;
+    }
+
+    /// <summary>
+    /// Создает схему
+    /// </summary>
+    /// <returns></returns>
+    public static Schema CreateSchema()
+    {
+      Guid schemaGuid = new Guid("ce6a412e-1e20-4ac3-a081-0a6bde126466");
+
+      SchemaBuilder schemaBuilder = new SchemaBuilder(schemaGuid);
+
+      // set read access
+      schemaBuilder.SetReadAccessLevel(AccessLevel.Public);
+
+      // set write access
+      schemaBuilder.SetWriteAccessLevel(AccessLevel.Public);
+
+      // set schema name
+      schemaBuilder.SetSchemaName("AgSchema");
+
+      // set documentation
+      schemaBuilder.SetDocumentation(
+        "Хранение ElementId элементов узлов из принципиальной схемы внутри экземпляров семейств модели");
+
+      // create a field to store the bool value
+      FieldBuilder elemIdField = schemaBuilder.AddMapField("DictElemId", typeof(Int32), typeof(ElementId));
+      FieldBuilder elemStringField = schemaBuilder.AddMapField("DictString", typeof(Int32), typeof(string));
+      FieldBuilder elemIntField = schemaBuilder.AddMapField("DictInt", typeof(Int32), typeof(Int32));
+
+      // register the schema
+      Schema schema = schemaBuilder.Finish();
+
+      return schema;
+    }
+
+
+
+    #endregion methods
+
+
+
 
 
 
