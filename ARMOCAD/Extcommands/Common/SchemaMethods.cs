@@ -10,16 +10,14 @@ namespace ARMOCAD
 
     public string GuidValue { get; set; }
     public string SchemaName { get; set; }
-    public string SchemaDocDescription { get; set; }
     public Schema Schema { get; set; }
 
     #region constructor
 
-    public SchemaMethods(string guidValue, string schemaName, string schemaDocDescription)
+    public SchemaMethods(string guidValue, string schemaName)
     {
       GuidValue = guidValue;
       SchemaName = schemaName;
-      SchemaDocDescription = schemaDocDescription;
 
       if (SchemaExist())
       {
@@ -184,9 +182,6 @@ namespace ARMOCAD
 
       // set schema name
       schemaBuilder.SetSchemaName(SchemaName);
-
-      // set documentation
-      schemaBuilder.SetDocumentation(SchemaDocDescription);
 
       // create a field to store the bool value
       FieldBuilder fbString = schemaBuilder.AddMapField("Dict_String", typeof(int), typeof(string));
