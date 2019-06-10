@@ -126,18 +126,19 @@ namespace ARMOCAD
           FamilySymbol type1 = doc.GetElement(elementSet1.First()) as FamilySymbol;
           FamilySymbol type2 = doc.GetElement(elementSet2.First()) as FamilySymbol;
           FamilySymbol type3 = doc.GetElement(elementSet3.First()) as FamilySymbol;
-          
-        
-          sch = CreateGetSchema(SchemaGuid);
+
+
+          //sch = CreateGetSchema(SchemaGuid);
           //SchemaMethods.schema = sch;
 
-          //sm = new SchemaMethods(SchemaGuid, "Ag_Schema", "описание схемы");
-          
-          
+          sm = new SchemaMethods(SchemaGuid, "Ag_Schema", "описание схемы");
+          sch = sm.Schema;
+
           FilteredElementCollector MEcollector = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_MechanicalEquipment).WhereElementIsNotElementType();         
             var targetElems = MEcollector.Where(i => (i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == famname1
-          || i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == famname3) && i.GetEntity(sch).Get<string>("Elem_Uniq") == i.UniqueId && i.GetEntity(sch).Get<string>("Link_Name")==LinkName);
-          var targetElems2 = MEcollector.Where(i => i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == famname2 && i.GetEntity(sch).Get<string>("Elem_Uniq") == i.UniqueId);
+          || i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == famname3) && (string)sm.getSchemaDictValue<string>(i,"Dict_String",(int)Keys.Element_UniqueId) == i.UniqueId && (string)sm.getSchemaDictValue<string>(i, "Dict_String", (int)Keys.Link_Name) == LinkName);
+          var targetElems2 = MEcollector.Where(i => i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == famname2 && (string)sm.getSchemaDictValue<string>(i, "Dict_String", (int)Keys.Element_UniqueId) == i.UniqueId && (string)sm.getSchemaDictValue<string>(i, "Dict_String", (int)Keys.Link_Name) == LinkName);
+          
           if (targetElems.Count() != 0 || targetElems2.Count() != 0) { checkLinkInst = true; }
 
           using (Transaction t = new Transaction(doc, "Размещение элементов"))
@@ -168,20 +169,19 @@ namespace ARMOCAD
             "Ввод2_Коэффициент_мощности",
             "Ввод2_Напряжение"
           };
-                        
+
             var countTarget = 0;
             foreach (Element origElement in elems)
             {
               LocationPoint pPoint = origElement.Location as LocationPoint;
               XYZ coords = pPoint.Point;
-              bool Uniq = false;
               var FamSymbol = (origElement as FamilyInstance).Symbol; // FamilySymbol элементов связи
               var linkElemUniq = origElement.UniqueId;
               var famname = origElement.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString();
-              string typename = famname + "_/" + origElement.Name; typename = typename.Replace("[", "("); typename = typename.Replace("]", ")");              
-              var target = targetElems.Where(i => i.GetEntity(sch).Get<string>("LinkElem_Uniq") == linkElemUniq);
-              var target2 = targetElems2.Where(i => i.GetEntity(sch).Get<string>("LinkElem_Uniq") == linkElemUniq);              
-              if (target.Count() != 0 || target2.Count() != 0) { continue; }              
+              string typename = famname + "_/" + origElement.Name; typename = typename.Replace("[", "("); typename = typename.Replace("]", ")");
+              var target = targetElems.Where(i => (string)sm.getSchemaDictValue<string>(i, "Dict_String", (int)Keys.Linked_Element_UniqueId) == linkElemUniq);
+              var target2 = targetElems2.Where(i => (string)sm.getSchemaDictValue<string>(i, "Dict_String", (int)Keys.Linked_Element_UniqueId) == linkElemUniq);
+              if (target.Count() != 0 || target2.Count() != 0) { continue; }
               if (typename.Contains("(380-2)"))
               {
                 FamilySymbol Newtype = Utils.FindElementByName(doc, typeof(FamilySymbol), typename) as FamilySymbol ?? CreateNewType(type2, typename);
@@ -189,7 +189,6 @@ namespace ARMOCAD
                 if (checkLinkInst != false) { targElement.LookupParameter("УГО_Новый").Set(1); }
                 ElemUniq = targElement.UniqueId;
                 SetValueToFields(targElement, ElemUniq, linkElemUniq, LinkUniq, LinkName, LinkPath, typename, coords, sch);
-                //SchemaMethods.setValueToEntity<XYZ>(targElement, "Dict_XYZ", (int)Keys.Linked_Elem_Coords, coords);
                 countTarget++;
                 foreach (string nameparam in NamesParam)
                 {
@@ -205,11 +204,11 @@ namespace ARMOCAD
                   }
                 }
                 NameSystemParameter(origElement, targElement, Guids[0]);
-                targElement.get_Parameter(new Guid(Nname)).Set(origElement.Name);              
+                targElement.get_Parameter(new Guid(Nname)).Set(origElement.Name);
                 targElement.get_Parameter(new Guid(date)).Set(DateTime.Now.ToShortDateString());
-                
+
                 continue;
-              }              
+              }
               FamilyInstance targetElement = null;
               if (FamSymbol.get_Parameter(new Guid(poles)) != null || origElement.get_Parameter(new Guid(poles)) != null)
               {
@@ -218,7 +217,7 @@ namespace ARMOCAD
                   FamilySymbol Newtype = Utils.FindElementByName(doc, typeof(FamilySymbol), typename) as FamilySymbol ?? CreateNewType(type1, typename);
                   targetElement = doc.Create.NewFamilyInstance(coords, Newtype, StructuralType.NonStructural);
                   targetElement.get_Parameter(new Guid(date)).Set(DateTime.Now.ToShortDateString());
-                  
+
                   if (checkLinkInst != false) { targetElement.LookupParameter("УГО_Новый").Set(1); }
                   ElemUniq = targetElement.UniqueId;
                   countTarget++;
@@ -234,7 +233,6 @@ namespace ARMOCAD
                 }
               }
               else { continue; }
-              //SetEntity(targetElement, sch, LinkName, LinkUniq, ElemUniq, LinkPath);
               if (origElement.get_Parameter(new Guid(ozk)) != null)
               {
                 var origPar = origElement.get_Parameter(new Guid(ozk)).AsString();
@@ -270,7 +268,7 @@ namespace ARMOCAD
                   targetElement.get_Parameter(new Guid(guid)).Set(origParam);
                 }
               }
-              SetValueToFields(targetElement, ElemUniq,linkElemUniq,  LinkUniq, LinkName, LinkPath, typename, coords, sch);
+              SetValueToFields(targetElement, ElemUniq, linkElemUniq, LinkUniq, LinkName, LinkPath, typename, coords, sch);
               if (origElement.get_Parameter(new Guid(KM)) != null)
               {
                 targetElement.get_Parameter(new Guid(KM)).Set(origElement.get_Parameter(new Guid(KM)).AsDouble());
@@ -293,7 +291,12 @@ namespace ARMOCAD
               }
             }
             t.Commit();
-
+            if (countTarget == 0)
+            {
+              WinForms.MessageBox.Show("Нет элементов для размещения!", "Предупреждение", WinForms.MessageBoxButtons.OK, WinForms.MessageBoxIcon.Warning);
+              break;
+            }
+            InfoMsg("Элементов размещено в проекте: " + countTarget);
             //TaskDialog.Show("Информация ", "Размещено в проекте элементов: " + countTarget);
             break;
           }
@@ -333,27 +336,29 @@ namespace ARMOCAD
     //}
     public void SetValueToFields(Element e, string ElemUniq ,string linkElemUniq,string LinkUniq, string LinkName,string LinkPath,string typename,XYZ coords,Schema sch)
     {
-      Entity ent;
-      ent = e.GetEntity(sch);
-      if (ent.Schema == null)
-      {
-        ent = new Entity(sch);
-      }
+      //Entity ent;
+      //ent = e.GetEntity(sch);
+      //if (ent.Schema == null)
+      //{
+      //  ent = new Entity(sch);
+      //}
       //IDictionary<int, double> dict = new Dictionary<int, double>();
-      //sm.setValueToEntity(e, "Dict_String", (int)Keys.Linked_Element_UniqueId, ElemUniq);
-      //sm.setValueToEntity(e, "Dict_String", (int)Keys.Link_Instance_UniqueId, LinkUniq);
-      //sm.setValueToEntity(e, "Dict_String", (int)Keys.Link_Name, LinkName);
-      //sm.setValueToEntity(e, "Dict_String", (int)Keys.Link_Path, LinkPath);
-      //sm.setValueToEntity(e, "Dict_String", (int)Keys.Linked_FamilyName, typename);
-      //sm.setValueToEntity(e, "Dict_String", (int)Keys.Element_UniqueId, e.UniqueId.ToString());
-      //sm.setValueToEntity(e, "Dict_String", (int)Keys.Load_Date, DateTime.Now.ToShortDateString());
-      //sm.setValueToEntity(e, "Dict_XYZ", (int)Keys.Linked_Elem_Coords, coords);
-      ent.Set("Elem_Uniq", ElemUniq);
-      ent.Set("LinkElem_Uniq", linkElemUniq);
-      ent.Set("LinkInstance_Uniq", LinkUniq);
-      ent.Set("Link_Name", LinkName);
-      ent.Set("Dict_XYZ", coords, DisplayUnitType.DUT_DECIMAL_FEET);
-      e.SetEntity(ent);
+      sm.setValueToEntity(e, "Dict_String", (int)Keys.Linked_Element_UniqueId,linkElemUniq);
+      sm.setValueToEntity(e, "Dict_String", (int)Keys.Element_UniqueId, ElemUniq);
+      sm.setValueToEntity(e, "Dict_String", (int)Keys.Link_Instance_UniqueId, LinkUniq);
+      sm.setValueToEntity(e, "Dict_String", (int)Keys.Link_Name, LinkName);
+      sm.setValueToEntity(e, "Dict_String", (int)Keys.Link_Path, LinkPath);
+      sm.setValueToEntity(e, "Dict_String", (int)Keys.Linked_FamilyName, typename);
+      sm.setValueToEntity(e, "Dict_String", (int)Keys.Element_UniqueId, e.UniqueId.ToString());
+      sm.setValueToEntity(e, "Dict_String", (int)Keys.Load_Date, DateTime.Now.ToShortDateString());
+      sm.setValueToEntity(e, "Dict_XYZ", (int)Keys.Linked_Elem_Coords, coords);
+      
+      //ent.Set("Elem_Uniq", ElemUniq);
+      //ent.Set("LinkElem_Uniq", linkElemUniq);
+      //ent.Set("LinkInstance_Uniq", LinkUniq);
+      //ent.Set("Link_Name", LinkName);
+      //ent.Set("Dict_XYZ", coords, DisplayUnitType.DUT_DECIMAL_FEET);
+      //e.SetEntity(ent);
     }
     public bool FamErrorMsg(string msg)
     {
