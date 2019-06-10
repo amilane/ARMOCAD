@@ -41,10 +41,10 @@ namespace ARMOCAD
           SchemaMethods sm = new SchemaMethods("2b6a75d7-a580-4786-9d6c-6739437c2170", "TestSchema","Схема всякой фигни");
           sm.setValueToEntity(elem, "Dict_String", 0, "lal kek cheburek");
           sm.setValueToEntity(elem, "Dict_Double", 0, 15.2);
+          sm.setValueToEntity(elem, "Dict_XYZ", 0, new XYZ(10.0, 0.0, 15.3));
 
-          string ret = (string)sm.getSchemaDictValue<string>(elem, "Dict_String", 0);
-          //Util.InfoMsg2("Результат:", ret);
-          //var kek = UnitUtils.GetValidUnitTypes();
+          XYZ ret = (XYZ)sm.getSchemaDictValue<XYZ>(elem, "Dict_XYZ", 0);
+          Util.InfoMsg2("Результат:", ret.ToString());
 
           t.Commit();
         }

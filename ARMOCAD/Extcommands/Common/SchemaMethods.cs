@@ -51,8 +51,15 @@ namespace ARMOCAD
       var ent = e.GetEntity(Schema);
       if (ent.Schema != null)
       {
-        
-        dict = ent.Get<IDictionary<int, T>>(Schema.GetField(fieldName));
+        if (fieldName == "Dict_Double" || fieldName == "Dict_XYZ")
+        {
+          dict = ent.Get<IDictionary<int, T>>(Schema.GetField(fieldName), DisplayUnitType.DUT_DECIMAL_FEET);
+        }
+        else
+        {
+          dict = ent.Get<IDictionary<int, T>>(Schema.GetField(fieldName));
+        }
+
         if (dict != null && dict.ContainsKey(key))
         {
           result = dict[key];
@@ -83,7 +90,15 @@ namespace ARMOCAD
       }
       else
       {
-        dict = entity.Get<IDictionary<int, T>>(field);
+        if (value.GetType() == typeof(double) | value.GetType() == typeof(XYZ))
+        {
+          dict = entity.Get<IDictionary<int, T>>(field, DisplayUnitType.DUT_DECIMAL_FEET);
+        }
+        else
+        {
+          dict = entity.Get<IDictionary<int, T>>(field);
+        }
+        
         if (dict != null)
         {
           if (dict.ContainsKey(key))
@@ -94,6 +109,10 @@ namespace ARMOCAD
           {
             dict.Add(key, value);
           }
+        }
+        else
+        {
+          dict = new Dictionary<int, T> { [key] = value };
         }
 
         
@@ -173,11 +192,10 @@ namespace ARMOCAD
       FieldBuilder fbString = schemaBuilder.AddMapField("Dict_String", typeof(int), typeof(string));
       FieldBuilder fbInt = schemaBuilder.AddMapField("Dict_Int", typeof(int), typeof(int));
       FieldBuilder fbDouble = schemaBuilder.AddMapField("Dict_Double", typeof(int), typeof(double));
-      //FieldBuilder fbDouble = schemaBuilder.AddSimpleField("Dict_Double", typeof(double));
-      fbDouble.SetUnitType(UnitType.UT_Custom);
+      fbDouble.SetUnitType(UnitType.UT_Length);
       FieldBuilder fbElemId = schemaBuilder.AddMapField("Dict_ElemId", typeof(int), typeof(ElementId));
-      //FieldBuilder fbXYZ = schemaBuilder.AddSimpleField("Dict_XYZ", typeof(XYZ));
-      //fbXYZ.SetUnitType(UnitType.UT_Custom);
+      FieldBuilder fbXYZ = schemaBuilder.AddMapField("Dict_XYZ", typeof(int), typeof(XYZ));
+      fbXYZ.SetUnitType(UnitType.UT_Length);
 
       // register the schema
       Schema schema = schemaBuilder.Finish();
