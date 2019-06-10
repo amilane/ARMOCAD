@@ -18,6 +18,8 @@ namespace ARMOCAD
 
   public class ConPointLocation : IExternalCommand
   {
+    private SchemaMethods sm;
+
     public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
     {
       UIApplication uiApp = commandData.Application;
@@ -73,15 +75,15 @@ namespace ARMOCAD
           Family fam2 = collfams.FirstOrDefault<Element>(e => e.Name.Equals(famname2)) as Family;
           Family fam3 = collfams.FirstOrDefault<Element>(e => e.Name.Equals(famname3)) as Family;
           FilteredElementCollector MEcollector = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_MechanicalEquipment).WhereElementIsNotElementType();
-          var targetElems = MEcollector.WhereElementIsNotElementType().Where(i => i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == famname1
-          || i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == famname3
-          || i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == famname2);
-
+          sm = new SchemaMethods(SchemaGuid, "Ag_Schema", "описание схемы");
+          sch = sm.Schema;
+          var targetElems = MEcollector.Where(i => (i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == famname1
+        || i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == famname2 || i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == famname3) && (string)sm.getSchemaDictValue<string>(i, "Dict_String", (int)Keys.Element_UniqueId) == i.UniqueId && (string)sm.getSchemaDictValue<string>(i, "Dict_String", (int)Keys.Link_Name) == LinkName);
+          
           //if (count < countLink)
           //{
           // TaskDialog.Show("Предупреждение", В проекте меньше );
           //}
-          sch = Schema.Lookup(new Guid(SchemaGuid));
           var NSE = 0;
           var PSE = 0;
           var countId = 0;
