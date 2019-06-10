@@ -1674,12 +1674,30 @@ namespace ARMOCAD
         .OfClass(typeof(FamilyInstance)).WherePasses(filter).ToList();
     }
 
+    /// <summary>
+    /// Возвращает размещенные в модели элементы по категории
+    /// </summary>
     public static IList<Element> GetElementsOfCategory(
       Document doc,
       BuiltInCategory bic)
     {
       return new FilteredElementCollector(doc).OfCategory(bic).WhereElementIsNotElementType().ToElements();
     }
+
+    /// <summary>
+    /// Возвращает FamilySymbols по категории
+    /// </summary>
+    public static IList<FamilySymbol> GetFamilySymbolsOfCategory(
+      Document doc,
+      BuiltInCategory bic)
+    {
+      return new FilteredElementCollector(doc)
+        .OfClass(typeof(FamilySymbol))
+        .OfCategory(bic)
+        .Cast<FamilySymbol>()
+        .ToList();
+    }
+
 
     #endregion // Element Filtering
 
