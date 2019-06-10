@@ -50,8 +50,32 @@ namespace ARMOCAD
       {
         try
         {
+          IDictionary<string, string> parameters = new IDictionary<string, string>();
+          string poles = "d182b385-9e45-4e8b-b8da-725396848493"; // параметр "Количетсво полюсов"
+          string ozk = "ce22f60b-9ae0-4c79-a624-873f39099510";   // параметр "Нормально отк/закр." для клапанов озк
+          string Nname = "b4cfdcbd-5668-4572-bcd6-3d504043bd65"; // параметр "Наименование"
+          string KM = "e3c1a4b0-78c8-49f5-b3c7-01869252c30e";// параметр "Коэф. мощности"
+          string date = "2e2e42ce-3e29-4fac-a314-d6d5574ac27b";// параметр "Дата выгрузки"
+          string taskguid = "893e72a1-b208-4d12-bb26-6bcc4a444d0c"; 
+          IList<string> Guids = new List<string> // общие параметры
+          {
+            "303f67e6-3fd6-469b-9356-dccb116a3277", // параметр "Имя системы"
+            //"e3c1a4b0-78c8-49f5-b3c7-01869252c30e", // параметр "Коэф. мощности"
+            "7e243149-8b16-4c8b-8161-cd7780048c99", // параметр "Ток"
+            "be29221e-5b74-4a61-a253-4eb5f3b532d9", // параметр "Напряжение"
+            "b4d13aad-0763-4481-b015-63137342d077"  // параметр "Номинальная мощность"     
+          };
+          IList<string> NamesParam = new List<string> // параметры семейства
+          {
+            "Ввод1_Номинальная_мощность",
+            "Ввод1_Коэффициент_мощности",
+            "Ввод1_Напряжение",
+            "Ввод2_Номинальная_мощность",
+            "Ввод2_Коэффициент_мощности",
+            "Ввод2_Напряжение"
+          };
           FilteredElementCollector collector = new FilteredElementCollector(doc);
-          string taskguid = "893e72a1-b208-4d12-bb26-6bcc4a444d0c";
+          
           string famname1 = "ME_Точка_подключения_(1 фазная сеть)";
           string famname2 = "ME_Точка_подключения_(2 коннектора, 3 фазная сеть)";
           string famname3 = "ME_Точка_подключения_(3 фазная сеть)";
@@ -131,7 +155,7 @@ namespace ARMOCAD
           //sch = CreateGetSchema(SchemaGuid);
           //SchemaMethods.schema = sch;
 
-          sm = new SchemaMethods(SchemaGuid, "Ag_Schema", "описание схемы");
+          sm = new SchemaMethods(SchemaGuid, "Ag_Schema");
           sch = sm.Schema;
 
           FilteredElementCollector MEcollector = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_MechanicalEquipment).WhereElementIsNotElementType();         
@@ -147,29 +171,7 @@ namespace ARMOCAD
             type1.Activate();
             type2.Activate();
             type3.Activate();
-            string poles = "d182b385-9e45-4e8b-b8da-725396848493"; // параметр "Количетсво полюсов"
-            string ozk = "ce22f60b-9ae0-4c79-a624-873f39099510";   // параметр "Нормально отк/закр." для клапанов озк
-            string Nname = "b4cfdcbd-5668-4572-bcd6-3d504043bd65"; // параметр "Наименование"
-            string KM = "e3c1a4b0-78c8-49f5-b3c7-01869252c30e";// параметр "Коэф. мощности"
-            string date = "2e2e42ce-3e29-4fac-a314-d6d5574ac27b";// параметр "Дата выгрузки"
-            IList<string> Guids = new List<string> // общие параметры
-          {
-            "303f67e6-3fd6-469b-9356-dccb116a3277", // параметр "Имя системы"
-            //"e3c1a4b0-78c8-49f5-b3c7-01869252c30e", // параметр "Коэф. мощности"
-            "7e243149-8b16-4c8b-8161-cd7780048c99", // параметр "Ток"
-            "be29221e-5b74-4a61-a253-4eb5f3b532d9", // параметр "Напряжение"
-            "b4d13aad-0763-4481-b015-63137342d077"  // параметр "Номинальная мощность"     
-          };
-            IList<string> NamesParam = new List<string> // параметры семейства
-          {
-            "Ввод1_Номинальная_мощность",
-            "Ввод1_Коэффициент_мощности",
-            "Ввод1_Напряжение",
-            "Ввод2_Номинальная_мощность",
-            "Ввод2_Коэффициент_мощности",
-            "Ввод2_Напряжение"
-          };
-
+            
             var countTarget = 0;
             foreach (Element origElement in elems)
             {
