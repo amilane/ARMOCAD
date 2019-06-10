@@ -38,7 +38,7 @@ namespace ARMOCAD
         {
           t.Start();
 
-          SchemaMethods sm = new SchemaMethods("2b6a75d7-a580-4786-9d6c-6739437c2170", "TestSchema","Схема всякой фигни");
+          SchemaMethods sm = new SchemaMethods("2b6a75d7-a580-4786-9d6c-6739437c2170", "TestSchema");
           sm.setValueToEntity(elem, "Dict_String", 0, "lal kek cheburek");
           sm.setValueToEntity(elem, "Dict_Double", 0, 15.2);
           sm.setValueToEntity(elem, "Dict_XYZ", 0, new XYZ(10.0, 0.0, 15.3));
