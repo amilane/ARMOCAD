@@ -19,7 +19,17 @@ namespace ARMOCAD
   public class ConPointLocation : IExternalCommand
   {
     private SchemaMethods sm;
-
+    enum Keys
+    {
+      Link_Instance_UniqueId = 101011101,
+      Linked_Element_UniqueId = 101011102,
+      Element_UniqueId = 101011103,
+      Link_Name = 101011104,
+      Link_Path = 101011105,
+      Load_Date = 101010101,
+      Linked_FamilyName = 101011106,
+      Linked_Elem_Coords = 101011107
+    };
     public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
     {
       UIApplication uiApp = commandData.Application;
@@ -27,7 +37,6 @@ namespace ARMOCAD
       Application app = uiApp.Application;
       Document doc = uidoc.Document;
       Schema sch = null;
-      string LinkUniqid = null;
       string SchemaGuid = "ea07dfeb-9c7f-4233-b516-6621abc6744e";
       ObjectType obt = ObjectType.Element;
       Reference refElemLinked;
@@ -44,7 +53,7 @@ namespace ARMOCAD
           string famname1 = "ME_Точка_подключения_(1 фазная сеть)";
           string famname2 = "ME_Точка_подключения_(2 коннектора, 3 фазная сеть)";
           string famname3 = "ME_Точка_подключения_(3 фазная сеть)";
-          var LinkUniq = linkInstance.UniqueId;
+          var LinkInstUniq = linkInstance.UniqueId;
           var LinkName = docLinked.Title;
           var LinkPath = docLinked.PathName;
           //TaskDialog.Show("Информация ", "Связь:  " + LinkName + "\r\n");
@@ -75,10 +84,10 @@ namespace ARMOCAD
           Family fam2 = collfams.FirstOrDefault<Element>(e => e.Name.Equals(famname2)) as Family;
           Family fam3 = collfams.FirstOrDefault<Element>(e => e.Name.Equals(famname3)) as Family;
           FilteredElementCollector MEcollector = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_MechanicalEquipment).WhereElementIsNotElementType();
-          sm = new SchemaMethods(SchemaGuid, "Ag_Schema", "описание схемы");
+          sm = new SchemaMethods(SchemaGuid, "Ag_Schema");
           sch = sm.Schema;
           var targetElems = MEcollector.Where(i => (i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == famname1
-        || i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == famname2 || i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == famname3) && (string)sm.getSchemaDictValue<string>(i, "Dict_String", (int)Keys.Element_UniqueId) == i.UniqueId && (string)sm.getSchemaDictValue<string>(i, "Dict_String", (int)Keys.Link_Name) == LinkName);
+          || i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == famname2 || i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == famname3) && (string)sm.getSchemaDictValue<string>(i, "Dict_String", (int)Keys.Element_UniqueId) == i.UniqueId && (string)sm.getSchemaDictValue<string>(i, "Dict_String", (int)Keys.Link_Name) == LinkName);
           
           //if (count < countLink)
           //{
@@ -99,16 +108,9 @@ namespace ARMOCAD
                 LocationPoint pPoint = origElement.Location as LocationPoint;
                 XYZ pointLink = pPoint.Point;
                 var ElemUniq = origElement.UniqueId;
-                
-                Entity entity = targEL.GetEntity(sch);
-                if (entity.Schema != null )
-                {
-                  Field fLuniq = sch.GetField("Link_Element_UniqueId");
-                  LinkUniqid = entity.Get<string>(fLuniq);
-                  if (LinkUniqid == null) { continue; }
-                }
-                else { continue; }
-                if (LinkUniqid == ElemUniq)
+                string LinkUniq = (string)sm.getSchemaDictValue<string>(targEL, "Dict_String", (int)Keys.Linked_Element_UniqueId);                
+                if (LinkUniq == null || LinkUniq == string.Empty) { continue; }              
+                if (LinkUniq == ElemUniq)
                 {
                   cntEl++;
                   countId++;
@@ -122,6 +124,7 @@ namespace ARMOCAD
                   {
                     NSE++;
                     targEL.LookupParameter("УГО_Перемещенный").Set(1);
+                    targEL.LookupParameter("УГО_Новый").Set(0);
                     targEL.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).Set("Элемент перемещен!!!");
                   }
                 }
@@ -131,6 +134,7 @@ namespace ARMOCAD
               {
                 NSE++;
                 targEL.LookupParameter("УГО_Удаленный").Set(1);
+                targEL.LookupParameter("УГО_Новый").Set(0);
                 targEL.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).Set("Элемент удален!!!");
               }
             }
