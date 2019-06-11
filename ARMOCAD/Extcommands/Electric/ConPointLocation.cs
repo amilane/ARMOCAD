@@ -44,6 +44,18 @@ namespace ARMOCAD
       {
         try
         {
+          Dictionary<string, string> param = new Dictionary<string, string>
+          {
+            ["Количетсво полюсов"] = "d182b385-9e45-4e8b-b8da-725396848493",
+            ["Нормально отк/закр."] = "ce22f60b-9ae0-4c79-a624-873f39099510",
+            ["Наименование"] = "b4cfdcbd-5668-4572-bcd6-3d504043bd65",
+            ["Коэф. мощности"] = "e3c1a4b0-78c8-49f5-b3c7-01869252c30e",
+            ["Дата выгрузки"] = "2e2e42ce-3e29-4fac-a314-d6d5574ac27b",
+            ["Задание ЭМ"] = "893e72a1-b208-4d12-bb26-6bcc4a444d0c",
+            ["Новый"] = "bf28d2b7-3b97-4f90-8c2a-590a92a654c6",
+            ["Перемещен"] = "7ad4d050-bedd-42fa-98c4-6cff9e953460",
+            ["Удален"]= "f2b4ac9f-4ae4-49c3-9c84-e043de20d814"
+          };
           FilteredElementCollector collector = new FilteredElementCollector(doc);
           ISelectionFilter selectionFilter = new ConPickFilter(doc);
           refElemLinked = uidoc.Selection.PickObject(obt, selectionFilter, "Выберите связь");
@@ -76,8 +88,7 @@ namespace ARMOCAD
                 new ElementCategoryFilter(BuiltInCategory.OST_Casework)
                 }));
           CatsElems = collectorlink.WhereElementIsNotElementType().ToElements(); //элементы по категориям
-          var ElemsWithParam = CatsElems.Where(f => f.get_Parameter(new Guid(taskguid)) != null);
-          var elems = ElemsWithParam.Where(f => f.get_Parameter(new Guid(taskguid)).AsInteger() == 1);  //фильтр по параметру "Задание ЭМ"
+          var elems = CatsElems.Where(f => f.get_Parameter(new Guid(param["Задание ЭМ"])) != null && f.get_Parameter(new Guid(param["Задание ЭМ"])).AsInteger() == 1); //фильтр по параметру "Задание ЭМ"
 
           FilteredElementCollector collfams = collector.OfClass(typeof(Family));
           Family fam1 = collfams.FirstOrDefault<Element>(e => e.Name.Equals(famname1)) as Family;
@@ -88,11 +99,7 @@ namespace ARMOCAD
           sch = sm.Schema;
           var targetElems = MEcollector.Where(i => (i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == famname1
           || i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == famname2 || i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == famname3) && (string)sm.getSchemaDictValue<string>(i, "Dict_String", (int)Keys.Element_UniqueId) == i.UniqueId && (string)sm.getSchemaDictValue<string>(i, "Dict_String", (int)Keys.Link_Name) == LinkName);
-          
-          //if (count < countLink)
-          //{
-          // TaskDialog.Show("Предупреждение", В проекте меньше );
-          //}
+                    
           var NSE = 0;
           var PSE = 0;
           var countId = 0;
@@ -123,9 +130,9 @@ namespace ARMOCAD
                   if (pointEl.ToString() != pointLink.ToString())
                   {
                     NSE++;
-                    targEL.LookupParameter("УГО_Перемещенный").Set(1);
-                    targEL.LookupParameter("УГО_Новый").Set(0);
-                    targEL.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).Set("Элемент перемещен!!!");
+                    targEL.get_Parameter(new Guid(param["Перемещен"])).Set(1);
+                    targEL.get_Parameter(new Guid(param["Новый"])).Set(0);
+                    //targEL.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).Set("Элемент перемещен!!!");
                   }
                 }
                
@@ -133,12 +140,13 @@ namespace ARMOCAD
               if (cntEl == 0)
               {
                 NSE++;
-                targEL.LookupParameter("УГО_Удаленный").Set(1);
-                targEL.LookupParameter("УГО_Новый").Set(0);
-                targEL.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).Set("Элемент удален!!!");
+                targEL.get_Parameter(new Guid(param["Удален"])).Set(1);
+                targEL.get_Parameter(new Guid(param["Перемещен"])).Set(0);
+                targEL.get_Parameter(new Guid(param["Новый"])).Set(0);
+                //targEL.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).Set("Элемент удален!!!");
               }
             }
-            string U1, U2, U3; U1 = string.Empty; U2 = string.Empty; U3 = string.Empty;
+            string U1, U2, U3; U1 = string.Empty; U2 = string.Empty; U3 = string.Empty;           
             if (countLink > countId)
             {
               var q = countLink - countId;

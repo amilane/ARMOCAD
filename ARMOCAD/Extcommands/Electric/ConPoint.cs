@@ -17,7 +17,7 @@ namespace ARMOCAD
   [RegenerationAttribute(RegenerationOption.Manual)]
 
   public class ConPoint : IExternalCommand
-  {    
+  {
     public SchemaMethods sm;
     private string ElemUniq;
 
@@ -55,7 +55,10 @@ namespace ARMOCAD
             ["Коэф. мощности"] = "e3c1a4b0-78c8-49f5-b3c7-01869252c30e",
             ["Дата выгрузки"] = "2e2e42ce-3e29-4fac-a314-d6d5574ac27b",
             ["Задание ЭМ"] = "893e72a1-b208-4d12-bb26-6bcc4a444d0c",
-            ["Новый"] = "bf28d2b7-3b97-4f90-8c2a-590a92a654c6"
+            ["Новый"] = "bf28d2b7-3b97-4f90-8c2a-590a92a654c6",
+            ["Номер"] = "90afe9a6-6c85-4aab-a765-f8743d986dc0",
+            ["Кат. электроснабжения"] = "0e7bcec3-7a44-43a9-b8ef-0dee369c4efc",
+            ["тип подключения"] = "d512be5c-4315-4b86-aad1-74e7648760ef"
           };
           IList<string> Guids = new List<string> // общие параметры
           {
@@ -145,7 +148,7 @@ namespace ARMOCAD
           ISet<ElementId> elementSet3 = fam3.GetFamilySymbolIds();
           FamilySymbol type1 = doc.GetElement(elementSet1.First()) as FamilySymbol;
           FamilySymbol type2 = doc.GetElement(elementSet2.First()) as FamilySymbol;
-          FamilySymbol type3 = doc.GetElement(elementSet3.First()) as FamilySymbol;          
+          FamilySymbol type3 = doc.GetElement(elementSet3.First()) as FamilySymbol;
           sm = new SchemaMethods(SchemaGuid, "Ag_Schema"); //создание схемы ExStorage
           sch = sm.Schema;
           FilteredElementCollector MEcollector = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_MechanicalEquipment).WhereElementIsNotElementType();
@@ -176,7 +179,7 @@ namespace ARMOCAD
               if (typename.Contains("(380-2)")) // для семейства с двумя ТП
               {
                 FamilySymbol Newtype = Util.GetFamilySymbolByName(doc, typename) as FamilySymbol ?? CreateNewType(type2, typename);//проверка есть ли типоразмер в проекте если нет создаем
-                var targElement = doc.Create.NewFamilyInstance(coords, Newtype, StructuralType.NonStructural);  
+                var targElement = doc.Create.NewFamilyInstance(coords, Newtype, StructuralType.NonStructural);
                 if (checkLinkInst != false) { targElement.get_Parameter(new Guid(param["Новый"])).Set(1); } //проверка новый ли элемент, если новый то пишем в параметр
                 ElemUniq = targElement.UniqueId;
                 SetValueToFields(targElement, ElemUniq, linkElemUniq, LinkUniq, LinkName, LinkPath, typename, coords, sch); //запись параметров в ExStorage
@@ -193,7 +196,7 @@ namespace ARMOCAD
                     targElement.LookupParameter(nameparam).Set(origParam);
                   }
                 }
-                NameSystemParameter(origElement, targElement, Guids[0]); //по параметру "имя системы"
+                NameSystemParameter(origElement, targElement, Guids[0]); // параметр "имя системы"
                 targElement.get_Parameter(new Guid(param["Наименование"])).Set(origElement.Name); //название типа в параметр "наименование"
                 targElement.get_Parameter(new Guid(param["Дата выгрузки"])).Set(DateTime.Now.ToShortDateString()); //дату в параметр "Дата выгрузки"
                 continue;
@@ -240,27 +243,37 @@ namespace ARMOCAD
               {
                 if (guid == Guids[0]) //по параметру "имя системы"
                 {
-                  NameSystemParameter(origElement, targetElement, guid); 
+                  NameSystemParameter(origElement, targetElement, guid);
                   continue;
                 }
                 if (FamSymbol.get_Parameter(new Guid(guid)) != null) //параметры типа
                 {
 
-                  var origParam = FamSymbol.get_Parameter(new Guid(guid)).AsDouble(); 
+                  var origParam = FamSymbol.get_Parameter(new Guid(guid)).AsDouble();
                   targetElement.get_Parameter(new Guid(guid)).Set(origParam);
                 }
                 if (origElement.get_Parameter(new Guid(guid)) != null) //параметры экземпляра
                 {
-                  var origParam = origElement.get_Parameter(new Guid(guid)).AsDouble(); 
+                  var origParam = origElement.get_Parameter(new Guid(guid)).AsDouble();
                   targetElement.get_Parameter(new Guid(guid)).Set(origParam);
                 }
               }
               SetValueToFields(targetElement, ElemUniq, linkElemUniq, LinkUniq, LinkName, LinkPath, typename, coords, sch);//запись параметров в ExStorage
               targetElement.get_Parameter(new Guid(param["Наименование"])).Set(origElement.Name);//название типа в параметр "наименование"
+              targetElement.Symbol.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_COMMENTS).Set(FamSymbol.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_COMMENTS).AsString());
+              SetParameterToInstance
+
+              targetElement.get_Parameter(new Guid(param["Кат. электроснабжения"])).Set(origElement.get_Parameter(new Guid(param["Кат. электроснабжения"])).AsString());
+              targetElement.get_Parameter(new Guid(param["тип подключения"])).Set(origElement.get_Parameter(new Guid(param["тип подключения"])).AsString());
+              
+              if (origElement.get_Parameter(new Guid(param["Номер"])) != null)
+              {
+                targetElement
+              }
               if (origElement.get_Parameter(new Guid(param["Коэф. мощности"])) != null) // параметр коэффициент мощности
               {
                 targetElement.get_Parameter(new Guid(param["Коэф. мощности"])).Set(origElement.get_Parameter(new Guid(param["Коэф. мощности"])).AsDouble());
-              }              
+              }
               if (typename.Contains("Вентилятор")) //УГО для вентиляторов
               {
                 targetElement.Symbol.LookupParameter("УГО_Двигатель").Set(1);
@@ -275,7 +288,7 @@ namespace ARMOCAD
               {
                 targetElement.Symbol.LookupParameter("УГО_ЩА").Set(1);
                 targetElement.Symbol.LookupParameter("УГО_Кабельный вывод").Set(0);
-              } 
+              }
             }
             t.Commit();
             if (countTarget == 0)
@@ -298,6 +311,39 @@ namespace ARMOCAD
         }
       }
       return Result.Succeeded;
+    }
+    private void SetParameterToInstance(string guid, Element orig, FamilyInstance target)
+    {
+      if (orig.get_Parameter(new Guid(guid)) != null)
+      {
+        StorageType storageType = orig.get_Parameter(new Guid(guid)).StorageType;
+        switch (storageType)
+        {
+          case StorageType.Double:
+            target.get_Parameter(new Guid(guid)).Set(orig.get_Parameter(new Guid(guid)).AsDouble());
+            break;
+          case StorageType.String:
+            target.get_Parameter(new Guid(guid)).Set(orig.get_Parameter(new Guid(guid)).AsString());
+            break;
+        }
+      }
+    }
+    private void SetParameterToType(string guid, Element orig, FamilyInstance target)
+    {
+      if (orig.get_Parameter(new Guid(guid)) != null)
+      {
+        var FamSymbol = (orig as FamilyInstance).Symbol;
+        StorageType storageType = orig.get_Parameter(new Guid(guid)).StorageType;
+        switch (storageType)
+        {
+          case StorageType.Double:
+            target.get_Parameter(new Guid(guid)).Set(FamSymbol.get_Parameter(new Guid(guid)).AsDouble());
+            break;
+          case StorageType.String:
+            target.get_Parameter(new Guid(guid)).Set(FamSymbol.get_Parameter(new Guid(guid)).AsString());
+            break;
+        }
+      }
     }
     public void SetValueToFields(Element e, string ElemUniq, string linkElemUniq, string LinkUniq, string LinkName, string LinkPath, string typename, XYZ coords, Schema sch)
     {
@@ -347,7 +393,7 @@ namespace ARMOCAD
     {
       FamilySymbol newtype = Type.Duplicate(Typename) as FamilySymbol;
       return newtype;
-    }   
+    }
   }
 }
 
