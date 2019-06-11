@@ -155,6 +155,12 @@
     <Compile Include="Extcommands\Filter\ValuesFromParameter.cs" />
     <Compile Include="Extcommands\LengthOfTransition.cs" />
     <Compile Include="Extcommands\MEPSystemScheme.cs" />
+    <Compile Include="Extcommands\Settings\ArmocadSettingsCommand.cs" />
+    <Compile Include="Extcommands\Settings\Model\ArmocadSettingsModel.cs" />
+    <Compile Include="Extcommands\Settings\ViewModel\ArmocadSettingsViewModel.cs" />
+    <Compile Include="Extcommands\Settings\View\ArmocadSettings.xaml.cs">
+      <DependentUpon>ArmocadSettings.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Extcommands\SKS Fasad\SKSSocketsToShelfsExCommand.cs" />
     <Compile Include="Extcommands\SKS Fasad\SKSFasadExCommand.cs" />
     <Compile Include="Extcommands\SKS Fasad\SocketNumbering.cs" />
@@ -323,6 +329,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Extcommands\Filter\FilterView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Extcommands\Settings\View\ArmocadSettings.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
