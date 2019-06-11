@@ -43,8 +43,6 @@ namespace ARMOCAD
       string SchemaGuid = "ce827518-2247-4eda-b76d-c7dfb4681f3c";
       ObjectType obt = ObjectType.Element;
       Reference refElemLinked;
-
-
       while (true)
       {
         try
