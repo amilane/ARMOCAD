@@ -51,17 +51,21 @@ namespace ARMOCAD
       List<Element> linkrooms = new List<Element>();
       foreach (Document linkdoc in linkdocs)
       {
-        var roomsInOneLink = new FilteredElementCollector(linkdoc).OfCategory(BuiltInCategory.OST_Rooms)
-          .WhereElementIsNotElementType().ToElements();
-
-        foreach (var i in roomsInOneLink)
+        if (linkdoc != null)
         {
-          if (((Room)i).Area > 0 && Math.Round(((Room)i).Level.Elevation, 2) == Math.Round(level.Elevation, 2))
-          {
-            linkrooms.Add(i);
-          }
+          var roomsInOneLink = new FilteredElementCollector(linkdoc).OfCategory(BuiltInCategory.OST_Rooms)
+            .WhereElementIsNotElementType().ToElements();
 
+          foreach (var i in roomsInOneLink)
+          {
+            if (((Room)i).Area > 0 && Math.Round(((Room)i).Level.Elevation, 2) == Math.Round(level.Elevation, 2))
+            {
+              linkrooms.Add(i);
+            }
+
+          }
         }
+        
 
       }
 

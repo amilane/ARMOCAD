@@ -1,8 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
@@ -16,6 +13,8 @@ namespace ARMOCAD
     private static UIDocument UIDOC = null;
     private static Document DOC = null;
 
+    public List<string> FamilySymbolsNames { get; set; }
+
 
     public ArmocadSettingsModel(UIApplication uiapp)
     {
@@ -24,7 +23,7 @@ namespace ARMOCAD
       UIDOC = UIAPP.ActiveUIDocument;
       DOC = UIDOC.Document;
 
-      
+      FamilySymbolsNames = collectFamilyNames();
 
     }
 
@@ -34,8 +33,17 @@ namespace ARMOCAD
       var communicationDev = Util.GetFamilySymbolsOfCategory(DOC, BuiltInCategory.OST_CommunicationDevices);
       var dataDev = Util.GetFamilySymbolsOfCategory(DOC, BuiltInCategory.OST_DataDevices);
 
-      ///////////////////////////////////////////
-      return null;
+      var elems = electricEquip.Union(communicationDev).Union(dataDev);
+
+      List<string> familySymbolsNames = new List<string>();
+      foreach (var e in elems)
+      {
+        familySymbolsNames.Add($"{e.FamilyName}: {e.Name}");
+      }
+
+      var sortedNames = familySymbolsNames.OrderBy(i => i).ToList();
+
+      return sortedNames;
     }
 
 

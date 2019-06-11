@@ -32,7 +32,7 @@ namespace ARMOCAD
         vmod.RevitModel = model;
        
 
-        TBView view = new TBView(uidoc);
+        ArmocadSettings view = new ArmocadSettings();
         view.DataContext = vmod;
         view.Show();
 

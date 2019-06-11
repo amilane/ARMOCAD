@@ -16,7 +16,10 @@ namespace ARMOCAD
       set {revitModel = value;}
     }
 
-
+    public List<string> FamilySymbolsNames
+    {
+      get { return RevitModel?.FamilySymbolsNames; }
+    }
 
 
     /// <summary>

@@ -1,6 +1,7 @@
 using System;
 using System.CodeDom;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Windows;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.ExtensibleStorage;
@@ -33,6 +34,7 @@ namespace ARMOCAD
 
           foreach (var e in elems)
           {
+
             try
             {
               Parameter parTagModel = e.LookupParameter("TAG");
@@ -42,15 +44,9 @@ namespace ARMOCAD
                 if (draftId != null && draftId.IntegerValue != -1)
                 {
                   Element draftElement = doc.GetElement(draftId);
-                  Parameter parTagDraft = draftElement.LookupParameter("TAG");
-                  if (parTagDraft != null)
-                  {
-                    string tagModel = parTagModel.AsString();
-                    if (!string.IsNullOrWhiteSpace(tagModel))
-                    {
-                      parTagDraft.Set(tagModel);
-                    }
-                  }
+
+                  setTag(parTagModel, draftElement);
+                  setSizeToPipeAccessory(e, draftElement);
                 }
               }
             }
@@ -58,8 +54,8 @@ namespace ARMOCAD
             {
               continue;
             }
-            
-            
+
+
           }
 
           t.Commit();
@@ -100,6 +96,47 @@ namespace ARMOCAD
 
       return result;
     }
+
+    public void setSizeToPipeAccessory(Element e, Element draftElement)
+    {
+      if (e.Category.Id.IntegerValue == (int)BuiltInCategory.OST_PipeAccessory)
+      {
+        string sizeToDraft = String.Empty;
+        string sizeFromElement = e.get_Parameter(BuiltInParameter.RBS_CALCULATED_SIZE).AsString();
+
+        string firstSize = String.Empty;
+        if (sizeFromElement.Contains("-"))
+        {
+          firstSize = sizeFromElement.Split('-')[0];
+        }
+        else
+        {
+          firstSize = sizeFromElement;
+        }
+        sizeToDraft = Regex.Replace(firstSize, @"[^\d]+", "");
+
+        Parameter parDraftSize = draftElement.LookupParameter("AG_Размер");
+        if (parDraftSize != null)
+        {
+          parDraftSize.Set(sizeToDraft);
+        }
+      }
+    }
+
+    public void setTag(Parameter parTagModel, Element draftElement)
+    {
+      Parameter parTagDraft = draftElement.LookupParameter("TAG");
+      if (parTagDraft != null)
+      {
+        string tagModel = parTagModel.AsString();
+        if (!string.IsNullOrWhiteSpace(tagModel))
+        {
+          parTagDraft.Set(tagModel);
+        }
+      }
+    }
+
+
 
 
 
