@@ -6,7 +6,9 @@ using Autodesk.Revit.DB.Structure;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using WinForms = System.Windows.Forms;
@@ -38,9 +40,9 @@ namespace ARMOCAD
     };
     public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
     {
+      
       UIApplication uiApp = commandData.Application;
-      UIDocument uidoc = uiApp.ActiveUIDocument;
-      Application app = uiApp.Application;
+      UIDocument uidoc = uiApp.ActiveUIDocument; 
       Document doc = uidoc.Document;
       Schema sch = null;
       string SchemaGuid = "ce827518-2247-4eda-b76d-c7dfb4681f3c";
@@ -78,7 +80,7 @@ namespace ARMOCAD
           Family fam1 = collfams.FirstOrDefault<Element>(e => e.Name.Equals(famname1)) as Family;
           Family fam2 = collfams.FirstOrDefault<Element>(e => e.Name.Equals(famname2)) as Family;
           Family fam3 = collfams.FirstOrDefault<Element>(e => e.Name.Equals(famname3)) as Family;
-          if (fam1 == null || fam2 == null || fam3 == null)
+          if (fam1 == null || fam2 == null || fam3 == null) 
           {
             string n1, n2, n3; n1 = ""; n2 = ""; n3 = "";
             if (fam1 == null) { n1 = famname1 + "\n "; }

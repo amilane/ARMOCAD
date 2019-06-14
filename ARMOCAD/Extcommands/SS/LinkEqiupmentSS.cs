@@ -16,24 +16,24 @@ namespace ARMOCAD
   [TransactionAttribute(TransactionMode.Manual)]
   [RegenerationAttribute(RegenerationOption.Manual)]
 
-  public class Valve : IExternalCommand
+  public class LinkEquipmentSS : IExternalCommand
   {
     public SchemaMethods sm;
     private string ElemUniq;
-
-    /// <summary>  10-Общие 20-Механические 30-Электрические </summary>
-    
     Dictionary<string, string> param = new Dictionary<string, string>
     {
-      
       ["Нормально отк/закр."] = "ce22f60b-9ae0-4c79-a624-873f39099510",
-      ["Наименование"] = "b4cfdcbd-5668-4572-bcd6-3d504043bd65",     
+      ["Наименование"] = "b4cfdcbd-5668-4572-bcd6-3d504043bd65",
       ["Дата выгрузки"] = "2e2e42ce-3e29-4fac-a314-d6d5574ac27b",
-      ["Задание CC"] = "d30b8343-4a2d-4457-9137-e34e511d7233",
+      ["Задание СС"] = "d30b8343-4a2d-4457-9137-e34e511d7233",
       ["Новый"] = "bf28d2b7-3b97-4f90-8c2a-590a92a654c6",
       ["Номер"] = "90afe9a6-6c85-4aab-a765-f8743d986dc0",
       ["Связь"] = "41a4f06f-583e-4743-ac62-6a5b17db8cb4",
-      ["Этаж"] = "4857fa3b-e80e-4167-9b66-f40cd5992680"
+      ["Этаж"] = "4857fa3b-e80e-4167-9b66-f40cd5992680",
+      ["Имя Системы"] = "303f67e6-3fd6-469b-9356-dccb116a3277",
+      ["OUT"] = "478914c0-6c06-4dd6-8c41-fa1122140e87",
+      ["IN"] = "cf610632-14a9-4c8d-84ae-79053ba99593",
+      ["Питание"]= "b502ddde-99e5-4495-b855-e784100376d9"
     };
     public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
     {
@@ -49,35 +49,20 @@ namespace ARMOCAD
       {
         try
         {
-          IList<string> Guids = new List<string> // общие параметры
-          {
-            "303f67e6-3fd6-469b-9356-dccb116a3277", // "Имя системы"            
-            "b4d13aad-0763-4481-b015-63137342d077", // "Номинальная мощность"
-            "0e7bcec3-7a44-43a9-b8ef-0dee369c4efc", // ["Кат. электроснабжения"]
-            "d512be5c-4315-4b86-aad1-74e7648760ef" // ["тип подключения"]
-            //"478914c0-6c06-4dd6-8c41-fa1122140e87", // [OUT]сигналы
-            //"cf610632-14a9-4c8d-84ae-79053ba99593"  // [IN]сигналы
-          };
           FilteredElementCollector collector = new FilteredElementCollector(doc);
-          string famname1 = "ME_Точка_подключения_CC";
+          string famname1 = "Задание для СС";
           FilteredElementCollector collfams = collector.OfClass(typeof(Family));
           Family fam1 = collfams.FirstOrDefault<Element>(e => e.Name.Equals(famname1)) as Family;
           if (fam1 == null)
           {
-            string n1; n1 = ""; 
-            if (fam1 == null) { n1 = famname1 + "\n "; }
-            var DiagRes = FamErrorMsg("Не загружено семейство:\n " + n1 + n3 + n2 + "\n Загрузить ?");
+            var DiagRes = FamErrorMsg("Не загружено семейство:\n " + famname1 + "\n\n Загрузить ?");
             if (DiagRes == true)
             {
               using (Transaction t = new Transaction(doc, "Загрузить семейство"))
               {
                 t.Start();
-                string path1 = @"\\arena\ARMO-GROUP\ИПУ\ЛИЧНЫЕ\САПРомания\RVT\02-БИБЛИОТЕКА\10-Семейства\90-Электрооборудование и освещение (ЭО)\Оборудование\ME_Точка_подключения_(1 фазная сеть).rfa";
-                string path2 = @"\\arena\ARMO-GROUP\ИПУ\ЛИЧНЫЕ\САПРомания\RVT\02-БИБЛИОТЕКА\10-Семейства\90-Электрооборудование и освещение (ЭО)\Оборудование\ME_Точка_подключения_(2 коннектора, 3 фазная сеть).rfa";
-                string path3 = @"\\arena\ARMO-GROUP\ИПУ\ЛИЧНЫЕ\САПРомания\RVT\02-БИБЛИОТЕКА\10-Семейства\90-Электрооборудование и освещение (ЭО)\Оборудование\ME_Точка_подключения_(3 фазная сеть).rfa";
+                string path1 = @"\\arena\ARMO-GROUP\ИПУ\ЛИЧНЫЕ\САПРомания\RVT\02-БИБЛИОТЕКА\10-Семейства\70-Слаботочные системы (СС)\Оборудование\Задание для СС.rfa";
                 if (fam1 == null) { doc.LoadFamily(path1, out fam1); }
-                if (fam2 == null) { doc.LoadFamily(path2, out fam2); }
-                if (fam3 == null) { doc.LoadFamily(path3, out fam3); }
                 t.Commit();
               }
             }
@@ -114,29 +99,19 @@ namespace ARMOCAD
                 new ElementCategoryFilter(BuiltInCategory.OST_Casework)
                 }));
           CatsElems = collectorlink.WhereElementIsNotElementType().ToElements(); //элементы по категориям
-          var elems = CatsElems.Where(f => f.get_Parameter(new Guid(param["Задание ЭМ"])) != null && f.get_Parameter(new Guid(param["Задание ЭМ"])).AsInteger() == 1);
+          var elems = CatsElems.Where(f => f.get_Parameter(new Guid(param["Задание СС"])) != null && f.get_Parameter(new Guid(param["Задание СС"])).AsInteger() == 1);
           InfoMsg("Связь: " + LinkName + "\n" + "Количество элементов в связи: " + elems.Count().ToString()); // MessageBox
           ISet<ElementId> elementSet1 = fam1.GetFamilySymbolIds();
-          ISet<ElementId> elementSet2 = fam2.GetFamilySymbolIds();
-          ISet<ElementId> elementSet3 = fam3.GetFamilySymbolIds();
           FamilySymbol type1 = doc.GetElement(elementSet1.First()) as FamilySymbol;
-          FamilySymbol type2 = doc.GetElement(elementSet2.First()) as FamilySymbol;
-          FamilySymbol type3 = doc.GetElement(elementSet3.First()) as FamilySymbol;
           sm = new SchemaMethods(SchemaGuid, "Ag_Schema"); //создание схемы ExStorage
           sch = sm.Schema;
           FilteredElementCollector MEcollector = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_MechanicalEquipment).WhereElementIsNotElementType();
-          var targetElems = MEcollector.Where(i => (i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == famname1
-          || i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == famname3) && (string)sm.getSchemaDictValue<string>(i, "Dict_String", (int)Keys.Element_UniqueId) == i.UniqueId
-          && (string)sm.getSchemaDictValue<string>(i, "Dict_String", (int)Keys.Link_Name) == LinkName); // коллектор по UniqId элемента и имени связи для 1 ТП
-          var targetElems2 = MEcollector.Where(i => i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == famname2 && (string)sm.getSchemaDictValue<string>(i, "Dict_String", (int)Keys.Element_UniqueId) == i.UniqueId
-          && (string)sm.getSchemaDictValue<string>(i, "Dict_String", (int)Keys.Link_Name) == LinkName); // коллектор по UniqId элемента и имени связи для семейства с двумя ТП
-          if (targetElems.Count() != 0 || targetElems2.Count() != 0) { checkLinkInst = true; }  //проверка новый ли это элемент, если новый то пишем в параметр
+          var targetElems = MEcollector.Where(i => i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == famname1 && (string)sm.getSchemaDictValue<string>(i, "Dict_String", (int)Keys.Element_UniqueId) == i.UniqueId && (string)sm.getSchemaDictValue<string>(i, "Dict_String", (int)Keys.Link_Name) == LinkName); // коллектор по UniqId элемента и имени связи для 1 ТП
+          if (targetElems.Count() != 0) { checkLinkInst = true; }  //проверка новый ли это элемент, если новый то пишем в параметр
           using (Transaction t = new Transaction(doc, "Размещение элементов"))
           {
             t.Start();
             type1.Activate();
-            type2.Activate();
-            type3.Activate();
             var countTarget = 0; //количество размещаемых элементов
             foreach (Element origElement in elems) //перебираем элементы из связи
             {
@@ -145,70 +120,23 @@ namespace ARMOCAD
               var FamSymbol = (origElement as FamilyInstance).Symbol; // FamilySymbol элементов связи
               var linkElemUniq = origElement.UniqueId;
               var famname = origElement.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString(); //имя семейства в связи
-              var typename = famname + "_/" + origElement.Name; typename = typename.Replace("[", "("); typename = typename.Replace("]", ")");// имя семейства + имя типоразмера (заменяем скобки []) 
+              var typename = famname + "_/_" + origElement.Name; typename = typename.Replace("[", "("); typename = typename.Replace("]", ")");// имя семейства + имя типоразмера (заменяем скобки []) 
               var target = targetElems.Where(i => (string)sm.getSchemaDictValue<string>(i, "Dict_String", (int)Keys.Linked_Element_UniqueId) == linkElemUniq); //коллектор по совпадающим UniqId (1 ТП)
-              var target2 = targetElems2.Where(i => (string)sm.getSchemaDictValue<string>(i, "Dict_String", (int)Keys.Linked_Element_UniqueId) == linkElemUniq);//коллектор по совпадающим UniqId (2 ТП)
-              if (target.Count() != 0 || target2.Count() != 0) { continue; } // проверка по UniqID в связи и в проекте
-              if (typename.Contains("(380-2)")) // для семейства с двумя ТП
-              {
-                FamilySymbol Newtype = Util.GetFamilySymbolByName(doc, typename) as FamilySymbol ?? CreateNewType(type2, typename);//проверка есть ли типоразмер в проекте если нет создаем
-                var targElement = doc.Create.NewFamilyInstance(coords, Newtype, StructuralType.NonStructural);
-                if (checkLinkInst != false) { targElement.get_Parameter(new Guid(param["Новый"])).Set(1); } //проверка новый ли элемент, если новый то пишем в параметр
-                ElemUniq = targElement.UniqueId;
-                SetValueToFields(targElement, ElemUniq, linkElemUniq, LinkUniq, LinkName, LinkPath, typename, coords, sch); //запись параметров в ExStorage
-                foreach (string nameparam in NamesParam)  //записываем значения параметров семейства с двумя ТП
-                {
-                  if (FamSymbol.LookupParameter(nameparam) != null) //параметры типа
-                  {
-                    var origParam = FamSymbol.LookupParameter(nameparam).AsDouble();
-                    targElement.LookupParameter(nameparam).Set(origParam);
-                  }
-                  if (origElement.LookupParameter(nameparam) != null) //параметры экземпляра
-                  {
-                    var origParam = origElement.LookupParameter(nameparam).AsDouble();
-                    targElement.LookupParameter(nameparam).Set(origParam);
-                  }
-                }
-                NameSystemParameter(origElement, targElement, Guids[0]); // параметр "имя системы"
-                SetParameters(origElement, targElement, LinkName);
-                continue;
-              }
-              FamilyInstance targetElement = null;
-              if (FamSymbol.get_Parameter(new Guid(param["Количетсво полюсов"])) != null || origElement.get_Parameter(new Guid(param["Количетсво полюсов"])) != null) //проверяем количество полюсов
-              {
-                if (origElement.get_Parameter(new Guid(param["Количетсво полюсов"]))?.AsInteger() == 1 || FamSymbol.get_Parameter(new Guid(param["Количетсво полюсов"]))?.AsInteger() == 1) //1 фазная
-                {
-                  FamilySymbol Newtype = Util.GetFamilySymbolByName(doc, typename) as FamilySymbol ?? CreateNewType(type1, typename);//проверка есть ли типоразмер в проекте если нет создаем
-                  targetElement = doc.Create.NewFamilyInstance(coords, Newtype, StructuralType.NonStructural);
-                  countTarget++;
-                }
-                if (origElement.get_Parameter(new Guid(param["Количетсво полюсов"]))?.AsInteger() == 3 || FamSymbol.get_Parameter(new Guid(param["Количетсво полюсов"]))?.AsInteger() == 3) //3 фазная
-                {
-                  FamilySymbol Newtype = Util.GetFamilySymbolByName(doc, typename) as FamilySymbol ?? CreateNewType(type3, typename);//проверка есть ли типоразмер в проекте если нет создаем
-                  targetElement = doc.Create.NewFamilyInstance(coords, Newtype, StructuralType.NonStructural);
-                  countTarget++;
-                }
-              }
-              else { continue; }
-              if (checkLinkInst != false) { targetElement.get_Parameter(new Guid(param["Новый"])).Set(1); }
+              if (target.Count() != 0) { continue; } // проверка по UniqID в связи и в проекте
+              FamilySymbol Newtype = Util.GetFamilySymbolByName(doc, typename) as FamilySymbol ?? CreateNewType(type1, typename);//проверка есть ли типоразмер в проекте если нет создаем
+              var targetElement = doc.Create.NewFamilyInstance(coords, Newtype, StructuralType.NonStructural);
+              countTarget++;
+              if (checkLinkInst != false) { targetElement.get_Parameter(new Guid(param["Новый"])).Set(1); } //проверка новый ли элемент, если новый то пишем в параметр
               ElemUniq = targetElement.UniqueId;
-              Ozk(origElement, targetElement);
-              foreach (string guid in Guids) //записываем значения параметров семейства с 1 ТП
-              {
-                if (guid == Guids[0]) //по параметру "имя системы"
-                {
-                  NameSystemParameter(origElement, targetElement, guid);
-                  continue;
-                }
-                SetParameterToInstance(guid, origElement, targetElement);
-                SetParameterToType(guid, origElement, targetElement);
-              }
-              SetValueToFields(targetElement, ElemUniq, linkElemUniq, LinkUniq, LinkName, LinkPath, typename, coords, sch);//запись параметров в ExStorage             
-              SetParameters(origElement, targetElement, LinkName);
-              SetParameterToInstance(param["Коэф. мощности"], origElement, targetElement);
-              GSymbol(typename, "Вентилятор", "УГО_Двигатель", targetElement);
-              GSymbol(typename, "МДУ", "УГО_МДУ)", targetElement);
-              GSymbol(typename, "Щит_автоматики", "УГО_ЩА", targetElement);
+              SetValueToFields(targetElement, ElemUniq, linkElemUniq, LinkUniq, LinkName, LinkPath, typename, coords, sch); //запись параметров в ExStorage                                
+              SetParameters(origElement, targetElement, LinkName);//запись параметров в Instance 
+              Ozk(origElement, targetElement); //уго озк кду
+              GSymbol(typename, "Электрооборудование", "Шкаф", origElement, targetElement);
+              GSymbol(typename, "КСК", "УГО_КСК", targetElement);
+              GSymbol(typename, "ПК", "УГО_ПК)", targetElement);
+              GSymbol(typename, "СОУЭ", "УГО_СОУЭ", targetElement);
+              GSymbol(typename, "СПЖ", "УГО_СПЖ", targetElement);
+              GSymbol(typename, "ЦПИ", "УГО_ЦПИ", targetElement);
             }
             t.Commit();
             if (countTarget == 0)
@@ -237,7 +165,28 @@ namespace ARMOCAD
       if (type.Contains(check))
       {
         target.Symbol.LookupParameter(param1).Set(1);
-        target.Symbol.LookupParameter("УГО_Кабельный вывод").Set(0);
+        target.Symbol.LookupParameter("УГО_ТП").Set(0);
+      }
+    }
+    private void GSymbol(string type, string check, string check2, Element orig, FamilyInstance target)
+    {
+      if (type.Contains(check) && type.Contains(check2))
+      {
+        if (orig.LookupParameter("Щит аварийного освещения") != null && orig.LookupParameter("Щит аварийного освещения").AsInteger() == 1)
+        {
+          target.Symbol.LookupParameter("УГО_ЩАО").Set(1);
+          target.Symbol.LookupParameter("УГО_ТП").Set(0);
+        }
+        if (orig.LookupParameter("Щит управления двигателями") != null && orig.LookupParameter("Щит управления двигателями").AsInteger() == 1)
+        {
+          target.Symbol.LookupParameter("УГО_ЩУ").Set(1);
+          target.Symbol.LookupParameter("УГО_ТП").Set(0);
+        }
+        if (orig.LookupParameter("Щит силовой распределительный") != null && orig.LookupParameter("Щит силовой распределительный").AsInteger() == 1)
+        {
+          target.Symbol.LookupParameter("УГО_ЩР").Set(1);
+          target.Symbol.LookupParameter("УГО_ТП").Set(0);
+        }
       }
     }
     private void SetParameters(Element orig, FamilyInstance target, string Linkname)
@@ -249,6 +198,14 @@ namespace ARMOCAD
       target.get_Parameter(new Guid(param["Дата выгрузки"])).Set(DateTime.Now.ToShortDateString()); //дата 
       target.get_Parameter(new Guid(param["Связь"])).Set(Linkname);
       target.get_Parameter(new Guid(param["Этаж"])).Set(orig.get_Parameter(BuiltInParameter.FAMILY_LEVEL_PARAM).AsValueString());
+      if (orig.get_Parameter(BuiltInParameter.RBS_ELEC_PANEL_FEED_PARAM) != null && orig.get_Parameter(BuiltInParameter.RBS_ELEC_PANEL_FEED_PARAM).AsString() != "")
+      {
+        target.get_Parameter(new Guid(param["Питание"])).Set(orig.get_Parameter(BuiltInParameter.RBS_ELEC_PANEL_FEED_PARAM).AsString());
+      }
+      SetParameterToInstance(param["OUT"], orig, target);
+      SetParameterToType(param["OUT"], orig, target);
+      SetParameterToInstance(param["IN"], orig, target);
+      SetParameterToType(param["IN"], orig, target);
     }
     private void SetParameterToInstance(string guid, Element orig, FamilyInstance target)
     {
@@ -309,13 +266,13 @@ namespace ARMOCAD
         target.get_Parameter(new Guid(param["Нормально отк/закр."])).Set(origPar);
         if (origPar == "НЗ")
         {
-          target.Symbol.LookupParameter("УГО_ОЗК_НЗ").Set(1); //для НЗ
-          target.Symbol.LookupParameter("УГО_Кабельный вывод").Set(0);
+          target.Symbol.LookupParameter("УГО_НЗ").Set(1); //для НЗ
+          target.Symbol.LookupParameter("УГО_ТП").Set(0);
         }
         if (origPar == "НО")
         {
-          target.Symbol.LookupParameter("УГО_ОЗК_НО").Set(1); //для НО
-          target.Symbol.LookupParameter("УГО_Кабельный вывод").Set(0);
+          target.Symbol.LookupParameter("УГО_НО").Set(1); //для НО
+          target.Symbol.LookupParameter("УГО_ТП").Set(0);
         }
       }
     }
@@ -338,17 +295,17 @@ namespace ARMOCAD
       Debug.WriteLine(msg);
       WinForms.MessageBox.Show(msg, "Информация", WinForms.MessageBoxButtons.OK, WinForms.MessageBoxIcon.Information);
     }
-    private void NameSystemParameter(Element origElement, Element targetElement, string guid)
+    private void NameSystemParameter(Element origElement, Element targetElement)
     {
       if (origElement.get_Parameter(BuiltInParameter.RBS_SYSTEM_NAME_PARAM) != null)
       {
         var origParam = origElement.get_Parameter(BuiltInParameter.RBS_SYSTEM_NAME_PARAM).AsString();
-        targetElement.get_Parameter(new Guid(guid)).Set(origParam);
+        targetElement.get_Parameter(new Guid(param["Имя Системы"])).Set(origParam);
       }
-      if (origElement.get_Parameter(new Guid(guid)) != null)
+      if (origElement.get_Parameter(new Guid(param["Имя Системы"])) != null)
       {
-        var origParam = origElement.get_Parameter(new Guid(guid)).AsString();
-        targetElement.get_Parameter(new Guid(guid)).Set(origParam);
+        var origParam = origElement.get_Parameter(new Guid(param["Имя Системы"])).AsString();
+        targetElement.get_Parameter(new Guid(param["Имя Системы"])).Set(origParam);
       }
     }
     public static FamilySymbol CreateNewType(FamilySymbol Type, string Typename)
