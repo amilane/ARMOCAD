@@ -27,8 +27,8 @@ namespace ARMOCAD
       {
         try
         {
-          ISelectionFilter selectionFilter = new PickFilter(doc);
-          refElemLinked = uidoc.Selection.PickObject(obt, selectionFilter, "Выберите элемент в связанной модели");
+          //ISelectionFilter selectionFilter = new PickFilter(doc);
+          refElemLinked = uidoc.Selection.PickObject(obt, "Выберите элемент в связанной модели");
           RevitLinkInstance el = doc.GetElement(refElemLinked.ElementId) as RevitLinkInstance;
           Document docLinked = el.GetLinkDocument();
           FilteredElementCollector collectorlink = new FilteredElementCollector(docLinked);

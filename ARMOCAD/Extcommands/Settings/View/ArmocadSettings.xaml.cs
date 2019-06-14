@@ -22,7 +22,7 @@ namespace ARMOCAD
   {
     public ArmocadSettings()
     {
-      InitializeComponent();
+      //InitializeComponent();
     }
   }
 }

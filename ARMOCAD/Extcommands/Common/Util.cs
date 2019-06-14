@@ -1928,6 +1928,7 @@ namespace ARMOCAD
       }
     }
     #endregion // Compatibility fix for spelling error change
+    
   }
 
   #region Extension Method Classes
@@ -3123,5 +3124,26 @@ namespace ARMOCAD
     }
     #endregion // Autodesk.Revit.DB.Wall
   }
+
   #endregion // Compatibility Methods by Magson Leone
+
+  #region ISelection Filter (LinkInstance)
+  /// <summary>
+  public class LinkPickFilter : ISelectionFilter
+  {
+    Autodesk.Revit.DB.Document doc = null;
+    public LinkPickFilter(Document document)
+    {
+      doc = document;
+    }
+    public bool AllowElement(Element element)
+    {
+      return element.Category.Id.IntegerValue == -2001352 ? true : false;
+    }
+    public bool AllowReference(Reference reference, XYZ point)
+    {
+      return false;
+    }
+  }
+  #endregion 
 }

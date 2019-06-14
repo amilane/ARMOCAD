@@ -131,6 +131,7 @@
     </Compile>
     <Compile Include="Extcommands\ChangeUnit\ChangeUnitExCommand.cs" />
     <Compile Include="Extcommands\Common\DelegateCommand.cs" />
+    <Compile Include="Extcommands\Common\Keys_ExStrorage.cs" />
     <Compile Include="Extcommands\Common\Node.cs" />
     <Compile Include="Extcommands\Common\ReadDataFromExcel.cs" />
     <Compile Include="Extcommands\Common\RelayCommand.cs" />
@@ -139,7 +140,6 @@
     <Compile Include="Extcommands\Common\Util.cs" />
     <Compile Include="Extcommands\Common\ViewDraftingCreate.cs" />
     <Compile Include="Extcommands\CreateMEPSpaces\CreateMepSpaces.cs" />
-    <Compile Include="Extcommands\Electric\ConPickFilter.cs" />
     <Compile Include="Extcommands\Electric\ConPoint.cs" />
     <Compile Include="Extcommands\Electric\ConPointLocation.cs" />
     <Compile Include="Extcommands\Filter\CollectorFromTreeView.cs" />
@@ -167,7 +167,6 @@
     <Compile Include="Extcommands\SKUD\SKUDControlPlacementEx.cs" />
     <Compile Include="Extcommands\SKUD\SKUDPlaceEquipmentEx.cs" />
     <Compile Include="Extcommands\Common\ExternalEventMy.cs" />
-    <Compile Include="Extcommands\SS\PickFilter.cs" />
     <Compile Include="Extcommands\SS\Valve.cs" />
     <Compile Include="Extcommands\SS\ValvelocSS.cs" />
     <Compile Include="Extcommands\TagBridge\Model\ConnectButtonEventHandler.cs" />

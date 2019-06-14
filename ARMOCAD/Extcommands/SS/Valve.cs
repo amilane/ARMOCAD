@@ -7,7 +7,9 @@ using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using WinForms = System.Windows.Forms;
 
 namespace ARMOCAD
 {
@@ -16,133 +18,205 @@ namespace ARMOCAD
 
   public class Valve : IExternalCommand
   {
-    private FamilyInstance elems;
+    public SchemaMethods sm;
+    private string ElemUniq;
 
+    /// <summary>  10-Общие 20-Механические 30-Электрические </summary>
+    
+    Dictionary<string, string> param = new Dictionary<string, string>
+    {
+      
+      ["Нормально отк/закр."] = "ce22f60b-9ae0-4c79-a624-873f39099510",
+      ["Наименование"] = "b4cfdcbd-5668-4572-bcd6-3d504043bd65",     
+      ["Дата выгрузки"] = "2e2e42ce-3e29-4fac-a314-d6d5574ac27b",
+      ["Задание CC"] = "d30b8343-4a2d-4457-9137-e34e511d7233",
+      ["Новый"] = "bf28d2b7-3b97-4f90-8c2a-590a92a654c6",
+      ["Номер"] = "90afe9a6-6c85-4aab-a765-f8743d986dc0",
+      ["Связь"] = "41a4f06f-583e-4743-ac62-6a5b17db8cb4",
+      ["Этаж"] = "4857fa3b-e80e-4167-9b66-f40cd5992680"
+    };
     public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
     {
       UIApplication uiApp = commandData.Application;
       UIDocument uidoc = uiApp.ActiveUIDocument;
       Application app = uiApp.Application;
       Document doc = uidoc.Document;
-      ObjectType obt = ObjectType.LinkedElement;
-      Element linkedelement = null;
-      Reference refElemLinked;
       Schema sch = null;
-      string SchemaGuid = "4718e9f1-71eb-4a59-9ef1-12ca32788c30";
-
+      string SchemaGuid = "ce827518-2247-4eda-b76d-c7dfb4681f3c";
+      ObjectType obt = ObjectType.Element;
+      Reference refElemLinked;
       while (true)
       {
         try
         {
-          ISelectionFilter selectionFilter = new PickFilter(doc);  //фильтр выбора
-          refElemLinked = uidoc.Selection.PickObject(obt, selectionFilter, "Выберите элемент в связанной модели");
-          RevitLinkInstance el = doc.GetElement(refElemLinked.ElementId) as RevitLinkInstance;
-          Document docLinked = el.GetLinkDocument(); //получаем документ
-          linkedelement = docLinked.GetElement(refElemLinked.LinkedElementId);
-          var LinkUniq = el.UniqueId;
-          var LinkName = docLinked.Title;
-          var LinkPath = docLinked.PathName;
-          string nameTargFam = "ME_Клапан ОЗК,КДУ_[СС]";
-          FilteredElementCollector collector = new FilteredElementCollector(docLinked);
-          var elem = collector.OfCategory(BuiltInCategory.OST_DuctAccessory).WhereElementIsNotElementType().Where(i => i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == "DA_Клапан_[ОЗК_КДУ, Сечение круглое]" || i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == "DA_Клапан_[ОЗК_КДУ, Сечение прямоугольное]"); //элементы категории
-          TaskDialog.Show("Информация ", "Семейство:  " + linkedelement.Name + "\n" + "Связь:  " + docLinked.Title + "\r\n");
-          FilteredElementCollector a = new FilteredElementCollector(doc).OfClass(typeof(Family));
-          Family family = a.FirstOrDefault<Element>(e => e.Name.Equals(nameTargFam)) as Family;
-          if (family == null)
+          IList<string> Guids = new List<string> // общие параметры
           {
-            TaskDialog.Show("Предупреждение", "Не загружено семейство:\n " + nameTargFam);
-            return Result.Cancelled;
-          }
-          ISet<ElementId> elementSet = family.GetFamilySymbolIds();
-          FamilySymbol type = doc.GetElement(elementSet.First()) as FamilySymbol;
-          //имена параметров
-          string parameter1 = "Нормально отк/закр.";
-          string parameter2 = "Имя системы";
-          string parameter3 = "Комментарии";
-          FilteredElementCollector MEcollector = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_MechanicalEquipment);
-          var targetElems = MEcollector.WhereElementIsNotElementType().Where(i => i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == nameTargFam);
-          using (Transaction t = new Transaction(doc, "trans"))
+            "303f67e6-3fd6-469b-9356-dccb116a3277", // "Имя системы"            
+            "b4d13aad-0763-4481-b015-63137342d077", // "Номинальная мощность"
+            "0e7bcec3-7a44-43a9-b8ef-0dee369c4efc", // ["Кат. электроснабжения"]
+            "d512be5c-4315-4b86-aad1-74e7648760ef" // ["тип подключения"]
+            //"478914c0-6c06-4dd6-8c41-fa1122140e87", // [OUT]сигналы
+            //"cf610632-14a9-4c8d-84ae-79053ba99593"  // [IN]сигналы
+          };
+          FilteredElementCollector collector = new FilteredElementCollector(doc);
+          string famname1 = "ME_Точка_подключения_CC";
+          FilteredElementCollector collfams = collector.OfClass(typeof(Family));
+          Family fam1 = collfams.FirstOrDefault<Element>(e => e.Name.Equals(famname1)) as Family;
+          if (fam1 == null)
           {
-            t.Start();
-            type.Activate();
-            foreach (Element e in elem)
+            string n1; n1 = ""; 
+            if (fam1 == null) { n1 = famname1 + "\n "; }
+            var DiagRes = FamErrorMsg("Не загружено семейство:\n " + n1 + n3 + n2 + "\n Загрузить ?");
+            if (DiagRes == true)
             {
-              bool check = CheckStorageExists(family, SchemaGuid);
-              //TaskDialog.Show("1", check.ToString());
-              if (check == false)
+              using (Transaction t = new Transaction(doc, "Загрузить семейство"))
               {
-                SchemaBuilder sb = new SchemaBuilder(new Guid(SchemaGuid));
-                sb.SetReadAccessLevel(AccessLevel.Public);
-                FieldBuilder fbName = sb.AddSimpleField("Link_Name", typeof(string));
-                FieldBuilder fbUniq = sb.AddSimpleField("Link_Instance_UniqueId", typeof(string));
-                FieldBuilder fbLUniq = sb.AddSimpleField("Link_Element_UniqueId", typeof(string));
-                FieldBuilder fbLinkPath = sb.AddSimpleField("Link_Path", typeof(string));
-                sb.SetSchemaName("Elements_from_Link_OZK");
-                sch = sb.Finish();
-              }
-              else
-              {
-                sch = Schema.Lookup(new Guid(SchemaGuid));
-              }
-              bool Uniq = false;
-              string linkparam1 = e.LookupParameter(parameter1).AsString();
-              string linkparam2 = e.LookupParameter(parameter2).AsString();
-              string linkparam3 = e.LookupParameter(parameter3).AsString();
-              var ElemUniq = e.UniqueId;
-              if (targetElems.Count() != 0 && targetElems != null)
-              {
-                foreach (Element targEL in targetElems)
-                {
-                  Entity entity = targEL.GetEntity(sch);
-                  Field fLuniq = sch.GetField("Link_Element_UniqueId");
-                  string LinkUniqid = entity.Get<string>(fLuniq);
-                  if (LinkUniqid == ElemUniq) { Uniq = true; continue; }
-                }
-              }
-              if (Uniq == true) { continue; }
-              if (e.LookupParameter("Семейство").AsValueString() == "DA_Клапан_[ОЗК_КДУ, Сечение прямоугольное]")
-              {
-                LocationPoint pPoint = e.Location as LocationPoint;
-                XYZ coords = pPoint.Point;
-                elems = doc.Create.NewFamilyInstance(coords, type, StructuralType.NonStructural);
-              }
-              else
-              {
-                if (e.LookupParameter("Семейство").AsValueString() == "DA_Клапан_[ОЗК_КДУ, Сечение круглое]")
-                {
-                  BoundingBoxXYZ bounding = e.get_BoundingBox(null);
-                  //LocationPoint pPoint = e.Location as LocationPoint;
-                  XYZ coords = (bounding.Min + bounding.Max) * 0.5;
-                  elems = doc.Create.NewFamilyInstance(coords, type, StructuralType.NonStructural);
-                }
-              }
-              if (Uniq == true) { continue; }
-              SetEntity(elems, sch, LinkName, LinkUniq, ElemUniq, LinkPath);
-              Parameter param = elems.get_Parameter(new Guid("b4cfdcbd-5668-4572-bcd6-3d504043bd65"));
-              param.Set(e.Name);
-              Parameter param1 = elems.LookupParameter(parameter1);
-              param1.Set(linkparam1);
-              Parameter param2 = elems.LookupParameter(parameter2);
-              param2.Set(linkparam2);
-              Parameter param3 = elems.LookupParameter(parameter3);
-              param3.Set(linkparam3);
-              Parameter NZ = elems.LookupParameter("НЗ");
-              Parameter NO = elems.LookupParameter("НО");
-              if (linkparam1 == "НЗ")
-              {
-                NZ.Set(1);
-                NO.Set(0);
-              }
-              else
-              {
-                if (linkparam1 == "НО")
-                {
-                  NZ.Set(0);
-                  NO.Set(1);
-                }
+                t.Start();
+                string path1 = @"\\arena\ARMO-GROUP\ИПУ\ЛИЧНЫЕ\САПРомания\RVT\02-БИБЛИОТЕКА\10-Семейства\90-Электрооборудование и освещение (ЭО)\Оборудование\ME_Точка_подключения_(1 фазная сеть).rfa";
+                string path2 = @"\\arena\ARMO-GROUP\ИПУ\ЛИЧНЫЕ\САПРомания\RVT\02-БИБЛИОТЕКА\10-Семейства\90-Электрооборудование и освещение (ЭО)\Оборудование\ME_Точка_подключения_(2 коннектора, 3 фазная сеть).rfa";
+                string path3 = @"\\arena\ARMO-GROUP\ИПУ\ЛИЧНЫЕ\САПРомания\RVT\02-БИБЛИОТЕКА\10-Семейства\90-Электрооборудование и освещение (ЭО)\Оборудование\ME_Точка_подключения_(3 фазная сеть).rfa";
+                if (fam1 == null) { doc.LoadFamily(path1, out fam1); }
+                if (fam2 == null) { doc.LoadFamily(path2, out fam2); }
+                if (fam3 == null) { doc.LoadFamily(path3, out fam3); }
+                t.Commit();
               }
             }
+            if (DiagRes == false)
+            {
+              return Result.Cancelled;
+            }
+            //TaskDialog.Show("Предупреждение", "Не загружены семейства:\n " + n1 + n3 + n2);
+            //return Result.Cancelled;
+          }
+          ISelectionFilter selectionFilter = new LinkPickFilter(doc);
+          refElemLinked = uidoc.Selection.PickObject(obt, selectionFilter, "Выберите связь");
+          RevitLinkInstance linkInstance = doc.GetElement(refElemLinked.ElementId) as RevitLinkInstance;
+          Document docLinked = linkInstance.GetLinkDocument();
+          var checkLinkInst = false;
+          var LinkUniq = linkInstance.UniqueId; //UniqId экземпляра связи
+          var LinkName = docLinked.Title;  //Имя связи
+          var LinkPath = docLinked.PathName; //Путь к связи
+          FilteredElementCollector collectorlink = new FilteredElementCollector(docLinked);
+          IList<Element> CatsElems = new List<Element>();
+          collectorlink.WherePasses(new LogicalOrFilter(new List<ElementFilter>
+                {
+                new ElementCategoryFilter(BuiltInCategory.OST_DuctAccessory),
+                new ElementCategoryFilter(BuiltInCategory.OST_PipeAccessory),
+                new ElementCategoryFilter(BuiltInCategory.OST_Furniture),
+                new ElementCategoryFilter(BuiltInCategory.OST_GenericModel),
+                new ElementCategoryFilter(BuiltInCategory.OST_LightingFixtures),
+                new ElementCategoryFilter(BuiltInCategory.OST_ElectricalFixtures),
+                new ElementCategoryFilter(BuiltInCategory.OST_SecurityDevices),
+                new ElementCategoryFilter(BuiltInCategory.OST_FireAlarmDevices),
+                new ElementCategoryFilter(BuiltInCategory.OST_CommunicationDevices),
+                new ElementCategoryFilter(BuiltInCategory.OST_ElectricalEquipment),
+                new ElementCategoryFilter(BuiltInCategory.OST_MechanicalEquipment),
+                new ElementCategoryFilter(BuiltInCategory.OST_Casework)
+                }));
+          CatsElems = collectorlink.WhereElementIsNotElementType().ToElements(); //элементы по категориям
+          var elems = CatsElems.Where(f => f.get_Parameter(new Guid(param["Задание ЭМ"])) != null && f.get_Parameter(new Guid(param["Задание ЭМ"])).AsInteger() == 1);
+          InfoMsg("Связь: " + LinkName + "\n" + "Количество элементов в связи: " + elems.Count().ToString()); // MessageBox
+          ISet<ElementId> elementSet1 = fam1.GetFamilySymbolIds();
+          ISet<ElementId> elementSet2 = fam2.GetFamilySymbolIds();
+          ISet<ElementId> elementSet3 = fam3.GetFamilySymbolIds();
+          FamilySymbol type1 = doc.GetElement(elementSet1.First()) as FamilySymbol;
+          FamilySymbol type2 = doc.GetElement(elementSet2.First()) as FamilySymbol;
+          FamilySymbol type3 = doc.GetElement(elementSet3.First()) as FamilySymbol;
+          sm = new SchemaMethods(SchemaGuid, "Ag_Schema"); //создание схемы ExStorage
+          sch = sm.Schema;
+          FilteredElementCollector MEcollector = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_MechanicalEquipment).WhereElementIsNotElementType();
+          var targetElems = MEcollector.Where(i => (i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == famname1
+          || i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == famname3) && (string)sm.getSchemaDictValue<string>(i, "Dict_String", (int)Keys.Element_UniqueId) == i.UniqueId
+          && (string)sm.getSchemaDictValue<string>(i, "Dict_String", (int)Keys.Link_Name) == LinkName); // коллектор по UniqId элемента и имени связи для 1 ТП
+          var targetElems2 = MEcollector.Where(i => i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == famname2 && (string)sm.getSchemaDictValue<string>(i, "Dict_String", (int)Keys.Element_UniqueId) == i.UniqueId
+          && (string)sm.getSchemaDictValue<string>(i, "Dict_String", (int)Keys.Link_Name) == LinkName); // коллектор по UniqId элемента и имени связи для семейства с двумя ТП
+          if (targetElems.Count() != 0 || targetElems2.Count() != 0) { checkLinkInst = true; }  //проверка новый ли это элемент, если новый то пишем в параметр
+          using (Transaction t = new Transaction(doc, "Размещение элементов"))
+          {
+            t.Start();
+            type1.Activate();
+            type2.Activate();
+            type3.Activate();
+            var countTarget = 0; //количество размещаемых элементов
+            foreach (Element origElement in elems) //перебираем элементы из связи
+            {
+              LocationPoint pPoint = origElement.Location as LocationPoint;
+              XYZ coords = pPoint.Point;  //координаты экземпляра в связи
+              var FamSymbol = (origElement as FamilyInstance).Symbol; // FamilySymbol элементов связи
+              var linkElemUniq = origElement.UniqueId;
+              var famname = origElement.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString(); //имя семейства в связи
+              var typename = famname + "_/" + origElement.Name; typename = typename.Replace("[", "("); typename = typename.Replace("]", ")");// имя семейства + имя типоразмера (заменяем скобки []) 
+              var target = targetElems.Where(i => (string)sm.getSchemaDictValue<string>(i, "Dict_String", (int)Keys.Linked_Element_UniqueId) == linkElemUniq); //коллектор по совпадающим UniqId (1 ТП)
+              var target2 = targetElems2.Where(i => (string)sm.getSchemaDictValue<string>(i, "Dict_String", (int)Keys.Linked_Element_UniqueId) == linkElemUniq);//коллектор по совпадающим UniqId (2 ТП)
+              if (target.Count() != 0 || target2.Count() != 0) { continue; } // проверка по UniqID в связи и в проекте
+              if (typename.Contains("(380-2)")) // для семейства с двумя ТП
+              {
+                FamilySymbol Newtype = Util.GetFamilySymbolByName(doc, typename) as FamilySymbol ?? CreateNewType(type2, typename);//проверка есть ли типоразмер в проекте если нет создаем
+                var targElement = doc.Create.NewFamilyInstance(coords, Newtype, StructuralType.NonStructural);
+                if (checkLinkInst != false) { targElement.get_Parameter(new Guid(param["Новый"])).Set(1); } //проверка новый ли элемент, если новый то пишем в параметр
+                ElemUniq = targElement.UniqueId;
+                SetValueToFields(targElement, ElemUniq, linkElemUniq, LinkUniq, LinkName, LinkPath, typename, coords, sch); //запись параметров в ExStorage
+                foreach (string nameparam in NamesParam)  //записываем значения параметров семейства с двумя ТП
+                {
+                  if (FamSymbol.LookupParameter(nameparam) != null) //параметры типа
+                  {
+                    var origParam = FamSymbol.LookupParameter(nameparam).AsDouble();
+                    targElement.LookupParameter(nameparam).Set(origParam);
+                  }
+                  if (origElement.LookupParameter(nameparam) != null) //параметры экземпляра
+                  {
+                    var origParam = origElement.LookupParameter(nameparam).AsDouble();
+                    targElement.LookupParameter(nameparam).Set(origParam);
+                  }
+                }
+                NameSystemParameter(origElement, targElement, Guids[0]); // параметр "имя системы"
+                SetParameters(origElement, targElement, LinkName);
+                continue;
+              }
+              FamilyInstance targetElement = null;
+              if (FamSymbol.get_Parameter(new Guid(param["Количетсво полюсов"])) != null || origElement.get_Parameter(new Guid(param["Количетсво полюсов"])) != null) //проверяем количество полюсов
+              {
+                if (origElement.get_Parameter(new Guid(param["Количетсво полюсов"]))?.AsInteger() == 1 || FamSymbol.get_Parameter(new Guid(param["Количетсво полюсов"]))?.AsInteger() == 1) //1 фазная
+                {
+                  FamilySymbol Newtype = Util.GetFamilySymbolByName(doc, typename) as FamilySymbol ?? CreateNewType(type1, typename);//проверка есть ли типоразмер в проекте если нет создаем
+                  targetElement = doc.Create.NewFamilyInstance(coords, Newtype, StructuralType.NonStructural);
+                  countTarget++;
+                }
+                if (origElement.get_Parameter(new Guid(param["Количетсво полюсов"]))?.AsInteger() == 3 || FamSymbol.get_Parameter(new Guid(param["Количетсво полюсов"]))?.AsInteger() == 3) //3 фазная
+                {
+                  FamilySymbol Newtype = Util.GetFamilySymbolByName(doc, typename) as FamilySymbol ?? CreateNewType(type3, typename);//проверка есть ли типоразмер в проекте если нет создаем
+                  targetElement = doc.Create.NewFamilyInstance(coords, Newtype, StructuralType.NonStructural);
+                  countTarget++;
+                }
+              }
+              else { continue; }
+              if (checkLinkInst != false) { targetElement.get_Parameter(new Guid(param["Новый"])).Set(1); }
+              ElemUniq = targetElement.UniqueId;
+              Ozk(origElement, targetElement);
+              foreach (string guid in Guids) //записываем значения параметров семейства с 1 ТП
+              {
+                if (guid == Guids[0]) //по параметру "имя системы"
+                {
+                  NameSystemParameter(origElement, targetElement, guid);
+                  continue;
+                }
+                SetParameterToInstance(guid, origElement, targetElement);
+                SetParameterToType(guid, origElement, targetElement);
+              }
+              SetValueToFields(targetElement, ElemUniq, linkElemUniq, LinkUniq, LinkName, LinkPath, typename, coords, sch);//запись параметров в ExStorage             
+              SetParameters(origElement, targetElement, LinkName);
+              SetParameterToInstance(param["Коэф. мощности"], origElement, targetElement);
+              GSymbol(typename, "Вентилятор", "УГО_Двигатель", targetElement);
+              GSymbol(typename, "МДУ", "УГО_МДУ)", targetElement);
+              GSymbol(typename, "Щит_автоматики", "УГО_ЩА", targetElement);
+            }
             t.Commit();
+            if (countTarget == 0)
+            {
+              WinForms.MessageBox.Show("Нет элементов для размещения!", "Предупреждение", WinForms.MessageBoxButtons.OK, WinForms.MessageBoxIcon.Warning);
+              break;
+            }
+            InfoMsg("Элементов размещено в проекте: " + countTarget);
             break;
           }
         }
@@ -158,33 +232,129 @@ namespace ARMOCAD
       }
       return Result.Succeeded;
     }
-    public bool CheckStorageExists(Family fam, string sGuid)
+    private void GSymbol(string type, string check, string param1, FamilyInstance target)
     {
-      try
+      if (type.Contains(check))
       {
-        Schema sch = Schema.Lookup(new Guid(sGuid));
-        Entity ent = fam.GetEntity(sch);
-        if (sch != null) return true;
+        target.Symbol.LookupParameter(param1).Set(1);
+        target.Symbol.LookupParameter("УГО_Кабельный вывод").Set(0);
       }
-      catch { }
-      return false;
     }
-    void SetEntity(Element targetElement, Schema sch, string LinkName, string LinkUniq, string ElemUniq, string LinkPath)
+    private void SetParameters(Element orig, FamilyInstance target, string Linkname)
     {
-      Field fdName = sch.GetField("Link_Name");
-      Field fdUniq = sch.GetField("Link_Instance_UniqueId");
-      Field fdLuniq = sch.GetField("Link_Element_UniqueId");
-      Field fdLPath = sch.GetField("Link_Path");
-      Entity ent = new Entity(sch);
-      ent.Set<string>(fdName, LinkName.ToString());
-      ent.Set<string>(fdUniq, LinkUniq.ToString());
-      ent.Set<string>(fdLuniq, ElemUniq.ToString());
-      ent.Set<string>(fdLPath, LinkPath.ToString());
-      targetElement.SetEntity(ent);
-      return;
+      var FamSymbol = (orig as FamilyInstance).Symbol;
+      target.Symbol.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_COMMENTS).Set(FamSymbol.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_COMMENTS).AsString());
+      target.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).Set(orig.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).AsString());
+      target.get_Parameter(new Guid(param["Наименование"])).Set(orig.Name); //название типа в параметр "наименование"
+      target.get_Parameter(new Guid(param["Дата выгрузки"])).Set(DateTime.Now.ToShortDateString()); //дата 
+      target.get_Parameter(new Guid(param["Связь"])).Set(Linkname);
+      target.get_Parameter(new Guid(param["Этаж"])).Set(orig.get_Parameter(BuiltInParameter.FAMILY_LEVEL_PARAM).AsValueString());
+    }
+    private void SetParameterToInstance(string guid, Element orig, FamilyInstance target)
+    {
+      if (orig.get_Parameter(new Guid(guid)) != null)
+      {
+        StorageType storageType = orig.get_Parameter(new Guid(guid)).StorageType;
+        switch (storageType)
+        {
+          case StorageType.Double:
+            target.get_Parameter(new Guid(guid)).Set(orig.get_Parameter(new Guid(guid)).AsDouble());
+            break;
+          case StorageType.String:
+            target.get_Parameter(new Guid(guid)).Set(orig.get_Parameter(new Guid(guid)).AsString());
+            break;
+          case StorageType.Integer:
+            target.get_Parameter(new Guid(guid)).Set(orig.get_Parameter(new Guid(guid)).AsInteger());
+            break;
+        }
+      }
+    }
+    private void SetParameterToType(string guid, Element orig, FamilyInstance target)
+    {
+      var FamSymbol = (orig as FamilyInstance).Symbol;
+      if (FamSymbol.get_Parameter(new Guid(guid)) != null)
+      {
+        StorageType storageType = orig.get_Parameter(new Guid(guid)).StorageType;
+        switch (storageType)
+        {
+          case StorageType.Double:
+            target.get_Parameter(new Guid(guid)).Set(FamSymbol.get_Parameter(new Guid(guid)).AsDouble());
+            break;
+          case StorageType.String:
+            target.get_Parameter(new Guid(guid)).Set(FamSymbol.get_Parameter(new Guid(guid)).AsString());
+            break;
+          case StorageType.Integer:
+            target.get_Parameter(new Guid(guid)).Set(FamSymbol.get_Parameter(new Guid(guid)).AsInteger());
+            break;
+        }
+      }
+    }
+    public void SetValueToFields(Element e, string ElemUniq, string linkElemUniq, string LinkUniq, string LinkName, string LinkPath, string typename, XYZ coords, Schema sch)
+    {
+      sm.setValueToEntity(e, "Dict_String", (int)Keys.Linked_Element_UniqueId, linkElemUniq);
+      sm.setValueToEntity(e, "Dict_String", (int)Keys.Element_UniqueId, ElemUniq);
+      sm.setValueToEntity(e, "Dict_String", (int)Keys.Link_Instance_UniqueId, LinkUniq);
+      sm.setValueToEntity(e, "Dict_String", (int)Keys.Link_Name, LinkName);
+      sm.setValueToEntity(e, "Dict_String", (int)Keys.Link_Path, LinkPath);
+      sm.setValueToEntity(e, "Dict_String", (int)Keys.Linked_FamilyName, typename);
+      sm.setValueToEntity(e, "Dict_String", (int)Keys.Element_UniqueId, e.UniqueId.ToString());
+      sm.setValueToEntity(e, "Dict_String", (int)Keys.Load_Date, DateTime.Now.ToShortDateString());
+      sm.setValueToEntity(e, "Dict_XYZ", (int)Keys.Linked_Elem_Coords, coords);
+    }
+    private void Ozk(Element orig, FamilyInstance target)
+    {
+      if (orig.get_Parameter(new Guid(param["Нормально отк/закр."])) != null) //УГО для клапанов ОЗК
+      {
+        var origPar = orig.get_Parameter(new Guid(param["Нормально отк/закр."])).AsString();
+        target.get_Parameter(new Guid(param["Нормально отк/закр."])).Set(origPar);
+        if (origPar == "НЗ")
+        {
+          target.Symbol.LookupParameter("УГО_ОЗК_НЗ").Set(1); //для НЗ
+          target.Symbol.LookupParameter("УГО_Кабельный вывод").Set(0);
+        }
+        if (origPar == "НО")
+        {
+          target.Symbol.LookupParameter("УГО_ОЗК_НО").Set(1); //для НО
+          target.Symbol.LookupParameter("УГО_Кабельный вывод").Set(0);
+        }
+      }
+    }
+    public bool FamErrorMsg(string msg)
+    {
+      Debug.WriteLine(msg);
+      var dialogResult = WinForms.MessageBox.Show(msg, "Предупреждение", WinForms.MessageBoxButtons.YesNo, WinForms.MessageBoxIcon.Warning);
+      if (dialogResult == WinForms.DialogResult.Yes)
+      {
+        return true;
+      }
+      if (dialogResult == WinForms.DialogResult.No)
+      {
+        return false;
+      }
+      return true;
+    }
+    public static void InfoMsg(string msg)
+    {
+      Debug.WriteLine(msg);
+      WinForms.MessageBox.Show(msg, "Информация", WinForms.MessageBoxButtons.OK, WinForms.MessageBoxIcon.Information);
+    }
+    private void NameSystemParameter(Element origElement, Element targetElement, string guid)
+    {
+      if (origElement.get_Parameter(BuiltInParameter.RBS_SYSTEM_NAME_PARAM) != null)
+      {
+        var origParam = origElement.get_Parameter(BuiltInParameter.RBS_SYSTEM_NAME_PARAM).AsString();
+        targetElement.get_Parameter(new Guid(guid)).Set(origParam);
+      }
+      if (origElement.get_Parameter(new Guid(guid)) != null)
+      {
+        var origParam = origElement.get_Parameter(new Guid(guid)).AsString();
+        targetElement.get_Parameter(new Guid(guid)).Set(origParam);
+      }
+    }
+    public static FamilySymbol CreateNewType(FamilySymbol Type, string Typename)
+    {
+      FamilySymbol newtype = Type.Duplicate(Typename) as FamilySymbol;
+      return newtype;
     }
   }
-
-  
-
 }

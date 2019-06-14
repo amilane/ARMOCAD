@@ -18,18 +18,7 @@ namespace ARMOCAD
 
   public class ConPointLocation : IExternalCommand
   {
-    private SchemaMethods sm;
-    enum Keys
-    {
-      Link_Instance_UniqueId = 101011101,
-      Linked_Element_UniqueId = 101011102,
-      Element_UniqueId = 101011103,
-      Link_Name = 101011104,
-      Link_Path = 101011105,
-      Load_Date = 101010101,
-      Linked_FamilyName = 101011106,
-      Linked_Elem_Coords = 101011107
-    };
+    private SchemaMethods sm;    
     public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
     {
       UIApplication uiApp = commandData.Application;
@@ -57,7 +46,7 @@ namespace ARMOCAD
             ["Удален"]= "f2b4ac9f-4ae4-49c3-9c84-e043de20d814"
           };
           FilteredElementCollector collector = new FilteredElementCollector(doc);
-          ISelectionFilter selectionFilter = new ConPickFilter(doc);
+          ISelectionFilter selectionFilter = new LinkPickFilter(doc);
           refElemLinked = uidoc.Selection.PickObject(obt, selectionFilter, "Выберите связь");
           RevitLinkInstance linkInstance = doc.GetElement(refElemLinked.ElementId) as RevitLinkInstance;
           Document docLinked = linkInstance.GetLinkDocument();

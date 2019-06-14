@@ -22,17 +22,7 @@ namespace ARMOCAD
     private string ElemUniq;
 
     /// <summary>  10-Общие 20-Механические 30-Электрические </summary>
-    enum Keys
-    {
-      Link_Instance_UniqueId = 101011101,
-      Linked_Element_UniqueId = 101011102,
-      Element_UniqueId = 101011103,
-      Link_Name = 101011104,
-      Link_Path = 101011105,
-      Load_Date = 101010101,
-      Linked_FamilyName = 101011106,
-      Linked_Elem_Coords = 101011107
-    };
+   
     Dictionary<string, string> param = new Dictionary<string, string>
     {
       ["Количетсво полюсов"] = "d182b385-9e45-4e8b-b8da-725396848493",
@@ -42,7 +32,7 @@ namespace ARMOCAD
       ["Дата выгрузки"] = "2e2e42ce-3e29-4fac-a314-d6d5574ac27b",
       ["Задание ЭМ"] = "893e72a1-b208-4d12-bb26-6bcc4a444d0c",
       ["Новый"] = "bf28d2b7-3b97-4f90-8c2a-590a92a654c6",
-      ["Номер"] = "90afe9a6-6c85-4aab-a765-f8743d986dc0", 
+      ["Номер"] = "90afe9a6-6c85-4aab-a765-f8743d986dc0",
       ["Связь"] = "41a4f06f-583e-4743-ac62-6a5b17db8cb4",
       ["Этаж"] = "4857fa3b-e80e-4167-9b66-f40cd5992680"
     };
@@ -59,7 +49,7 @@ namespace ARMOCAD
       while (true)
       {
         try
-        {          
+        {
           IList<string> Guids = new List<string> // общие параметры
           {
             "303f67e6-3fd6-469b-9356-dccb116a3277", // "Имя системы"
@@ -91,7 +81,9 @@ namespace ARMOCAD
           if (fam1 == null || fam2 == null || fam3 == null)
           {
             string n1, n2, n3; n1 = ""; n2 = ""; n3 = "";
-            if (fam1 == null) { n1 = famname1 + "\n "; } if (fam2 == null) { n2 = famname2 + "\n "; } if (fam3 == null) { n3 = famname3 + "\n "; }
+            if (fam1 == null) { n1 = famname1 + "\n "; }
+            if (fam2 == null) { n2 = famname2 + "\n "; }
+            if (fam3 == null) { n3 = famname3 + "\n "; }
             var DiagRes = FamErrorMsg("Не загружены семейства:\n " + n1 + n3 + n2 + "\n Загрузить ?");
             if (DiagRes == true)
             {
@@ -101,7 +93,9 @@ namespace ARMOCAD
                 string path1 = @"\\arena\ARMO-GROUP\ИПУ\ЛИЧНЫЕ\САПРомания\RVT\02-БИБЛИОТЕКА\10-Семейства\90-Электрооборудование и освещение (ЭО)\Оборудование\ME_Точка_подключения_(1 фазная сеть).rfa";
                 string path2 = @"\\arena\ARMO-GROUP\ИПУ\ЛИЧНЫЕ\САПРомания\RVT\02-БИБЛИОТЕКА\10-Семейства\90-Электрооборудование и освещение (ЭО)\Оборудование\ME_Точка_подключения_(2 коннектора, 3 фазная сеть).rfa";
                 string path3 = @"\\arena\ARMO-GROUP\ИПУ\ЛИЧНЫЕ\САПРомания\RVT\02-БИБЛИОТЕКА\10-Семейства\90-Электрооборудование и освещение (ЭО)\Оборудование\ME_Точка_подключения_(3 фазная сеть).rfa";
-                if (fam1 == null) { doc.LoadFamily(path1, out fam1); }  if (fam2 == null) { doc.LoadFamily(path2, out fam2); } if (fam3 == null) { doc.LoadFamily(path3, out fam3); }
+                if (fam1 == null) { doc.LoadFamily(path1, out fam1); }
+                if (fam2 == null) { doc.LoadFamily(path2, out fam2); }
+                if (fam3 == null) { doc.LoadFamily(path3, out fam3); }
                 t.Commit();
               }
             }
@@ -112,7 +106,7 @@ namespace ARMOCAD
             //TaskDialog.Show("Предупреждение", "Не загружены семейства:\n " + n1 + n3 + n2);
             //return Result.Cancelled;
           }
-          ISelectionFilter selectionFilter = new ConPickFilter(doc);
+          ISelectionFilter selectionFilter = new LinkPickFilter(doc);
           refElemLinked = uidoc.Selection.PickObject(obt, selectionFilter, "Выберите связь");
           RevitLinkInstance linkInstance = doc.GetElement(refElemLinked.ElementId) as RevitLinkInstance;
           Document docLinked = linkInstance.GetLinkDocument();
@@ -150,6 +144,7 @@ namespace ARMOCAD
           sch = sm.Schema;
           FilteredElementCollector MEcollector = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_MechanicalEquipment).WhereElementIsNotElementType();
           var targetElems = MEcollector.Where(i => (i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == famname1
+          
           || i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == famname3) && (string)sm.getSchemaDictValue<string>(i, "Dict_String", (int)Keys.Element_UniqueId) == i.UniqueId
           && (string)sm.getSchemaDictValue<string>(i, "Dict_String", (int)Keys.Link_Name) == LinkName); // коллектор по UniqId элемента и имени связи для 1 ТП
           var targetElems2 = MEcollector.Where(i => i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == famname2 && (string)sm.getSchemaDictValue<string>(i, "Dict_String", (int)Keys.Element_UniqueId) == i.UniqueId
@@ -203,13 +198,13 @@ namespace ARMOCAD
                 if (origElement.get_Parameter(new Guid(param["Количетсво полюсов"]))?.AsInteger() == 1 || FamSymbol.get_Parameter(new Guid(param["Количетсво полюсов"]))?.AsInteger() == 1) //1 фазная
                 {
                   FamilySymbol Newtype = Util.GetFamilySymbolByName(doc, typename) as FamilySymbol ?? CreateNewType(type1, typename);//проверка есть ли типоразмер в проекте если нет создаем
-                  targetElement = doc.Create.NewFamilyInstance(coords, Newtype, StructuralType.NonStructural); 
+                  targetElement = doc.Create.NewFamilyInstance(coords, Newtype, StructuralType.NonStructural);
                   countTarget++;
                 }
                 if (origElement.get_Parameter(new Guid(param["Количетсво полюсов"]))?.AsInteger() == 3 || FamSymbol.get_Parameter(new Guid(param["Количетсво полюсов"]))?.AsInteger() == 3) //3 фазная
                 {
                   FamilySymbol Newtype = Util.GetFamilySymbolByName(doc, typename) as FamilySymbol ?? CreateNewType(type3, typename);//проверка есть ли типоразмер в проекте если нет создаем
-                  targetElement = doc.Create.NewFamilyInstance(coords, Newtype, StructuralType.NonStructural); 
+                  targetElement = doc.Create.NewFamilyInstance(coords, Newtype, StructuralType.NonStructural);
                   countTarget++;
                 }
               }
@@ -224,15 +219,15 @@ namespace ARMOCAD
                   NameSystemParameter(origElement, targetElement, guid);
                   continue;
                 }
-                SetParameterToInstance(guid,origElement,targetElement);
+                SetParameterToInstance(guid, origElement, targetElement);
                 SetParameterToType(guid, origElement, targetElement);
               }
               SetValueToFields(targetElement, ElemUniq, linkElemUniq, LinkUniq, LinkName, LinkPath, typename, coords, sch);//запись параметров в ExStorage             
-              SetParameters(origElement, targetElement,LinkName);
-              SetParameterToInstance(param["Коэф. мощности"], origElement, targetElement);              
+              SetParameters(origElement, targetElement, LinkName);
+              SetParameterToInstance(param["Коэф. мощности"], origElement, targetElement);
               GSymbol(typename, "Вентилятор", "УГО_Двигатель", targetElement);
               GSymbol(typename, "МДУ", "УГО_МДУ)", targetElement);
-              GSymbol(typename, "Щит_автоматики", "УГО_ЩА", targetElement);              
+              GSymbol(typename, "Щит_автоматики", "УГО_ЩА", targetElement);
             }
             t.Commit();
             if (countTarget == 0)
@@ -256,7 +251,7 @@ namespace ARMOCAD
       }
       return Result.Succeeded;
     }
-    private void GSymbol(string type,string check,string param1,FamilyInstance target)
+    private void GSymbol(string type, string check, string param1, FamilyInstance target)
     {
       if (type.Contains(check))
       {
@@ -264,7 +259,7 @@ namespace ARMOCAD
         target.Symbol.LookupParameter("УГО_Кабельный вывод").Set(0);
       }
     }
-    private void SetParameters(Element orig, FamilyInstance target,string Linkname)
+    private void SetParameters(Element orig, FamilyInstance target, string Linkname)
     {
       var FamSymbol = (orig as FamilyInstance).Symbol;
       target.Symbol.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_COMMENTS).Set(FamSymbol.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_COMMENTS).AsString());
@@ -297,7 +292,7 @@ namespace ARMOCAD
     {
       var FamSymbol = (orig as FamilyInstance).Symbol;
       if (FamSymbol.get_Parameter(new Guid(guid)) != null)
-      {       
+      {
         StorageType storageType = orig.get_Parameter(new Guid(guid)).StorageType;
         switch (storageType)
         {
