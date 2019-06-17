@@ -228,7 +228,7 @@ namespace ARMOCAD
               SetParameters(origElement, targetElement, LinkName);
               SetParameterToInstance(param["Коэф. мощности"], origElement, targetElement);
               GSymbol(typename, "Вентилятор", "УГО_Двигатель", targetElement);
-              GSymbol(typename, "МДУ", "УГО_МДУ)", targetElement);
+              GSymbol(typename, "МДУ", "УГО_МДУ", targetElement);
               GSymbol(typename, "Щит_автоматики", "УГО_ЩА", targetElement);
             }
             t.Commit();

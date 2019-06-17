@@ -63,8 +63,8 @@ namespace ARMOCAD
     //словарь для ссылок на F1
     public static Dictionary<string, ContextualHelp> helpButtonsDictionary = new Dictionary<string, ContextualHelp>
     {
-      ["cmdValve"] = new ContextualHelp(ContextualHelpType.Url, @"https://drive.google.com/file/d/1P-C7OjLGbRaU1pXQDMKCZu0Czdl_WkOq/view"),
-      ["cmdValvelocSS"] = new ContextualHelp(ContextualHelpType.Url, @"https://drive.google.com/file/d/1CeW3zqnXjwJWzqRVn-JGDh64fAsNGlqf/view"),
+      ["cmdLinkEquipmentSS"] = new ContextualHelp(ContextualHelpType.Url, @"https://drive.google.com/file/d/1P-C7OjLGbRaU1pXQDMKCZu0Czdl_WkOq/view"),
+      ["cmdLinkEquipmentLoc"] = new ContextualHelp(ContextualHelpType.Url, @"https://drive.google.com/file/d/1CeW3zqnXjwJWzqRVn-JGDh64fAsNGlqf/view"),
       ["cmdDetailLinesLength"] = new ContextualHelp(ContextualHelpType.Url, Path.Combine(GetExeDirectory(), "Help/DetailLinesLength_Help.html")),
       ["cmdSimilarParamsClass"] = new ContextualHelp(ContextualHelpType.Url, Path.Combine(GetExeDirectory(), "Help/SimilarParameters_Help.html")),
       ["cmdParamtextreplaceClass"] = new ContextualHelp(ContextualHelpType.Url, Path.Combine(GetExeDirectory(), "Help/Paramtextreplace_Help.html")),
@@ -500,29 +500,21 @@ namespace ARMOCAD
 
       //========================= DenisButtons
       // create push button
-      PushButtonData b26Data = new PushButtonData(
-        "cmdValve",
-        "Размещение\n клапанов",
-        thisAssemblyPath,
-        "ARMOCAD.Valve");
+      PushButtonData b26Data = new PushButtonData("cmdLinkEquipmentSS", "Размещение\n оборудования",thisAssemblyPath, "ARMOCAD.LinkEquipmentSS");
 
-      b26Data.SetContextualHelp(helpButtonsDictionary["cmdValve"]);
+      b26Data.SetContextualHelp(helpButtonsDictionary["cmdLinkEquipmentSS"]);
       b26Data.LargeImage = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/valveIcon.png"));
-      b26Data.ToolTip = "Размещение клапанов ОЗК, КДУ из связной модели";
+      b26Data.ToolTip = "Размещение оборудования из связной модели";
 
       // create push button
-      PushButtonData b27Data = new PushButtonData(
-        "cmdValvelocSS",
-        "Проверка\n клапанов",
-        thisAssemblyPath,
-        "ARMOCAD.ValvelocSS");
+      PushButtonData b27Data = new PushButtonData("cmdLinkEquipmentLoc", "Проверка\n оборудования",thisAssemblyPath, "ARMOCAD.LinkEquipmentLoc");
 
-      b27Data.SetContextualHelp(helpButtonsDictionary["cmdValvelocSS"]);
+      b27Data.SetContextualHelp(helpButtonsDictionary["cmdLinkEquipmentLoc"]);
       b27Data.LargeImage = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/checkIcon.png"));
-      b27Data.ToolTip = "Проверка клапанов размещенных ОЗК, КДУ";
+      b27Data.ToolTip = "Проверка оборудования размещенного из связной модели";
 
       // Создаём выпадающие кнопки
-      SplitButtonData sbdata2 = new SplitButtonData("Valve", "SS valve");
+      SplitButtonData sbdata2 = new SplitButtonData("LinkEquipmentSS", "SS LinkEquipmentSS");
       SplitButton sb2 = ribbonPanel3.AddItem(sbdata2) as SplitButton;
       sb2.AddPushButton(b26Data);
       sb2.AddPushButton(b27Data);

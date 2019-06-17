@@ -130,6 +130,7 @@ namespace ARMOCAD
               ElemUniq = targetElement.UniqueId;
               SetValueToFields(targetElement, ElemUniq, linkElemUniq, LinkUniq, LinkName, LinkPath, typename, coords, sch); //запись параметров в ExStorage                                
               SetParameters(origElement, targetElement, LinkName);//запись параметров в Instance 
+              NameSystemParameter(origElement,targetElement);
               Ozk(origElement, targetElement); //уго озк кду
               GSymbol(typename, "Электрооборудование", "Шкаф", origElement, targetElement);
               GSymbol(typename, "КСК", "УГО_КСК", targetElement);
@@ -137,6 +138,7 @@ namespace ARMOCAD
               GSymbol(typename, "СОУЭ", "УГО_СОУЭ", targetElement);
               GSymbol(typename, "СПЖ", "УГО_СПЖ", targetElement);
               GSymbol(typename, "ЦПИ", "УГО_ЦПИ", targetElement);
+              GSymbol(typename, "Щит_автоматики", "УГО_ЩУ",targetElement);
             }
             t.Commit();
             if (countTarget == 0)
