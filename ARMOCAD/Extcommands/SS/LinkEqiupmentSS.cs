@@ -134,11 +134,12 @@ namespace ARMOCAD
               Ozk(origElement, targetElement); //уго озк кду
               GSymbol(typename, "Электрооборудование", "Шкаф", origElement, targetElement);
               GSymbol(typename, "КСК", "УГО_КСК", targetElement);
-              GSymbol(typename, "ПК", "УГО_ПК)", targetElement);
+              GSymbol(typename, "ШПК", "УГО_ПК)", targetElement);
               GSymbol(typename, "СОУЭ", "УГО_СОУЭ", targetElement);
               GSymbol(typename, "СПЖ", "УГО_СПЖ", targetElement);
               GSymbol(typename, "ЦПИ", "УГО_ЦПИ", targetElement);
               GSymbol(typename, "Щит_автоматики", "УГО_ЩУ",targetElement);
+              GSymbol(typename, "РП", "УГО_СПЖ", targetElement);
             }
             t.Commit();
             if (countTarget == 0)
@@ -195,7 +196,9 @@ namespace ARMOCAD
     {
       var FamSymbol = (orig as FamilyInstance).Symbol;
       target.Symbol.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_COMMENTS).Set(FamSymbol.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_COMMENTS).AsString());
+      target.Symbol.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_MARK).Set(FamSymbol.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_MARK).AsString());
       target.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).Set(orig.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).AsString());
+      target.get_Parameter(BuiltInParameter.DOOR_NUMBER).Set(orig.get_Parameter(BuiltInParameter.DOOR_NUMBER).AsString());
       target.get_Parameter(new Guid(param["Наименование"])).Set(orig.Name); //название типа в параметр "наименование"
       target.get_Parameter(new Guid(param["Дата выгрузки"])).Set(DateTime.Now.ToShortDateString()); //дата 
       target.get_Parameter(new Guid(param["Связь"])).Set(Linkname);
