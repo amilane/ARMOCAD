@@ -121,6 +121,18 @@ namespace ARMOCAD
               var linkElemUniq = origElement.UniqueId;
               var famname = origElement.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString(); //имя семейства в связи
               var typename = famname + "_/_" + origElement.Name; typename = typename.Replace("[", "("); typename = typename.Replace("]", ")");// имя семейства + имя типоразмера (заменяем скобки []) 
+              if (origElement.LookupParameter("Щит аварийного освещения") != null && origElement.LookupParameter("Щит аварийного освещения").AsInteger() == 1)
+              {
+                typename = typename + "/Щит аварийного освещения";
+              }
+              if (origElement.LookupParameter("Щит управления двигателями") != null && origElement.LookupParameter("Щит управления двигателями").AsInteger() == 1)
+              {
+                typename = typename + "/Щит управления двигателями";
+              }
+              if (origElement.LookupParameter("Щит силовой распределительный") != null && origElement.LookupParameter("Щит силовой распределительный").AsInteger() == 1)
+              {
+                typename = typename + "/Щит силовой распределительный";
+              }
               var target = targetElems.Where(i => (string)sm.getSchemaDictValue<string>(i, "Dict_String", (int)Keys.Linked_Element_UniqueId) == linkElemUniq); //коллектор по совпадающим UniqId (1 ТП)
               if (target.Count() != 0) { continue; } // проверка по UniqID в связи и в проекте
               FamilySymbol Newtype = Util.GetFamilySymbolByName(doc, typename) as FamilySymbol ?? CreateNewType(type1, typename);//проверка есть ли типоразмер в проекте если нет создаем
@@ -134,7 +146,7 @@ namespace ARMOCAD
               Ozk(origElement, targetElement); //уго озк кду
               GSymbol(typename, "Электрооборудование", "Шкаф", origElement, targetElement);
               GSymbol(typename, "КСК", "УГО_КСК", targetElement);
-              GSymbol(typename, "ШПК", "УГО_ПК)", targetElement);
+              GSymbol(typename, "ШПК", "УГО_ПК", targetElement);
               GSymbol(typename, "СОУЭ", "УГО_СОУЭ", targetElement);
               GSymbol(typename, "СПЖ", "УГО_СПЖ", targetElement);
               GSymbol(typename, "ЦПИ", "УГО_ЦПИ", targetElement);
@@ -197,6 +209,7 @@ namespace ARMOCAD
       var FamSymbol = (orig as FamilyInstance).Symbol;
       target.Symbol.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_COMMENTS).Set(FamSymbol.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_COMMENTS).AsString());
       target.Symbol.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_MARK).Set(FamSymbol.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_MARK).AsString());
+      target.Symbol.get_Parameter(BuiltInParameter.ALL_MODEL_DESCRIPTION).Set(FamSymbol.get_Parameter(BuiltInParameter.ALL_MODEL_DESCRIPTION).AsString());
       target.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).Set(orig.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).AsString());
       target.get_Parameter(BuiltInParameter.DOOR_NUMBER).Set(orig.get_Parameter(BuiltInParameter.DOOR_NUMBER).AsString());
       target.get_Parameter(new Guid(param["Наименование"])).Set(orig.Name); //название типа в параметр "наименование"
