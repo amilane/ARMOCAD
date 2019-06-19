@@ -1,4 +1,3 @@
-using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.ExtensibleStorage;
@@ -7,9 +6,11 @@ using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using WinForms = System.Windows.Forms;
+using System.Windows.Forms;
+using Application = Autodesk.Revit.ApplicationServices.Application;
+using ComboBox = System.Windows.Forms.ComboBox;
+using Form = System.Windows.Forms.Form;
 
 namespace ARMOCAD
 {
@@ -20,6 +21,7 @@ namespace ARMOCAD
   {
     public SchemaMethods sm;
     private string ElemUniq;
+    public bool WSCheck;
     Dictionary<string, string> param = new Dictionary<string, string>
     {
       ["Нормально отк/закр."] = "ce22f60b-9ae0-4c79-a624-873f39099510",
@@ -33,8 +35,11 @@ namespace ARMOCAD
       ["Имя Системы"] = "303f67e6-3fd6-469b-9356-dccb116a3277",
       ["OUT"] = "478914c0-6c06-4dd6-8c41-fa1122140e87",
       ["IN"] = "cf610632-14a9-4c8d-84ae-79053ba99593",
-      ["Питание"]= "b502ddde-99e5-4495-b855-e784100376d9"
+      ["Питание"] = "b502ddde-99e5-4495-b855-e784100376d9"
     };
+
+
+
     public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
     {
       UIApplication uiApp = commandData.Application;
@@ -55,27 +60,27 @@ namespace ARMOCAD
           Family fam1 = collfams.FirstOrDefault<Element>(e => e.Name.Equals(famname1)) as Family;
           if (fam1 == null)
           {
-            var DiagRes = FamErrorMsg("Не загружено семейство:\n " + famname1 + "\n\n Загрузить ?");
-            if (DiagRes == true)
+            string path1 = @"\\arena\ARMO-GROUP\ИПУ\ЛИЧНЫЕ\САПРомания\RVT\02-БИБЛИОТЕКА\10-Семейства\70-Слаботочные системы (СС)\Оборудование\Задание для СС.rfa";
+            var tdRes = TDFamLoad(path1, famname1);
+            if (tdRes == TaskDialogResult.Yes)
             {
               using (Transaction t = new Transaction(doc, "Загрузить семейство"))
               {
                 t.Start();
-                string path1 = @"\\arena\ARMO-GROUP\ИПУ\ЛИЧНЫЕ\САПРомания\RVT\02-БИБЛИОТЕКА\10-Семейства\70-Слаботочные системы (СС)\Оборудование\Задание для СС.rfa";
+
                 if (fam1 == null) { doc.LoadFamily(path1, out fam1); }
                 t.Commit();
               }
             }
-            if (DiagRes == false)
+            if (tdRes == TaskDialogResult.No)
             {
               return Result.Cancelled;
             }
-            //TaskDialog.Show("Предупреждение", "Не загружены семейства:\n " + n1 + n3 + n2);
-            //return Result.Cancelled;
           }
-          ISelectionFilter selectionFilter = new LinkPickFilter(doc);
-          refElemLinked = uidoc.Selection.PickObject(obt, selectionFilter, "Выберите связь");
-          RevitLinkInstance linkInstance = doc.GetElement(refElemLinked.ElementId) as RevitLinkInstance;
+          IList<Element> links = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_RvtLinks).WhereElementIsNotElementType().ToElements();
+          var linkName = SelectLink(links);
+          var link = links.Where(i => i.get_Parameter(BuiltInParameter.ELEM_TYPE_PARAM).AsValueString() == linkName);
+          RevitLinkInstance linkInstance = link.First() as RevitLinkInstance;
           Document docLinked = linkInstance.GetLinkDocument();
           var checkLinkInst = false;
           var LinkUniq = linkInstance.UniqueId; //UniqId экземпляра связи
@@ -99,8 +104,7 @@ namespace ARMOCAD
                 new ElementCategoryFilter(BuiltInCategory.OST_Casework)
                 }));
           CatsElems = collectorlink.WhereElementIsNotElementType().ToElements(); //элементы по категориям
-          var elems = CatsElems.Where(f => f.get_Parameter(new Guid(param["Задание СС"])) != null && f.get_Parameter(new Guid(param["Задание СС"])).AsInteger() == 1);
-          InfoMsg("Связь: " + LinkName + "\n" + "Количество элементов в связи: " + elems.Count().ToString()); // MessageBox
+          IEnumerable<Element> elems = CatsElems.Where(f => f.get_Parameter(new Guid(param["Задание СС"])) != null && f.get_Parameter(new Guid(param["Задание СС"])).AsInteger() == 1);
           ISet<ElementId> elementSet1 = fam1.GetFamilySymbolIds();
           FamilySymbol type1 = doc.GetElement(elementSet1.First()) as FamilySymbol;
           sm = new SchemaMethods(SchemaGuid, "Ag_Schema"); //создание схемы ExStorage
@@ -108,6 +112,9 @@ namespace ARMOCAD
           FilteredElementCollector MEcollector = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_MechanicalEquipment).WhereElementIsNotElementType();
           var targetElems = MEcollector.Where(i => i.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString() == famname1 && (string)sm.getSchemaDictValue<string>(i, "Dict_String", (int)Keys.Element_UniqueId) == i.UniqueId && (string)sm.getSchemaDictValue<string>(i, "Dict_String", (int)Keys.Link_Name) == LinkName); // коллектор по UniqId элемента и имени связи для 1 ТП
           if (targetElems.Count() != 0) { checkLinkInst = true; }  //проверка новый ли это элемент, если новый то пишем в параметр
+          var Res = TDInfo(elems, LinkName);
+          if (Res == TaskDialogResult.Cancel) { return Result.Failed; }
+          if (WSCheck == true) { checkLinkInst = false; }
           using (Transaction t = new Transaction(doc, "Размещение элементов"))
           {
             t.Start();
@@ -142,7 +149,7 @@ namespace ARMOCAD
               ElemUniq = targetElement.UniqueId;
               SetValueToFields(targetElement, ElemUniq, linkElemUniq, LinkUniq, LinkName, LinkPath, typename, coords, sch); //запись параметров в ExStorage                                
               SetParameters(origElement, targetElement, LinkName);//запись параметров в Instance 
-              NameSystemParameter(origElement,targetElement);
+              NameSystemParameter(origElement, targetElement);
               Ozk(origElement, targetElement); //уго озк кду
               GSymbol(typename, "Электрооборудование", "Шкаф", origElement, targetElement);
               GSymbol(typename, "КСК", "УГО_КСК", targetElement);
@@ -150,16 +157,23 @@ namespace ARMOCAD
               GSymbol(typename, "СОУЭ", "УГО_СОУЭ", targetElement);
               GSymbol(typename, "СПЖ", "УГО_СПЖ", targetElement);
               GSymbol(typename, "ЦПИ", "УГО_ЦПИ", targetElement);
-              GSymbol(typename, "Щит_автоматики", "УГО_ЩУ",targetElement);
+              GSymbol(typename, "Щит_автоматики", "УГО_ЩУ", targetElement);
               GSymbol(typename, "РП", "УГО_СПЖ", targetElement);
             }
             t.Commit();
             if (countTarget == 0)
             {
-              WinForms.MessageBox.Show("Нет элементов для размещения!", "Предупреждение", WinForms.MessageBoxButtons.OK, WinForms.MessageBoxIcon.Warning);
+              TaskDialog tdPr = new TaskDialog("Предупреждение");
+              tdPr.MainIcon = TaskDialogIcon.TaskDialogIconWarning;
+              tdPr.TitleAutoPrefix = false;
+              tdPr.AllowCancellation = true;
+              tdPr.MainInstruction = "Нет элементов для размещения!";
+              tdPr.CommonButtons = TaskDialogCommonButtons.Close;
+              tdPr.DefaultButton = TaskDialogResult.Close;
+              TaskDialogResult tdRes = tdPr.Show();
               break;
             }
-            InfoMsg("Элементов размещено в проекте: " + countTarget);
+            TaskDialog.Show("Информация", "Элементов размещено в проекте: " + countTarget);
             break;
           }
         }
@@ -294,25 +308,6 @@ namespace ARMOCAD
         }
       }
     }
-    public bool FamErrorMsg(string msg)
-    {
-      Debug.WriteLine(msg);
-      var dialogResult = WinForms.MessageBox.Show(msg, "Предупреждение", WinForms.MessageBoxButtons.YesNo, WinForms.MessageBoxIcon.Warning);
-      if (dialogResult == WinForms.DialogResult.Yes)
-      {
-        return true;
-      }
-      if (dialogResult == WinForms.DialogResult.No)
-      {
-        return false;
-      }
-      return true;
-    }
-    public static void InfoMsg(string msg)
-    {
-      Debug.WriteLine(msg);
-      WinForms.MessageBox.Show(msg, "Информация", WinForms.MessageBoxButtons.OK, WinForms.MessageBoxIcon.Information);
-    }
     private void NameSystemParameter(Element origElement, Element targetElement)
     {
       if (origElement.get_Parameter(BuiltInParameter.RBS_SYSTEM_NAME_PARAM) != null)
@@ -330,6 +325,124 @@ namespace ARMOCAD
     {
       FamilySymbol newtype = Type.Duplicate(Typename) as FamilySymbol;
       return newtype;
+    }
+    public string SelectLink(IList<Element> links)
+    {
+      IList<string> Names = new List<string>();
+      foreach (var l in links)
+      {
+        Names.Add(l.get_Parameter(BuiltInParameter.ELEM_TYPE_PARAM).AsValueString());
+      }
+      Form form1 = new Form();
+      GroupBox groupbox = new GroupBox();
+      ComboBox comboBox1 = new ComboBox();
+      //Button button1 = new Button();
+      Button button2 = new Button();
+      Label label1 = new Label();
+      // 
+      // groupbox
+      // 
+      groupbox.Controls.Add(label1);
+      groupbox.Controls.Add(button2);
+      //groupbox.Controls.Add(button1);
+      groupbox.Controls.Add(comboBox1);
+      groupbox.Location = new System.Drawing.Point(12, 12);
+      groupbox.Name = "groupbox";
+      groupbox.Size = new System.Drawing.Size(339, 178);
+      groupbox.TabIndex = 1;
+      groupbox.TabStop = false;
+      groupbox.Text = "Связанные файлы Revit";
+      // 
+      // comboBox1
+      // 
+      comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+      comboBox1.FormattingEnabled = true;
+      comboBox1.Location = new System.Drawing.Point(30, 77);
+      comboBox1.Name = "comboBox1";
+      comboBox1.Size = new System.Drawing.Size(287, 21);
+      comboBox1.TabIndex = 0;
+      comboBox1.DataSource = Names;
+      // 
+      // button1
+      // 
+      //button1.Location = new System.Drawing.Point(146, 149);
+      //button1.Text = "ОК";
+      // 
+      // button2
+      // 
+      button2.Location = new System.Drawing.Point(242, 149);
+      button2.Text = "OK";
+      // 
+      // label1
+      // 
+      label1.AutoSize = true;
+      label1.Location = new System.Drawing.Point(27, 47);
+      label1.Size = new System.Drawing.Size(93, 13);
+      label1.TabIndex = 3;
+      label1.Text = "Выберите связь:";
+      // 
+      // Form1
+      // 
+      form1.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+      form1.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+      form1.ClientSize = new System.Drawing.Size(363, 202);
+      form1.Controls.Add(groupbox);
+      form1.Text = "Form1";
+      groupbox.ResumeLayout(false);
+      groupbox.PerformLayout();
+      form1.ResumeLayout(false);
+      form1.Text = "My Dialog Box";
+      form1.FormBorderStyle = FormBorderStyle.FixedDialog;
+      form1.MaximizeBox = false;
+      form1.MinimizeBox = false;
+      form1.AcceptButton = button2;
+      form1.CancelButton = button2;
+      form1.StartPosition = FormStartPosition.CenterScreen;
+      form1.ShowDialog();
+
+      string res = comboBox1.Text;
+      return res;
+    }
+    private TaskDialogResult TDFamLoad(string path1, string famname1)
+    {
+      TaskDialog tdLoad = new TaskDialog("Предупреждение");
+      tdLoad.MainIcon = TaskDialogIcon.TaskDialogIconError;
+      tdLoad.Title = "Предупреждение";
+      tdLoad.TitleAutoPrefix = false;
+      tdLoad.AllowCancellation = true;
+      tdLoad.MainInstruction = "Не загружено семейство:\n " + "[" + famname1 + "]" + "\n\n Загрузить ?";
+      tdLoad.FooterText = path1.Substring(44);
+      tdLoad.CommonButtons = TaskDialogCommonButtons.No | TaskDialogCommonButtons.Yes;
+      tdLoad.DefaultButton = TaskDialogResult.Yes;
+      TaskDialogResult tdRes = tdLoad.Show();
+      return tdRes;
+    }
+    private TaskDialogResult TDInfo(IEnumerable<Element> elements, string LinkName)
+    {
+      string families = string.Empty;
+      TaskDialog tdinfo = new TaskDialog("Информация");
+      tdinfo.MainIcon = TaskDialogIcon.TaskDialogIconInformation;
+      tdinfo.Title = "Информация";
+      tdinfo.TitleAutoPrefix = false;
+      tdinfo.AllowCancellation = true;
+      tdinfo.MainInstruction = "Связь: " + LinkName;
+      tdinfo.MainContent = "Количество элементов в связи: " + elements.Count().ToString();
+      foreach (var e in elements)
+      {
+        var fname = e.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM).AsValueString();
+        if (families.Contains(fname))
+        {
+          continue;
+        }
+        families = families + fname + "\n";
+      }
+      tdinfo.ExpandedContent = "Семейства: \n" + families;
+      tdinfo.VerificationText = "Не отмечать новые";
+      tdinfo.CommonButtons = TaskDialogCommonButtons.Cancel | TaskDialogCommonButtons.Ok;
+      tdinfo.DefaultButton = TaskDialogResult.Ok;
+      TaskDialogResult Res = tdinfo.Show();
+      WSCheck = tdinfo.WasVerificationChecked();
+      return Res;
     }
   }
 }

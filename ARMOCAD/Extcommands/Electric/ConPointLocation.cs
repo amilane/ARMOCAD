@@ -45,7 +45,6 @@ namespace ARMOCAD
           refElemLinked = uidoc.Selection.PickObject(obt, selectionFilter, "Выберите связь");
           RevitLinkInstance linkInstance = doc.GetElement(refElemLinked.ElementId) as RevitLinkInstance;
           Document docLinked = linkInstance.GetLinkDocument();
-          string taskguid = "893e72a1-b208-4d12-bb26-6bcc4a444d0c";
           string famname1 = "ME_Точка_подключения_(1 фазная сеть)";
           string famname2 = "ME_Точка_подключения_(2 коннектора, 3 фазная сеть)";
           string famname3 = "ME_Точка_подключения_(3 фазная сеть)";
