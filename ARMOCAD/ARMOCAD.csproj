@@ -167,6 +167,7 @@
     <Compile Include="Extcommands\SKUD\SKUDControlPlacementEx.cs" />
     <Compile Include="Extcommands\SKUD\SKUDPlaceEquipmentEx.cs" />
     <Compile Include="Extcommands\Common\ExternalEventMy.cs" />
+    <Compile Include="Extcommands\SS\PlaceEquip.cs" />
     <Compile Include="Extcommands\SS\LinkEqiupmentSS.cs" />
     <Compile Include="Extcommands\TagBridge\Model\ConnectButtonEventHandler.cs" />
     <Compile Include="Extcommands\TagBridge\Model\MoveTagsToDraftElementsEventHandler.cs" />

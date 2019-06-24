@@ -74,9 +74,9 @@ namespace ARMOCAD
           var elems = CatsElems.Where(f => f.get_Parameter(new Guid(param["Задание ЭМ"])) != null && f.get_Parameter(new Guid(param["Задание ЭМ"])).AsInteger() == 1); //фильтр по параметру "Задание ЭМ"
 
           FilteredElementCollector collfams = collector.OfClass(typeof(Family));
-          Family fam1 = collfams.FirstOrDefault<Element>(e => e.Name.Equals(famname1)) as Family;
-          Family fam2 = collfams.FirstOrDefault<Element>(e => e.Name.Equals(famname2)) as Family;
-          Family fam3 = collfams.FirstOrDefault<Element>(e => e.Name.Equals(famname3)) as Family;
+          Family fam1 = collfams.FirstOrDefault(e => e.Name.Equals(famname1)) as Family;
+          Family fam2 = collfams.FirstOrDefault(e => e.Name.Equals(famname2)) as Family;
+          Family fam3 = collfams.FirstOrDefault(e => e.Name.Equals(famname3)) as Family;
           FilteredElementCollector MEcollector = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_MechanicalEquipment).WhereElementIsNotElementType();
           sm = new SchemaMethods(SchemaGuid, "Ag_Schema");
           sch = sm.Schema;
