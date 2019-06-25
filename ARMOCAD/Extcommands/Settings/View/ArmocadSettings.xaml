@@ -42,34 +42,34 @@
           </Grid.ColumnDefinitions>
 
           <TextBlock Grid.Column="1" Grid.Row="1" Text="Блок питания:" VerticalAlignment="Center"/>
-          <ComboBox Grid.Column="2" Grid.Row="1" Height="20" VerticalAlignment="Center" ItemsSource ="{Binding FamilySymbolsNames}"/>
+          <ComboBox Grid.Column="2" Grid.Row="1" Height="20" VerticalAlignment="Center"  ItemsSource ="{Binding Fsn1}" SelectedItem="{Binding PowerUser, Mode=OneWayToSource}" SelectedIndex="0"/>
           <TextBlock Grid.Column="1" Grid.Row="2" Text="Вызывная панель видеодомофона:" VerticalAlignment="Center"/>
-          <ComboBox Grid.Column="2" Grid.Row="2" Height="20" VerticalAlignment="Center" ItemsSource ="{Binding FamilySymbolsNames}"/>
+          <ComboBox Grid.Column="2" Grid.Row="2" Height="20" VerticalAlignment="Center" ItemsSource ="{Binding Fsn2}" SelectedItem="{Binding VideoPanelUser, Mode=OneWayToSource}" SelectedIndex="0"/>
           <TextBlock Grid.Column="1" Grid.Row="3" Text="Дверной доводчик:" VerticalAlignment="Center"/>
-          <ComboBox Grid.Column="2" Grid.Row="3" Height="20" VerticalAlignment="Center" ItemsSource ="{Binding FamilySymbolsNames}"/>
+          <ComboBox Grid.Column="2" Grid.Row="3" Height="20" VerticalAlignment="Center" ItemsSource ="{Binding Fsn3}"  SelectedItem="{Binding DoorCloserUser, Mode=OneWayToSource}" SelectedIndex="0"/>
           <TextBlock Grid.Column="1" Grid.Row="4" Text="Замок электромагнитный:" VerticalAlignment="Center"/>
-          <ComboBox Grid.Column="2" Grid.Row="4" Height="20" VerticalAlignment="Center" ItemsSource ="{Binding FamilySymbolsNames}"/>
+          <ComboBox Grid.Column="2" Grid.Row="4" Height="20" VerticalAlignment="Center" ItemsSource ="{Binding Fsn4}" SelectedItem="{Binding LockMagnetUser, Mode=OneWayToSource}" SelectedIndex="0"/>
           <TextBlock Grid.Column="1" Grid.Row="5" Text="Замок электромеханический:" VerticalAlignment="Center"/>
-          <ComboBox Grid.Column="2" Grid.Row="5" Height="20" VerticalAlignment="Center" ItemsSource ="{Binding FamilySymbolsNames}"/>
+          <ComboBox Grid.Column="2" Grid.Row="5" Height="20" VerticalAlignment="Center" ItemsSource ="{Binding Fsn5}" SelectedItem="{Binding LockMechanicalUser, Mode=OneWayToSource}" SelectedIndex="0"/>
           <TextBlock Grid.Column="1" Grid.Row="6" Text="Защелка электромеханическая:" VerticalAlignment="Center"/>
-          <ComboBox Grid.Column="2" Grid.Row="6" Height="20" VerticalAlignment="Center" ItemsSource ="{Binding FamilySymbolsNames}"/>
+          <ComboBox Grid.Column="2" Grid.Row="6" Height="20" VerticalAlignment="Center" ItemsSource ="{Binding Fsn6}" SelectedItem="{Binding LatchMechanicalUser, Mode=OneWayToSource}" SelectedIndex="0"/>
           <TextBlock Grid.Column="1" Grid.Row="7" Text="Кнопка выхода:" VerticalAlignment="Center"/>
-          <ComboBox Grid.Column="2" Grid.Row="7" Height="20" VerticalAlignment="Center" ItemsSource ="{Binding FamilySymbolsNames}"/>
+          <ComboBox Grid.Column="2" Grid.Row="7" Height="20" VerticalAlignment="Center" ItemsSource ="{Binding Fsn7}" SelectedItem="{Binding ExitButtonUser, Mode=OneWayToSource}" SelectedIndex="0"/>
           <TextBlock Grid.Column="1" Grid.Row="8" Text="Модуль контроля доступа:" VerticalAlignment="Center"/>
-          <ComboBox Grid.Column="2" Grid.Row="8" Height="20" VerticalAlignment="Center" ItemsSource ="{Binding FamilySymbolsNames}"/>
+          <ComboBox Grid.Column="2" Grid.Row="8" Height="20" VerticalAlignment="Center" ItemsSource ="{Binding Fsn8}" SelectedItem="{Binding InputControlUser, Mode=OneWayToSource}" SelectedIndex="0"/>
           <TextBlock Grid.Column="1" Grid.Row="9" Text="Магнитоконтактный извещатель:" VerticalAlignment="Center"/>
-          <ComboBox Grid.Column="2" Grid.Row="9" Height="20" VerticalAlignment="Center" ItemsSource ="{Binding FamilySymbolsNames}"/>
+          <ComboBox Grid.Column="2" Grid.Row="9" Height="20" VerticalAlignment="Center" ItemsSource ="{Binding Fsn9}" SelectedItem="{Binding SirenUser, Mode=OneWayToSource}" SelectedIndex="0"/>
           <TextBlock Grid.Column="1" Grid.Row="10" Text="Монитор видеодомофона:" VerticalAlignment="Center"/>
-          <ComboBox Grid.Column="2" Grid.Row="10" Height="20" VerticalAlignment="Center" ItemsSource ="{Binding FamilySymbolsNames}"/>
+          <ComboBox Grid.Column="2" Grid.Row="10" Height="20" VerticalAlignment="Center" ItemsSource ="{Binding Fsn10}" SelectedItem="{Binding MonitorUser, Mode=OneWayToSource}" SelectedIndex="0"/>
           <TextBlock Grid.Column="1" Grid.Row="11" Text="Считыватель вход:" VerticalAlignment="Center"/>
-          <ComboBox Grid.Column="2" Grid.Row="11" Height="20" VerticalAlignment="Center" ItemsSource ="{Binding FamilySymbolsNames}"/>
+          <ComboBox Grid.Column="2" Grid.Row="11" Height="20" VerticalAlignment="Center" ItemsSource ="{Binding Fsn11}" SelectedItem="{Binding ReaderInUser, Mode=OneWayToSource}" SelectedIndex="0"/>
           <TextBlock Grid.Column="1" Grid.Row="12" Text="Считыватель выход:" VerticalAlignment="Center"/>
-          <ComboBox Grid.Column="2" Grid.Row="12" Height="20" VerticalAlignment="Center" ItemsSource ="{Binding FamilySymbolsNames}"/>
+          <ComboBox Grid.Column="2" Grid.Row="12" Height="20" VerticalAlignment="Center" ItemsSource ="{Binding Fsn12}" SelectedItem="{Binding ReaderOutUser, Mode=OneWayToSource}" SelectedIndex="0"/>
           <TextBlock Grid.Column="1" Grid.Row="13" Text="Турникет:" VerticalAlignment="Center"/>
-          <ComboBox Grid.Column="2" Grid.Row="13" Height="20" VerticalAlignment="Center" ItemsSource ="{Binding FamilySymbolsNames}"/>
+          <ComboBox Grid.Column="2" Grid.Row="13" Height="20" VerticalAlignment="Center" ItemsSource ="{Binding Fsn13}" SelectedItem="{Binding TurnstileUser, Mode=OneWayToSource}" SelectedIndex="0"/>
           <TextBlock Grid.Column="1" Grid.Row="14" Text="Устройство разблокировки двери:" VerticalAlignment="Center"/>
-          <ComboBox Grid.Column="2" Grid.Row="14" Height="20" VerticalAlignment="Center" ItemsSource ="{Binding FamilySymbolsNames}"/>
-          <Button Content="Сохранить" Grid.Column="3" Grid.Row="15" HorizontalAlignment="Center"  VerticalAlignment="Center" Width="75"/>
+          <ComboBox Grid.Column="2" Grid.Row="14" Height="20" VerticalAlignment="Center" ItemsSource ="{Binding Fsn14}" SelectedItem="{Binding DoorUnlockingUser, Mode=OneWayToSource}" SelectedIndex="0"/>
+          <Button Content="Сохранить" Grid.Column="3" Grid.Row="15" HorizontalAlignment="Center"  VerticalAlignment="Center" Width="75" Command="{Binding SavePlaceEquipBtnCmd}"/>
 
 
         </Grid>
