@@ -35,13 +35,14 @@ namespace ARMOCAD
           File.WriteAllText(armocadSettingsPath, JsonConvert.SerializeObject(new Configs()));
         }
 
+        var Configs = JsonConvert.DeserializeObject<Configs>(File.ReadAllText(armocadSettingsPath));
 
-
-        ArmocadSettingsModel model = new ArmocadSettingsModel(uiapp, armocadSettingsPath);
+        ArmocadSettingsModel model = new ArmocadSettingsModel(uiapp);
 
         ArmocadSettingsViewModel vmod = new ArmocadSettingsViewModel();
+        ArmocadSettingsViewModel.Path = armocadSettingsPath;
+        ArmocadSettingsViewModel.Configs = Configs;
         vmod.RevitModel = model;
-        vmod.Path = armocadSettingsPath;
 
         ArmocadSettings view = new ArmocadSettings();
         view.DataContext = vmod;

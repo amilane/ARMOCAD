@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
+
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows.Forms;
 using System.Windows.Input;
 using Newtonsoft.Json;
 
@@ -17,10 +16,12 @@ namespace ARMOCAD
       get { return revitModel; }
       set { revitModel = value; }
     }
-    public string Path { get; set; }
-    public Configs Configs { get; set; }
+    public static string Path { get; set; }
+    public static Configs Configs { get; set; }
 
-
+    private static SkudTdEquipment SkudTD {
+      get => Configs.SkudTd;
+    }
 
     #region Точки Доступа --> Оборудование
     public List<string> FamilySymbolsNames {
@@ -31,7 +32,7 @@ namespace ARMOCAD
     private string power;
     public string Power {
       get {
-        power = RevitModel?.Power;
+        power = SkudTD.Power;
         return power;
       }
       set { power = value; }
@@ -40,7 +41,7 @@ namespace ARMOCAD
     private string videoPanel;
     public string VideoPanel {
       get {
-        videoPanel = RevitModel?.VideoPanel;
+        videoPanel = SkudTD.VideoPanel;
         return videoPanel;
       }
       set { videoPanel = value; }
@@ -49,7 +50,7 @@ namespace ARMOCAD
     private string doorCloser;
     public string DoorCloser {
       get {
-        doorCloser = RevitModel?.DoorCloser;
+        doorCloser = SkudTD.DoorCloser;
         return doorCloser;
       }
       set { doorCloser = value; }
@@ -58,7 +59,7 @@ namespace ARMOCAD
     private string lockMagnet;
     public string LockMagnet {
       get {
-        lockMagnet = RevitModel?.LockMagnet;
+        lockMagnet = SkudTD.LockMagnet;
         return lockMagnet;
       }
       set { lockMagnet = value; }
@@ -67,7 +68,7 @@ namespace ARMOCAD
     private string lockMechanical;
     public string LockMechanical {
       get {
-        lockMechanical = RevitModel?.LockMechanical;
+        lockMechanical = SkudTD.LockMechanical;
         return lockMechanical;
       }
       set { lockMechanical = value; }
@@ -76,7 +77,7 @@ namespace ARMOCAD
     private string latchMechanical;
     public string LatchMechanical {
       get {
-        latchMechanical = RevitModel?.LatchMechanical;
+        latchMechanical = SkudTD.LatchMechanical;
         return latchMechanical;
       }
       set { latchMechanical = value; }
@@ -85,7 +86,7 @@ namespace ARMOCAD
     private string exitButton;
     public string ExitButton {
       get {
-        exitButton = RevitModel?.ExitButton;
+        exitButton = SkudTD.ExitButton;
         return exitButton;
       }
       set { exitButton = value; }
@@ -94,7 +95,7 @@ namespace ARMOCAD
     private string inputControl;
     public string InputControl {
       get {
-        inputControl = RevitModel?.InputControl;
+        inputControl = SkudTD.InputControl;
         return inputControl;
       }
       set { inputControl = value; }
@@ -103,7 +104,7 @@ namespace ARMOCAD
     private string siren;
     public string Siren {
       get {
-        siren = RevitModel?.Siren;
+        siren = SkudTD.Siren;
         return siren;
       }
       set { siren = value; }
@@ -112,7 +113,7 @@ namespace ARMOCAD
     private string monitor;
     public string Monitor {
       get {
-        monitor = RevitModel?.Monitor;
+        monitor = SkudTD.Monitor;
         return monitor;
       }
       set { monitor = value; }
@@ -121,7 +122,7 @@ namespace ARMOCAD
     private string readerIn;
     public string ReaderIn {
       get {
-        readerIn = RevitModel?.ReaderIn;
+        readerIn = SkudTD.ReaderIn;
         return readerIn;
       }
       set { readerIn = value; }
@@ -130,7 +131,7 @@ namespace ARMOCAD
     private string readerOut;
     public string ReaderOut {
       get {
-        readerOut = RevitModel?.ReaderOut;
+        readerOut = SkudTD.ReaderOut;
         return readerOut;
       }
       set { readerOut = value; }
@@ -139,7 +140,7 @@ namespace ARMOCAD
     private string turnstile;
     public string Turnstile {
       get {
-        turnstile = RevitModel?.Turnstile;
+        turnstile = SkudTD.Turnstile;
         return turnstile;
       }
       set { turnstile = value; }
@@ -148,54 +149,10 @@ namespace ARMOCAD
     private string doorUnlocking;
     public string DoorUnlocking {
       get {
-        doorUnlocking = RevitModel?.DoorUnlocking;
+        doorUnlocking = SkudTD.DoorUnlocking;
         return doorUnlocking;
       }
       set { doorUnlocking = value; }
-    }
-
-    // Списки для ItemSource ComboBox с первым значением из json
-    public List<string> Fsn1 {
-      get => new List<string> { Power }.Union(FamilySymbolsNames).ToList();
-    }
-    public List<string> Fsn2 {
-      get => new List<string> { VideoPanel }.Union(FamilySymbolsNames).ToList();
-    }
-    public List<string> Fsn3 {
-      get => new List<string> { DoorCloser }.Union(FamilySymbolsNames).ToList();
-    }
-    public List<string> Fsn4 {
-      get => new List<string> { LockMagnet }.Union(FamilySymbolsNames).ToList();
-    }
-    public List<string> Fsn5 {
-      get => new List<string> { LockMechanical }.Union(FamilySymbolsNames).ToList();
-    }
-    public List<string> Fsn6 {
-      get => new List<string> { LatchMechanical }.Union(FamilySymbolsNames).ToList();
-    }
-    public List<string> Fsn7 {
-      get => new List<string> { ExitButton }.Union(FamilySymbolsNames).ToList();
-    }
-    public List<string> Fsn8 {
-      get => new List<string> { InputControl }.Union(FamilySymbolsNames).ToList();
-    }
-    public List<string> Fsn9 {
-      get => new List<string> { Siren }.Union(FamilySymbolsNames).ToList();
-    }
-    public List<string> Fsn10 {
-      get => new List<string> { Monitor }.Union(FamilySymbolsNames).ToList();
-    }
-    public List<string> Fsn11 {
-      get => new List<string> { ReaderIn }.Union(FamilySymbolsNames).ToList();
-    }
-    public List<string> Fsn12 {
-      get => new List<string> { ReaderOut }.Union(FamilySymbolsNames).ToList();
-    }
-    public List<string> Fsn13 {
-      get => new List<string> { Turnstile }.Union(FamilySymbolsNames).ToList();
-    }
-    public List<string> Fsn14 {
-      get => new List<string> { DoorUnlocking }.Union(FamilySymbolsNames).ToList();
     }
 
 
@@ -214,6 +171,7 @@ namespace ARMOCAD
     public string ReaderOutUser { get; set; }
     public string TurnstileUser { get; set; }
     public string DoorUnlockingUser { get; set; }
+
     
 
     #endregion
@@ -224,27 +182,30 @@ namespace ARMOCAD
     /// </summary>
     private void SavePlaceEquipBtnAct()
     {
-      // Десериализация класса Config, перезапись параметров, сериализация и сохранение файла
-      Configs = JsonConvert.DeserializeObject<Configs>(File.ReadAllText(Path));
 
       // Перезапись параметров
-      Configs.SkudTd.Power = PowerUser;
-      Configs.SkudTd.VideoPanel = VideoPanelUser;
-      Configs.SkudTd.DoorCloser = DoorCloserUser;
-      Configs.SkudTd.LockMagnet = LockMagnetUser;
-      Configs.SkudTd.LockMechanical = LockMechanicalUser;
-      Configs.SkudTd.LatchMechanical = LatchMechanicalUser;
-      Configs.SkudTd.ExitButton = ExitButtonUser;
-      Configs.SkudTd.InputControl = InputControlUser;
-      Configs.SkudTd.Siren = SirenUser;
-      Configs.SkudTd.Monitor = MonitorUser;
-      Configs.SkudTd.ReaderIn = ReaderInUser;
-      Configs.SkudTd.ReaderOut = ReaderOutUser;
-      Configs.SkudTd.Turnstile = TurnstileUser;
-      Configs.SkudTd.DoorUnlocking = DoorUnlockingUser;
+      if (!string.IsNullOrEmpty(PowerUser)) Configs.SkudTd.Power = PowerUser;
+      if (!string.IsNullOrEmpty(VideoPanelUser)) Configs.SkudTd.VideoPanel = VideoPanelUser;
+      if (!string.IsNullOrEmpty(DoorCloserUser)) Configs.SkudTd.DoorCloser = DoorCloserUser;
+      if (!string.IsNullOrEmpty(LockMagnetUser)) Configs.SkudTd.LockMagnet = LockMagnetUser;
+      if (!string.IsNullOrEmpty(LockMechanicalUser)) Configs.SkudTd.LockMechanical = LockMechanicalUser;
+      if (!string.IsNullOrEmpty(LatchMechanicalUser)) Configs.SkudTd.LatchMechanical = LatchMechanicalUser;
+      if (!string.IsNullOrEmpty(ExitButtonUser)) Configs.SkudTd.ExitButton = ExitButtonUser;
+      if (!string.IsNullOrEmpty(InputControlUser)) Configs.SkudTd.InputControl = InputControlUser;
+      if (!string.IsNullOrEmpty(SirenUser)) Configs.SkudTd.Siren = SirenUser;
+      if (!string.IsNullOrEmpty(MonitorUser)) Configs.SkudTd.Monitor = MonitorUser;
+      if (!string.IsNullOrEmpty(SirenUser)) Configs.SkudTd.Siren = SirenUser;
+      if (!string.IsNullOrEmpty(ReaderInUser)) Configs.SkudTd.ReaderIn = ReaderInUser;
+      if (!string.IsNullOrEmpty(ReaderOutUser)) Configs.SkudTd.ReaderOut = ReaderOutUser;
+      if (!string.IsNullOrEmpty(TurnstileUser)) Configs.SkudTd.Turnstile = TurnstileUser;
+      if (!string.IsNullOrEmpty(DoorUnlockingUser)) Configs.SkudTd.DoorUnlocking = DoorUnlockingUser;
+
+
 
       // Сериализация и сохранение настрок
       File.WriteAllText(Path, JsonConvert.SerializeObject(Configs));
+
+      MessageBox.Show("Изменения сохранены.");
 
 
     }
@@ -254,6 +215,8 @@ namespace ARMOCAD
         return new DelegateCommand(SavePlaceEquipBtnAct);
       }
     }
+
+    
 
   }
 }

@@ -3,6 +3,7 @@ namespace ARMOCAD
   class Configs
   {
     public SkudTdEquipment SkudTd = new SkudTdEquipment();
+    //public OtherConfigs oth = new OtherConfigs();
 
   }
 
@@ -24,5 +25,11 @@ namespace ARMOCAD
     public string DoorUnlocking { get; set; }
 
   }
+
+  //public struct OtherConfigs
+  //{
+  //  public string kek1 { get; set; }
+  //  public string kek2 { get; set; }
+  //}
 
 }
