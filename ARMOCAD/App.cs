@@ -63,18 +63,16 @@ namespace ARMOCAD
     //словарь для ссылок на F1
     public static Dictionary<string, ContextualHelp> helpButtonsDictionary = new Dictionary<string, ContextualHelp>
     {
-      ["cmdLinkEquipmentSS"] = new ContextualHelp(ContextualHelpType.Url, @"https://drive.google.com/file/d/1P-C7OjLGbRaU1pXQDMKCZu0Czdl_WkOq/view"),
-      ["cmdLinkEquipmentLoc"] = new ContextualHelp(ContextualHelpType.Url, @"https://drive.google.com/file/d/1CeW3zqnXjwJWzqRVn-JGDh64fAsNGlqf/view"),
+      ["cmdLinkEquipmentSS"] = new ContextualHelp(ContextualHelpType.ChmFile, @"\\arena\ARMO-GROUP\ИПУ\ЛИЧНЫЕ\САПРомания\RVT-BIMnet\СС_Размещение оборудования из связи.docx"),
+      ["cmdLinkEquipmentLoc"] = new ContextualHelp(ContextualHelpType.ChmFile, @"\\arena\ARMO-GROUP\ИПУ\ЛИЧНЫЕ\САПРомания\RVT-BIMnet\СС_Проверка в проекте оборудования.docx"),
       ["cmdDetailLinesLength"] = new ContextualHelp(ContextualHelpType.Url, Path.Combine(GetExeDirectory(), "Help/DetailLinesLength_Help.html")),
       ["cmdSimilarParamsClass"] = new ContextualHelp(ContextualHelpType.Url, Path.Combine(GetExeDirectory(), "Help/SimilarParameters_Help.html")),
       ["cmdParamtextreplaceClass"] = new ContextualHelp(ContextualHelpType.Url, Path.Combine(GetExeDirectory(), "Help/Paramtextreplace_Help.html")),
       ["cmdOpeningElevation"] = new ContextualHelp(ContextualHelpType.Url, Path.Combine(GetExeDirectory(), "Help/OpeningElevation_Help.html")),
       ["cmdCreateMepSpaces"] = new ContextualHelp(ContextualHelpType.ChmFile, @"\\arena\ARMO-GROUP\ИПУ\ЛИЧНЫЕ\САПРомания\RVT-BIMnet\СТП-Расстановка пространств по связанной модели АР.docx"),
-
       ["cmdSpreadEvenly"] = new ContextualHelp(ContextualHelpType.ChmFile, @"\\arena\ARMO-GROUP\ИПУ\ЛИЧНЫЕ\САПРомания\RVT-BIMnet\СТП-Расстановка семейств массивом SpreadEvenly.docx"),
       ["cmdConPoints"] = new ContextualHelp(ContextualHelpType.Url, @"https://drive.google.com/file/d/1Dyy2vsOLukdFzAEIVvzUv_tu3tWKD1je/view"),
       ["cmdConPointLocation"] = new ContextualHelp(ContextualHelpType.Url, @"https://drive.google.com/file/d/1J5HuVRW80eRR3kKp4TenDmcRmpm66oaE/view"),
-
       ["cmdSKUDControlPlacementEx"] = new ContextualHelp(ContextualHelpType.ChmFile, @"\\arena\ARMO-GROUP\ИПУ\ЛИЧНЫЕ\САПРомания\RVT-BIMnet\СТП-СКУД Расстановка точек доступа и оборудования.docx"),
 
 
@@ -286,8 +284,10 @@ namespace ARMOCAD
 
       elB2Data.SetContextualHelp(helpButtonsDictionary["cmdConPoints"]);
       elB2Data.LargeImage = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/tpointsIcon.png"));
-      elB2Data.ToolTip = "ЭМ_Размещение точек подключения из связи";
-
+      elB2Data.ToolTip = "Размещение точек подключения из связи";
+      elB2Data.ToolTipImage = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/Screenshot_1.png"));
+      elB2Data.LongDescription =
+        "Автоматическая расстановка электровыводов для подключения оборудования из связанных моделей с загрузкой технических параметров \n";
       // create push button
       PushButtonData elB3Data = new PushButtonData(
         "cmdConPointLocation",
@@ -297,8 +297,9 @@ namespace ARMOCAD
 
       elB3Data.SetContextualHelp(helpButtonsDictionary["cmdConPointLocation"]);
       elB3Data.LargeImage = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/checkIcon.png"));
-      elB3Data.ToolTip = "ЭМ_Проверка размещенных точек подключения";
-
+      elB3Data.ToolTip = "Проверка размещенных точек подключения";
+      elB3Data.LongDescription = "Проверка размещенных электровыводов оборудования из связанных моделей на количество и правильность размещения \n";
+      elB3Data.ToolTipImage = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/Screenshot_2.png"));
       // Создаём выпадающие кнопки
       SplitButtonData sbElData1 = new SplitButtonData("ConPoints", "ConPointLocation");
       SplitButton sbEl1 = electricRibbonPanel.AddItem(sbElData1) as SplitButton;
@@ -505,20 +506,23 @@ namespace ARMOCAD
       b26Data.SetContextualHelp(helpButtonsDictionary["cmdLinkEquipmentSS"]);
       b26Data.LargeImage = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/valveIcon.png"));
       b26Data.ToolTip = "Размещение оборудования из связной модели";
-
+      b26Data.LongDescription = "Автоматическая расстановка электровыводов для подключения оборудования из связанных моделей с загрузкой технических параметров \n";
+      b26Data.ToolTipImage = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/Screenshot_3.png"));
       // create push button
       PushButtonData b27Data = new PushButtonData("cmdLinkEquipmentLoc", "Проверка\n оборудования",thisAssemblyPath, "ARMOCAD.LinkEquipmentLoc");
 
       b27Data.SetContextualHelp(helpButtonsDictionary["cmdLinkEquipmentLoc"]);
       b27Data.LargeImage = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/checkIcon.png"));
-      b27Data.ToolTip = "Проверка оборудования размещенного из связной модели";
-
+      b27Data.ToolTip = "Проверка оборудования размещенного из связной модели \n";
+      b27Data.ToolTipImage = new BitmapImage(new Uri("pack://application:,,,/ARMOCAD;component/Resources/Screenshot_2.png"));
       // Создаём выпадающие кнопки
       SplitButtonData sbdata2 = new SplitButtonData("LinkEquipmentSS", "SS LinkEquipmentSS");
       SplitButton sb2 = ribbonPanel3.AddItem(sbdata2) as SplitButton;
       sb2.AddPushButton(b26Data);
       sb2.AddPushButton(b27Data);
-      
+      PushButton curbutt = sb2.CurrentButton;
+      ContextualHelp h = curbutt.GetContextualHelp();
+      sb2.SetContextualHelp(h);
       
 
 

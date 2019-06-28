@@ -150,7 +150,22 @@ namespace ARMOCAD
           if (countLink > countId)
           {
             var q = countLink - countId;
-            U1 = "Не размещено " + q + " элементов" + " \n";
+            var st = string.Empty;
+            switch (q)
+            {
+              case 1: 
+                st = " элемент";
+                break;
+              case 2:
+              case 3:
+              case 4:
+                st = " элементa";
+                break;
+              default:
+                st = " элементов";
+                break;
+            }
+            U1 = "Не размещено:  " + q + st + " \n";
             Not = false;
           }
           if (NSE > 0)
@@ -179,7 +194,7 @@ namespace ARMOCAD
           td.MainContent = U1 + U2 + U3 + U5 + U4;
           td.FooterText = "Количество элементов в связи: " + elems.Count().ToString();
           td.ExpandedContent =  tdelems;
-          if (NSE != 0)
+          if (NSE != 0 || Del !=0)
           {
             td.MainIcon = TaskDialogIcon.TaskDialogIconWarning;
             td.AddCommandLink(TaskDialogCommandLinkId.CommandLink1, "Отметить неправильно размещенные");
