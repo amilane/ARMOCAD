@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Text;
 using Autodesk.Revit.Attributes;
@@ -12,6 +11,26 @@ namespace ARMOCAD
   [Regeneration(RegenerationOption.Manual)]
   public class TagsFromSheetsEx : IExternalCommand
   {
+
+    private string sheetNameEn;
+    public string SheetNameEn {
+      get {
+        return sheetNameEn;
+      }
+      set {
+        if (!string.IsNullOrEmpty(value) && value.Contains("."))
+        {
+          var idx = value.IndexOf(".") + 1;
+          sheetNameEn = value.Substring(idx).Trim();
+        }
+        else
+        {
+          sheetNameEn = value;
+        }
+      }
+    }
+
+
     public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
     {
 
@@ -19,7 +38,6 @@ namespace ARMOCAD
       UIApplication uiapp = commandData.Application;
       UIDocument uidoc = uiapp?.ActiveUIDocument;
       Document doc = uidoc?.Document;
-
 
       SortedDictionary<string, List<string>[]> outDict = new SortedDictionary<string, List<string>[]>();
 
@@ -29,6 +47,7 @@ namespace ARMOCAD
         foreach (ViewSheet s in sheets)
         {
           var originalSheetNumber = s.SheetNumber;
+          SheetNameEn = s.LookupParameter("Название документа EN").AsString();
 
           var sheetNumber = string.Empty;
           var revision = string.Empty;
@@ -62,7 +81,7 @@ namespace ARMOCAD
                     {
                       if (!outDict.ContainsKey(tagFromElement))
                       {
-                        outDict.Add(tagFromElement, new [] { new List<string> { revision }, new List<string> { sheetNumber } });
+                        outDict.Add(tagFromElement, new[] { new List<string> { revision }, new List<string> { sheetNumber }, new List<string> { SheetNameEn } });
                       }
                       else
                       {
@@ -70,8 +89,10 @@ namespace ARMOCAD
                         {
                           outDict[tagFromElement][0].Add(revision);
                           outDict[tagFromElement][1].Add(sheetNumber);
+                          outDict[tagFromElement][2].Add(SheetNameEn);
+
                         }
-                        
+
                       }
                     }
 
@@ -97,9 +118,11 @@ namespace ARMOCAD
             sb.Append(d.Value[0][i]);
             sb.Append("\t");
             sb.Append(d.Value[1][i]);
+            sb.Append("\t");
+            sb.Append(d.Value[2][i]);
             sb.AppendLine();
           }
-          
+
         }
       }
 

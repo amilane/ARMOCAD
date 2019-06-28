@@ -4,6 +4,7 @@ using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 
+
 namespace ARMOCAD
 {
   class ArmocadSettingsModel
@@ -24,6 +25,7 @@ namespace ARMOCAD
       DOC = UIDOC.Document;
 
       FamilySymbolsNames = collectFamilyNames();
+
 
     }
 

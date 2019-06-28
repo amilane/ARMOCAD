@@ -31,7 +31,7 @@ namespace ARMOCAD
         return Result.Cancelled;
       }
 
-      accessPoint.Activate();
+      
 
       var levels = Util.GetElementsOfCategory(doc, BuiltInCategory.OST_Levels);
 
@@ -55,6 +55,11 @@ namespace ARMOCAD
         try {
           using (Transaction t = new Transaction(doc, "Создание ТД")) {
             t.Start();
+
+            if (!accessPoint.IsActive)
+            {
+              accessPoint.Activate();
+            }
 
             Reference refElemLinked = uidoc.Selection.PickObject(ObjectType.LinkedElement, "Выберите дверь в связанной модели АР");
             Element door = docAR.GetElement(refElemLinked.LinkedElementId);

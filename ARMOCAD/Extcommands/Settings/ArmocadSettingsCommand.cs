@@ -1,8 +1,10 @@
 using System;
+using System.IO;
 using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.Attributes;
+using Newtonsoft.Json;
 
 namespace ARMOCAD
 {
@@ -24,13 +26,23 @@ namespace ARMOCAD
       try
       {
 
+        //Проверка наличия файла ArmocadConfig.json, создание файла
+        var myDocumentDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+        var armocadSettingsPath = $"{myDocumentDirectory}\\ArmocadSettings\\ArmocadConfig.json";
 
+        if (!File.Exists(armocadSettingsPath))
+        {
+          File.WriteAllText(armocadSettingsPath, JsonConvert.SerializeObject(new Configs()));
+        }
+
+        var Configs = JsonConvert.DeserializeObject<Configs>(File.ReadAllText(armocadSettingsPath));
 
         ArmocadSettingsModel model = new ArmocadSettingsModel(uiapp);
-       
+
         ArmocadSettingsViewModel vmod = new ArmocadSettingsViewModel();
+        ArmocadSettingsViewModel.Path = armocadSettingsPath;
+        ArmocadSettingsViewModel.Configs = Configs;
         vmod.RevitModel = model;
-       
 
         ArmocadSettings view = new ArmocadSettings();
         view.DataContext = vmod;
