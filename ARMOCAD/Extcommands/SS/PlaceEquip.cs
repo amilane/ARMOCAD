@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
+using IronPython.Modules;
 using ComboBox = System.Windows.Forms.ComboBox;
 using Form = System.Windows.Forms.Form;
 
@@ -41,7 +42,7 @@ namespace ARMOCAD
       ["Имя Системы"] = "303f67e6-3fd6-469b-9356-dccb116a3277",
       ["OUT"] = "478914c0-6c06-4dd6-8c41-fa1122140e87",
       ["IN"] = "cf610632-14a9-4c8d-84ae-79053ba99593",
-      ["Питание"] = "b502ddde-99e5-4495-b855-e784100376d9"
+      ["Тип подключения"] = "d512be5c-4315-4b86-aad1-74e7648760ef"
     };
     public Result Run()
     {
@@ -179,13 +180,26 @@ namespace ARMOCAD
           } // проверка по UniqID в связи и в проекте
 
           FamilySymbol Newtype = Util.GetFamilySymbolByName(doc, typename) as FamilySymbol ?? CreateNewType(type1, typename); //проверка есть ли типоразмер в проекте если нет создаем
-          var targetElement = doc.Create.NewFamilyInstance(coords, Newtype, StructuralType.NonStructural);
+          //var targetElement = doc.Create.NewFamilyInstance(coords, Newtype, StructuralType.NonStructural);
           XYZ point2 = new XYZ(coords.X, coords.Y, coords.Z + 100);
           Line axis = Line.CreateBound(coords, point2);
-          if (origElement.Category.Id.IntegerValue != -2008055 && origElement.Category.Id.IntegerValue != -2008016)
+          FamilyInstance ins = origElement as FamilyInstance;
+          var tr = ins.GetTotalTransform();
+          var basX1 = tr.BasisX.X;
+          var basX2 = tr.BasisX.Y;
+          var basX3 = tr.BasisX.Z;
+          var basY1 = tr.BasisY.X;
+          var basY2 = tr.BasisY.Y;
+          var basY3 = tr.BasisY.Z;
+          var basZ1 = tr.BasisZ.X;
+          var basZ2 = tr.BasisZ.Y;
+          var basZ3 = tr.BasisZ.Z;
+          XYZ liner = new XYZ(basX1, basX2, 0);
+          if (basZ1 != 0 || basZ2 != 0)
           {
-            targetElement.Location.Rotate(axis, rotation);
+            liner = new XYZ(basZ1, basZ2, 0);
           }
+          var targetElement = doc.Create.NewFamilyInstance(coords,Newtype,liner,origElement,StructuralType.NonStructural);
           countTarget++;
           if (checkLinkInst != false)
           {
@@ -289,8 +303,8 @@ namespace ARMOCAD
       if (orig.get_Parameter(BuiltInParameter.RBS_ELEC_PANEL_FEED_PARAM) != null &&
           orig.get_Parameter(BuiltInParameter.RBS_ELEC_PANEL_FEED_PARAM).AsString() != "")
       {
-        target.get_Parameter(new Guid(param["Питание"]))
-          .Set(orig.get_Parameter(BuiltInParameter.RBS_ELEC_PANEL_FEED_PARAM).AsString());
+        target.get_Parameter(new Guid(param["Тип подключения"]))
+          .Set(orig.get_Parameter(new Guid(param["Тип подключения"])).AsString());
       }
 
       SetParameterToInstance(param["OUT"], orig, target);
@@ -362,13 +376,15 @@ namespace ARMOCAD
         target.get_Parameter(new Guid(param["Нормально отк/закр."])).Set(origPar);
         if (origPar == "НЗ")
         {
-          target.Symbol.LookupParameter("УГО_НЗ").Set(1); //для НЗ
+          target.LookupParameter("УГО_НЗ").Set(1);
+          target.LookupParameter("УГО_НО").Set(0);//для НЗ
           target.Symbol.LookupParameter("УГО_ТП").Set(0);
         }
 
         if (origPar == "НО")
         {
-          target.Symbol.LookupParameter("УГО_НО").Set(1); //для НО
+          target.LookupParameter("УГО_НО").Set(1); //для НО
+          target.LookupParameter("УГО_НЗ").Set(0);
           target.Symbol.LookupParameter("УГО_ТП").Set(0);
         }
       }

@@ -7,6 +7,12 @@ using Autodesk.Revit.UI.Selection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using OfficeOpenXml;
+using System.IO;
+using System.Collections;
+using System.Windows.Forms;
+using OfficeOpenXml.Style;
+using Color = System.Drawing.Color;
 
 namespace ARMOCAD
 {
@@ -21,7 +27,7 @@ namespace ARMOCAD
     {
       UIApplication uiApp = commandData.Application;
       UIDocument uidoc = uiApp.ActiveUIDocument;
-      Application app = uiApp.Application;
+      //Application app = uiApp.Application;
       Document doc = uidoc.Document;
       Schema sch = null;
       string SchemaGuid = "ea07dfeb-9c7f-4233-b516-6621abc6744e";
@@ -37,7 +43,13 @@ namespace ARMOCAD
             ["Новый"] = "bf28d2b7-3b97-4f90-8c2a-590a92a654c6",
             ["Перемещен"] = "7ad4d050-bedd-42fa-98c4-6cff9e953460",
             ["Удален"] = "f2b4ac9f-4ae4-49c3-9c84-e043de20d814",
-            ["Этаж"] = "4857fa3b-e80e-4167-9b66-f40cd5992680"
+            ["Этаж"] = "4857fa3b-e80e-4167-9b66-f40cd5992680",
+            ["Имя Системы"] = "303f67e6-3fd6-469b-9356-dccb116a3277",
+            ["OUT"] = "478914c0-6c06-4dd6-8c41-fa1122140e87",
+            ["IN"] = "cf610632-14a9-4c8d-84ae-79053ba99593",
+            ["Тип подключения"] = "d512be5c-4315-4b86-aad1-74e7648760ef",
+            ["Нормально отк/закр."] = "ce22f60b-9ae0-4c79-a624-873f39099510",
+            ["Наименование"] = "b4cfdcbd-5668-4572-bcd6-3d504043bd65"
           };
           FilteredElementCollector collector = new FilteredElementCollector(doc);
           IList<Element> links = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_RvtLinks)
@@ -99,13 +111,11 @@ namespace ARMOCAD
               LocationPoint pPoint = origElement.Location as LocationPoint;
               XYZ pointLink = pPoint.Point;
               var ElemUniq = origElement.UniqueId;
-              string LinkUniq =
-                (string)sm.getSchemaDictValue<string>(targEL, "Dict_String", (int)Keys.Linked_Element_UniqueId);
+              string LinkUniq = (string)sm.getSchemaDictValue<string>(targEL, "Dict_String", (int)Keys.Linked_Element_UniqueId);
               if (LinkUniq == null || LinkUniq == string.Empty)
               {
                 continue;
               }
-
               if (LinkUniq == ElemUniq)
               {
                 countId++;
@@ -126,6 +136,8 @@ namespace ARMOCAD
                     tdelems = tdelems + "[" + targEL.get_Parameter(new Guid(param["Этаж"])).AsString() + "]" + "\n";
                   }
                 }
+                ////
+
               }
 
             }
@@ -186,13 +198,14 @@ namespace ARMOCAD
           {
             tdelems = String.Empty;
           }
-          td.Id = "ID_TaskDialog_Demonstration_by_Spiderinnet";
           td.Title = "Информация";
           td.TitleAutoPrefix = false;
           td.AllowCancellation = true;
           td.MainInstruction = "Связь: " + LinkName;
           td.MainContent = U1 + U2 + U3 + U5 + U4;
-          td.FooterText = "Количество элементов в связи: " + elems.Count().ToString();
+          td.FooterText = "Количество элементов в связи: ";
+          
+          //td.ExtraCheckBoxText = "Переместить неправильные на свои места";
           td.ExpandedContent =  tdelems;
           if (NSE != 0 || Del !=0)
           {
@@ -215,6 +228,69 @@ namespace ARMOCAD
 
           td.CommonButtons = TaskDialogCommonButtons.Close;
           TaskDialogResult tdRes = td.Show();
+          Stream myStream;
+          SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+
+          saveFileDialog1.Filter = "Excel files (*.xlsx )|*.xlsx |All files (*.*)|*.*";
+          saveFileDialog1.FilterIndex = 2;
+          saveFileDialog1.RestoreDirectory = true;
+
+          if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+          {
+            if ((myStream = saveFileDialog1.OpenFile()) != null)
+            {
+              // Code to write the stream goes here.
+              myStream.Close();
+            }
+          }
+          using (ExcelPackage excel = new ExcelPackage())
+          {
+
+            ExcelWorksheet ws = excel.Workbook.Worksheets.Add("Параметры");
+            List<string[]> NamesParameters = new List<string[]>()
+            {
+              new string[]
+              {
+                "Наименование",
+                "Нормально отк/закр.",
+                "Комментарии",
+                "Имя системы",
+                "Имя панели",
+                "Количество сигналов(IN)",
+                "Количество сигналов(OUT)",
+                "Тип подключения",
+                "Марка",
+                "Маркировка типоразмера",
+                "Комментарии к типоразмеру"
+
+              }
+            };
+            int 
+            string oldValues = "A2:" + Char.ConvertFromUtf32(NamesParameters[0].Length + 64) + "2";
+            string newValues = "L2:" + Char.ConvertFromUtf32(NamesParameters[0].Length*2 + 64) + "2";
+            ws.Cells[oldValues].LoadFromArrays(NamesParameters);
+            ws.Cells[oldValues].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+            //ws.Cells[oldValues].Style.Fill.PatternType = ExcelFillStyle.Solid;
+            //ws.Cells[oldValues].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.FromArgb(255, 200, 206));
+            //ws.Cells[oldValues].Style.Font.Color.SetColor(System.Drawing.Color.FromArgb(156, 0, 6));
+            ws.Cells[newValues].LoadFromArrays(NamesParameters);
+            ws.Cells[newValues].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+            SetStyleCells(ws,oldValues,Color.FromArgb(255, 243, 243), Color.FromArgb(0, 0, 0));
+            SetStyleCells(ws, newValues, Color.FromArgb(243, 255, 243), Color.FromArgb(0, 0, 0));
+            ws.Cells[oldValues].Style.Font.Bold = true;
+            ws.Cells[newValues].Style.Font.Bold = true;
+            //ws.Cells[newValues].Style.Fill.PatternType = ExcelFillStyle.Solid;
+            //ws.Cells[newValues].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.FromArgb(198, 239, 206));
+            //ws.Cells[newValues].Style.Font.Color.SetColor(System.Drawing.Color.FromArgb(0, 97, 0));
+            ws.Cells.AutoFitColumns(0);
+            FileInfo excelFile = new FileInfo(saveFileDialog1.FileName);
+            excel.SaveAs(excelFile);
+            bool isExcelInstalled = Type.GetTypeFromProgID("Excel.Application") != null ? true : false;
+            if (isExcelInstalled)
+            {
+              System.Diagnostics.Process.Start(excelFile.ToString());
+            }
+          }
           if (tdRes == TaskDialogResult.CommandLink1 || tdRes == TaskDialogResult.CommandLink2||tdRes==TaskDialogResult.CommandLink3)
           {
             using (Transaction tr = new Transaction(doc, "Проверка элементов из связи"))
@@ -283,5 +359,18 @@ namespace ARMOCAD
 
       return Result.Succeeded;
     }
+
+    private void SetStyleCells(ExcelWorksheet WorkSheet,string Cell, System.Drawing.Color cellcolor, System.Drawing.Color textcolor)
+    {
+      WorkSheet.Cells[Cell].Style.Fill.PatternType = ExcelFillStyle.Solid;
+      WorkSheet.Cells[Cell].Style.Fill.BackgroundColor.SetColor(cellcolor);
+      WorkSheet.Cells[Cell].Style.Font.Color.SetColor(textcolor);
+    }
+
+    private void CheckParameters(Element orig, Element target)
+    {
+      orig.get_Parameter(BuiltInParameter.ALL_MODEL_INSTANCE_COMMENTS).AsString();
+    }
+   
   }
 }
